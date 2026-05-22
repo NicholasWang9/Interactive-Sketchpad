@@ -63,6 +63,7 @@ with doc.create(TikZ()) as pic:
                 options = TikZOptions("draw")
             )
         )
+    
     for circle in circles:
         center = circle[0]
         if (center is None):
