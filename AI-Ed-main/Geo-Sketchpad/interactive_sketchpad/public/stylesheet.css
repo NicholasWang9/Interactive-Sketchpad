@@ -1,0 +1,23 @@
+/* Increase message font size */
+/* .message-content {
+  font-size: 30px !important;
+  line-height: 2.4;
+} */
+
+/* Increase code font size */
+/* pre, code {
+  font-size: 18px !important;
+  line-height: 1.6;
+} */
+
+/* Only fix the chat layout wrappers, not every flex box */
+main,
+main > div,
+main .overflow-y-auto {
+  min-height: 0 !important;
+}
+
+/* Ensure only the message container scrolls */
+.overflow-y-auto {
+  min-height: 0 !important;
+}

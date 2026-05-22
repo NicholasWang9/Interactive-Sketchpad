@@ -1,0 +1,32 @@
+\documentclass{article}%
+\usepackage[T1]{fontenc}%
+\usepackage[utf8]{inputenc}%
+\usepackage{lmodern}%
+\usepackage{textcomp}%
+\usepackage{lastpage}%
+\usepackage{tikz}%
+%
+%
+%
+\begin{document}%
+\normalsize%
+\begin{tikzpicture}%
+\node[above left] (A) at (0.0,0.0) {A};%
+\path[draw,fill=black,radius=0.02] (0.0,0.0) circle;%
+\node[above left] (B) at (0.0,2.0) {B};%
+\path[draw,fill=black,radius=0.02] (0.0,2.0) circle;%
+\node[above left] (C) at (2.0,0.0) {C};%
+\path[draw,fill=black,radius=0.02] (2.0,0.0) circle;%
+\node[above left] (D) at (-2.0,0.0) {D};%
+\path[draw,fill=black,radius=0.02] (-2.0,0.0) circle;%
+\node[above left] (E) at (3.0,-4.0) {E};%
+\path[draw,fill=black,radius=0.02] (3.0,-4.0) circle;%
+\path[draw] (0.0,0.0) -- (0.0,2.0);%
+\path[draw] (0.0,0.0) -- (2.0,0.0);%
+\path[draw] (0.0,2.0) -- (2.0,0.0);%
+\path[draw] (0.0,0.0) -- (-2.0,0.0);%
+\path[draw] (3.0,-4.0) -- (0.0,2.0);%
+\path[draw,radius=2] (0.0,0.0) circle;%
+\path[draw,radius=5] (0.0,0.0) circle;%
+\end{tikzpicture}%
+\end{document}

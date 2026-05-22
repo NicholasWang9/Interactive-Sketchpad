@@ -1,0 +1,24 @@
+/* Increase message font size */
+/* .message-content {
+  font-size: 30px !important;
+  line-height: 2.4;
+} */
+
+/* Increase code font size */
+/* pre, code {
+  font-size: 18px !important;
+  line-height: 1.6;
+} */
+
+/* Chainlit has two nested overflow-y-auto containers.
+   Disable the outer one (bigger scrollHeight) so only one scrollbar remains. */
+
+/* Outer: flex flex-col flex-grow overflow-y-auto */
+div.flex.flex-col.flex-grow.overflow-y-auto {
+  overflow-y: auto !important;
+}
+
+/* Inner: relative flex flex-col flex-grow overflow-y-auto */
+div.relative.flex.flex-col.flex-grow.overflow-y-auto {
+  overflow-y: hidden !important;
+}
