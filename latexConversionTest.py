@@ -33,8 +33,15 @@ drawingInfo = {
         "O" : point([0, 0], "below"),
         "P" : point([0, 1], None)
     },
-    "edges" : [["A", "B"], ["O", "C"], ["O", "D"]],
-    "circles" : [["O", math.sqrt(2)], ["P", 1]]
+    "edges" : [
+        ["A", "B"],
+        ["O", "C"],
+        ["O", "D"]
+    ],
+    "circles" : [
+        ["O", math.sqrt(2)],
+        ["P", 1]
+    ]
 }
 
 doc = Document()
@@ -61,12 +68,12 @@ with doc.create(TikZ()) as pic:
                 options = TikZOptions(point.label_position)
             )
             pic.append(node)
-        pic.append(
-            TikZDraw(
-                [coordinate, "circle"],
-                options = TikZOptions(fill = "black", radius = 0.02)
+            pic.append(
+                TikZDraw(
+                    [coordinate, "circle"],
+                    options = TikZOptions(fill = "black", radius = 0.02)
+                )
             )
-        )
 
     for edge in edges:
         point1 = vertexCoordinates.get(edge[0])
