@@ -10,17 +10,31 @@ from pylatex import (
 )
 import os
 import numpy as np
+import math
+from typing import List
+
+class point:
+
+    #Coordinates of the point's location
+    coordinates: List[int]
+    #Planned location of the label
+    label_position: str
+
+    def __init__(self, coordinates, label_position):
+        self.coordinates = coordinates
+        self.label_position = label_position
 
 drawingInfo = {
     "vertices" : {
-        "A" : [0, 0],
-        "B" : [0, 2],
-        "C" : [2, 0],
-        "D" : [-2, 0],
-        "E" : [3, -4]
+        "A" : point([-1, 1], "above left"),
+        "B" : point([1, 1], "above right"),
+        "C" : point([-math.sqrt(2), 0], "above left"),
+        "D" : point([math.sqrt(2), 0], "above right"),
+        "O" : point([0, 0], "below"),
+        "P" : point([0, 1], None)
     },
-    "edges" : [["A", "B"], ["A", "C"], ["B", "C"], ["A", "D"], ["E", "B"], ["F", "A"]],
-    "circles" : [["A", 2], ["A", 5]]
+    "edges" : [["A", "B"], ["O", "C"], ["O", "D"]],
+    "circles" : [["O", math.sqrt(2)], ["P", 1]]
 }
 
 doc = Document()
@@ -34,18 +48,22 @@ with doc.create(TikZ()) as pic:
     vertexCoordinates = dict()
 
     for vertexName in vertices.keys():
-        vertex = vertices.get(vertexName)
-        vertexCoordinates.update({vertexName : TikZCoordinate(vertex[0], vertex[1])})
-        node = TikZNode(
-            handle = vertexName,
-            at = TikZCoordinate(vertex[0], vertex[1]),
-            text = vertexName,
-            options = TikZOptions("above left")
-        )
-        pic.append(node)
+        point = vertices.get(vertexName)
+        vertex = point.coordinates
+        coordinate = TikZCoordinate(vertex[0], vertex[1])
+        vertexCoordinates.update({vertexName : coordinate})
+        #If the label_position is None then the point should not be labeled and the node is unnecessary
+        if (point.label_position is not None):
+            node = TikZNode(
+                handle = vertexName,
+                at = coordinate,
+                text = vertexName,
+                options = TikZOptions(point.label_position)
+            )
+            pic.append(node)
         pic.append(
             TikZDraw(
-                [vertexCoordinates.get(vertexName), "circle"],
+                [coordinate, "circle"],
                 options = TikZOptions(fill = "black", radius = 0.02)
             )
         )
