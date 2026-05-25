@@ -20,7 +20,7 @@ class point:
     #Planned location of the label
     label_position: str
 
-    def __init__(self, coordinates, label_position):
+    def __init__(self, coordinates, label_position = None):
         self.coordinates = coordinates
         self.label_position = label_position
 
@@ -41,6 +41,9 @@ drawingInfo = {
     "circles" : [
         ["O", math.sqrt(2)],
         ["P", 1]
+    ],
+    "arcs" : [
+        []
     ]
 }
 
