@@ -24,6 +24,43 @@ class point:
         self.coordinates = coordinates
         self.label_position = label_position
 
+class arc:
+
+    #Label of the point at the arc's center
+    center: str
+    #Label of a point on the counterclockwise edge of the corresponding sector
+    counterclockwise_point: str
+    #Label of a point on the clockwise edge of the corresponding sector
+    clockwise_point: str
+    #Radius of the arc
+    radius: float
+
+    def __init__(self, ccw_point: str, center: str, cw_point: str, radius: float):
+        self.counterclockwise_point = ccw_point
+        self.center = center
+        self.clockwise_point = cw_point
+        self.radius = radius
+
+    #Return [start angle, end angle] of the arc given a dictionary of points
+    def calculate_angles(self, vertices: dict):
+        center = vertices.get(self.center)
+        start_point = vertices.get(self.counterclockwise_point)
+        end_point = vertices.get(self.clockwise_point)
+        if (center is None or start_point is None or end_point is None):
+            return [0, 0]
+        center = center.coordinates
+        start_point = start_point.coordinates
+        end_point = end_point.coordinates
+        x_difference = np.array([start_point[0] - center[0], end_point[0] - center[0]])
+        y_difference = np.array([start_point[1] - center[1], end_point[1] - center[1]])
+        radians = np.arctan(y_difference / x_difference)
+        degrees = (radians * 180 / np.pi).tolist()
+        for i in range(2):
+            if (x_difference[i] < 0):
+                degrees[i] = degrees[i] + 180
+        return degrees
+
+
 drawingInfo = {
     "vertices" : {
         "A" : point([-1, 1], "above left"),
@@ -39,11 +76,10 @@ drawingInfo = {
         ["O", "D"]
     ],
     "circles" : [
-        ["O", math.sqrt(2)],
-        ["P", 1]
+        ["O", math.sqrt(2)]
     ],
     "arcs" : [
-        []
+        arc("A", "P", "B", 1)
     ]
 }
 
@@ -52,6 +88,7 @@ doc = Document()
 vertices = drawingInfo.get("vertices")
 edges = drawingInfo.get("edges")
 circles = drawingInfo.get("circles")
+arcs = drawingInfo.get("arcs")
 
 with doc.create(TikZ()) as pic:
     
@@ -86,9 +123,8 @@ with doc.create(TikZ()) as pic:
         if (point2 is None):
             continue
         pic.append(
-            TikZPath(
-                [point1, "--", point2],
-                options = TikZOptions("draw")
+            TikZDraw(
+                [point1, "--", point2]
             )
         )
     
@@ -106,6 +142,22 @@ with doc.create(TikZ()) as pic:
             TikZDraw(
                 [centerCoordinates, "circle"],
                 options = TikZOptions(radius = radius)
+            )
+        )
+    
+    for arc in arcs:
+        angles = arc.calculate_angles(vertices)
+        start_point = vertexCoordinates.get(arc.counterclockwise_point)
+        if (start_point is None):
+            continue
+        pic.append(
+            TikZDraw(
+                [start_point, "arc"],
+                options = TikZOptions(
+                    f"start angle  = {angles[0]}",
+                    f"end angle = {angles[1]}",
+                    radius = arc.radius
+                )
             )
         )
 
