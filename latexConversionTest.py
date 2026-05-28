@@ -47,7 +47,7 @@ class arc:
         start_point = vertices.get(self.counterclockwise_point)
         end_point = vertices.get(self.clockwise_point)
         if (center is None or start_point is None or end_point is None):
-            return [0, 0]
+            return None
         center = center.coordinates
         start_point = start_point.coordinates
         end_point = end_point.coordinates
@@ -147,6 +147,8 @@ with doc.create(TikZ()) as pic:
     
     for arc in arcs:
         angles = arc.calculate_angles(vertices)
+        if (angles is None):
+            continue
         start_point = vertexCoordinates.get(arc.counterclockwise_point)
         if (start_point is None):
             continue
