@@ -9,16 +9,17 @@ Try out geoparser examples here.  Run with:
 from geoparser import geometry_to_latex
 
 example = """
-P is at (0,0)
-A is at (-5,0)
-B is at (-13,0)
-C is at (-3.7400277132,-3.7400277132)
-D is at (-8.6897751815,-8.6897751815)
-O is at (-9.0000000000,-3.4298028947)
+O is at (0,0)
+A is at (0,3)
+B is at (3*cos(pi/3),3*sin(pi/3))
+C is at (3*cos(-pi/6),3*sin(-pi/6))
+D is at (3*cos(11*pi/9),3*sin(11*pi/9))
 
-line segments PB PD
+line segments OA OB OC OD
 
-circle C1 center O radius 5.2691126289
+angles AOB=30 BOC=90 COD=110 DOA=130
+
+circle Circle1 center O radius 3
 """
 
 if __name__ == "__main__":
