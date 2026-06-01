@@ -21,6 +21,8 @@ from io import BytesIO
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
+import sys
+
 import chainlit as cl
 import httpx
 from chainlit.config import config
@@ -1311,7 +1313,7 @@ async def start_chat():
 
     # Start drawing app
     global canvas_process
-    canvas_process = subprocess.Popen(["python", "interactive_canvas.py", cl.user_session.get("id")])
+    canvas_process = subprocess.Popen([sys.executable, "interactive_canvas.py", cl.user_session.get("id")])
 
 
 @cl.on_chat_end
