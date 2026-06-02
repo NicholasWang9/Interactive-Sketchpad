@@ -1,0 +1,121 @@
+[project]
+# Whether to enable telemetry (default: true). No personal data is collected.
+enable_telemetry = false
+
+# List of environment variables to be provided by each user to use the app.
+user_env = []
+
+# Duration (in seconds) during which the session is saved when the connection is lost
+session_timeout = 3600
+
+# Duration (in seconds) of the user session expiry
+user_session_timeout = 1296000 # 15 days
+
+# Enable third parties caching (e.g., LangChain cache)
+cache = false
+
+# Whether to persist user environment variables (API keys) to the database
+persist_user_env = false
+
+# Whether to mask user environment variables (API keys) in the UI
+mask_user_env = false
+
+# Authorized origins
+allow_origins = ["*"]
+
+[features]
+# Process and display HTML in messages.
+unsafe_allow_html = false
+
+# KEEP from old config
+latex = true
+
+# Enable rendering of user messages markdown
+user_message_markdown = true
+
+# Autoscroll new user messages at the top of the window
+user_message_autoscroll = true
+
+# Autoscroll new assistant messages
+assistant_message_autoscroll = true
+
+# Automatically tag threads with the current chat profile
+auto_tag_thread = true
+
+# Allow users to edit their own messages
+edit_message = true
+
+# Allow users to share threads
+allow_thread_sharing = false
+
+# Enable favorite messages
+favorites = false
+
+[features.slack]
+reaction_on_message_received = false
+
+[features.spontaneous_file_upload]
+enabled = true
+accept = ["*/*"]
+max_files = 20
+max_size_mb = 500
+
+[features.audio]
+enabled = false
+sample_rate = 24000
+
+[features.mcp]
+enabled = false
+
+[features.mcp.sse]
+enabled = true
+
+[features.mcp.streamable-http]
+enabled = true
+
+[features.mcp.stdio]
+enabled = true
+allowed_executables = ["npx", "uvx"]
+
+[UI]
+# Name of the assistant.
+name = "Assistant"
+
+# default_theme = "dark"
+
+# layout = "wide"
+
+# default_sidebar_state = "open"
+
+# Chat settings display location
+# chat_settings_location = "message_composer"
+
+# default_chat_settings_open = false
+
+# New in 2.11.1
+confirm_new_chat = true
+
+# KEEP from old config
+cot = "full"
+
+# Re-enable if desired
+custom_css = "/stylesheet.css"
+
+# Optional
+# custom_js = "/public/test.js"
+
+# Style of alert boxes
+alert_style = "classic"
+
+# Custom frontend build
+# custom_build = "./public/build"
+
+# Optional header links
+# [[UI.header_links]]
+# name = "Issues"
+# display_name = "Report Issue"
+# icon_url = "https://avatars.githubusercontent.com/u/128686189?s=200&v=4"
+# url = "https://github.com/Chainlit/chainlit/issues"
+
+[meta]
+generated_by = "2.11.1"
