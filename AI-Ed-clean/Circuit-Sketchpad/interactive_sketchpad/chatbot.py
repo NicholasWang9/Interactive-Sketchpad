@@ -38,7 +38,7 @@ from openai import AsyncOpenAI, OpenAI
 # from circuit_components_2 import generate
 from circuit_components_3 import generate
 # from render_latex import generate as generate_latex_bytes  # if you have a separate renderer
-from circuit_components_3 import generate as generate_geometry
+from geometry_components import generate as generate_geometry
 
 import re
 
