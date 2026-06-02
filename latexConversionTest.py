@@ -6,7 +6,8 @@ from pylatex import (
     TikZNode,
     TikZPath,
     TikZOptions,
-    TikZUserPath
+    TikZUserPath,
+    Command
 )
 import os
 import numpy as np
@@ -84,6 +85,8 @@ drawingInfo = {
 }
 
 doc = Document()
+
+doc.preamble.append(Command('pagestyle', 'empty'))
 
 vertices = drawingInfo.get("vertices")
 edges = drawingInfo.get("edges")
