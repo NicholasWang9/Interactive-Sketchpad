@@ -15,21 +15,24 @@ Your task:
 7. List all circles/arcs if present, including their centers and radii when possible.
 8. Add label positions only when useful to avoid overlap.
 
-Output format exactly:
+Output format example:
 
 example = \"\"\"
-[Point] is at ([x-coordinate],[y-coordinate])
-[Point] is at ([x-coordinate],[y-coordinate])
+O is at (0,0)
+A is at (-1,1)
+B is at (1,1)
+C is at (sqrt(2),0)
+D is at (-sqrt(2),0)
+P is at (0,1)
 ...
 
-line segments [AB] [BC] [CD] ...
+line segments AB BC CD DA AO BO ...
 
-angles [ABC]=[degree] [DEF]=[degree] ...
+angles AOB=90 BOC=45 AOD=45 ...
 
-circle [CircleName] center [Point] radius [radius]
-circle [CircleName] center [Point] radius [radius]
+circle O center O radius sqrt(2)
 
-arcs [ABC] [DEF] [GHI[above]] [JKL[right]] ...
+arcs APB[above]
 \"\"\"
 
 Rules:
@@ -38,6 +41,7 @@ Rules:
   - `sqrt(3)`, not `sqrt3`
   - `2*sqrt(3)`, not `2sqrt3`
   - `pi`, `sin(pi/3)`, `cos(pi/3)` if needed
+  - `2*sin(2*pi/3)`, not `2sin(2pi/3)`
 - Use exact coordinates when possible.
 - Approximate coordinates are okay only if exact coordinates are hard or unnecessary.
 - Do not include angles or arcs unless they are actually marked or drawn in the diagram.
@@ -70,6 +74,17 @@ Arc rules:
   - `ABC[below]` means arc from A to C centered at B, drawn below the diameter AC.
 - If the arc is clearly the minor arc and not ambiguous, no bracket tag is needed.
 - Only include arcs that are actually drawn in the diagram.
+
+Shading rules:
+- If a shaded region appears, add a `shade ...` line.
+- Use path tokens to describe the boundary of the shaded region in order.
+- A two-letter token like `AB` means straight segment from A to B.
+- A three-letter token like `ABC` means arc from A to C centered at B.
+- The shade path must go around the region in connected order.
+- Example:
+  - `shade DAB BCD`
+  means shade the region bounded by arc D→B centered at A and arc B→D centered at C.
+- If no shading is present, do not include a shade line.
 
 Other rules:
 - Preserve the visual and geometric structure, not exact pixel positions.
