@@ -23,8 +23,8 @@ from typing import Dict, List, Tuple
 
 
 ARC_RE = re.compile(
-    r'arcs?\s*:?\s*([A-Z\[\]a-z,\s]+)',
-    re.IGNORECASE
+    r'^\s*arcs?\s*:?\s*([^\n\r]+)',
+    re.IGNORECASE | re.MULTILINE
 )
 
 ARC_TOKEN_RE = re.compile(
