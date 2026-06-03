@@ -17,6 +17,7 @@ dependencies = [
     "python-dotenv>=1.0.1",
     "scikit-image>=0.25.0",
     "tenacity>=9.0.0",
+    "pylatex>=1.4.0",
 ]
 
 [build-system]
