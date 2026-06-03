@@ -71,7 +71,7 @@ def evaluate_expression(expression: str) -> float:
     """
     Evaluates string expressions into proper numbers using the TEXT_TO_PYTHON dictionary
     """
-    return float(eval(expression, locals = TEXT_TO_PYTHON))
+    return float(eval(expression, {"__builtins__": {}}, TEXT_TO_PYTHON))
 
 def parse_topology_to_dict(topology: str) -> dict:
 
@@ -81,7 +81,7 @@ def parse_topology_to_dict(topology: str) -> dict:
     vertices = {}
 
     #Regex looking for a substring of the format "Vertex [Label]:([x coordinate],[y coordinate])" with optional whitespace
-    vertices_regex = re.compile(r"Vertex \s* ([A-Z]) \s* \: \s* \( ([^,]+) \s* , \s* (.+) \s* \)", re.IGNORECASE)
+    vertices_regex = re.compile(r"Vertex\s*([A-Z])\s*\:\s*\(([^,]+)\s*,\s*(.+)\s*\)", re.IGNORECASE)
 
     for match in vertices_regex.finditer(topology):
         print(f"Found match: {match.group()} at position {match.start()} to {match.end()}")
