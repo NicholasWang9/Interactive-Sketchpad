@@ -8,17 +8,26 @@ Try out geoparser examples here.  Run with:
 
 from geoparser import geometry_to_latex
 
+# example = """
+# A is at (0,0)
+# B is at (6,0)
+# C is at (6,6)
+# D is at (0,6)
+
+# line segments AB BC CD DA
+
+# arcs DAB DCB
+# """
+
 example = """
 A is at (0,0)
 B is at (6,0)
-C is at (3,3)
-D is at (6,3)
-E is at (7.5,1.5)
-F is at (7.5,0)
+C is at (6,6)
+D is at (0,6)
 
-line segments AB AC CB CD DB DE EB EF FB
+line segments AB BC CD DA AC
 
-angles BAC=45 ACB=90 BCD=45 CDB=90 DBE=45 DEB=90 BEF=45 EFB=90
+arcs ABC DCB
 """
 
 if __name__ == "__main__":
