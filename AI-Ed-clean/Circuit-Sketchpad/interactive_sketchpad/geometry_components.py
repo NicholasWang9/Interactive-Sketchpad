@@ -46,6 +46,11 @@ def pdf_to_png(pdf_path: str, png_path: str, dpi: int = 300) -> None:
             "Could not convert PDF to PNG. Install poppler (pdftocairo) or ImageMagick (magick).\n"
             f"Last error: {e}"
         )
+    
+def parse_topology_to_dict(topology: str) -> dict:
+    #Regex looking for a substring of the format "Vertex [Label]:([x coordinate],[y coordinate])" with optional whitespace
+    vertices_regex = re.compile(r"Vertex \s+ [A-Z] \s* : \s* \( [^,]+ \s* , \s* .+ \s* \) ", re.IGNORECASE)
+    
 
 def generate(topology: str, *, dpi: int = 300, pretty: bool = True) -> bytes:
     pdf_to_png("tikzdraw.pdf", "tikzdraw.png", dpi = dpi)

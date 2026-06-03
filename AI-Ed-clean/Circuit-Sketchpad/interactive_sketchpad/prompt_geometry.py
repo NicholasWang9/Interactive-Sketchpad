@@ -89,10 +89,10 @@ You must call `generate_geometry` with an argument named `topology`.
 
 The `topology` should follow this format:
 
-A is at (0,0)
-B is at (2,0)
-C is at (2, 2 * sqrt(3))
-O is at (1, sqrt(3))
+Vertex A:(0,0)
+Vertex B:(2,0)
+Vertex C:(2,2*sqrt(3))
+Vertex O:(1,sqrt(3))
 
 line segments AB BC CA
 
@@ -107,6 +107,7 @@ Rules for `topology`:
 - Do not use unresolved variables like x, y, r, s, a, h, or theta.
 - Use Python-style math expressions when useful, such as sqrt(3), 2*sqrt(3), pi, sin(pi/3), cos(4*pi/3).
 - Include all important labeled points.
+- Any labeled point should be labeled with a single capital letter
 - Include visible line segments.
 - Include only angles that are explicitly marked, labeled, or important for the setup.
 - Include circles and arcs when present.
