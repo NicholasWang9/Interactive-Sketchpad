@@ -23,8 +23,8 @@ from typing import Dict, List, Tuple
 
 
 ARC_RE = re.compile(
-    r'arcs?\s*:?\s*([A-Z\[\]a-z,\s]+)',
-    re.IGNORECASE
+    r'^\s*arcs?\s*:?\s*([^\n\r]+)',
+    re.IGNORECASE | re.MULTILINE
 )
 
 ARC_TOKEN_RE = re.compile(
@@ -197,6 +197,58 @@ def choose_arc_delta(
 # TikZ rendering
 # -------------------------
 
+def arc_parameters(
+    vertices: Dict[str, Tuple[float, float]],
+    p1: str,
+    center: str,
+    p2: str,
+    mode: str = "minor",
+) -> Tuple[float, float, float]:
+    """
+    Return the start angle, delta angle, and radius for an arc.
+
+    The arc goes from p1 to p2 centered at center.
+    """
+    radius = distance_between(vertices, center, p1)
+
+    start_angle = angle_of_point_around_center(vertices, p1, center)
+    end_angle = angle_of_point_around_center(vertices, p2, center)
+
+    delta = choose_arc_delta(start_angle, end_angle, mode)
+
+    return start_angle, delta, radius
+
+
+def arc_path_fragment(
+    vertices: Dict[str, Tuple[float, float]],
+    p1: str,
+    center: str,
+    p2: str,
+    mode: str = "minor",
+) -> str:
+    """
+    Return only the TikZ arc fragment.
+
+    Useful for future shaded paths, where the arc needs to be part of
+    a larger fill path instead of a standalone draw command.
+    """
+    from geoparser.renderer import tikz_num  # local import to avoid circular deps
+
+    start_angle, delta, radius = arc_parameters(
+        vertices,
+        p1,
+        center,
+        p2,
+        mode,
+    )
+
+    return (
+        rf"arc[start angle={tikz_num(start_angle)}, "
+        rf"delta angle={tikz_num(delta)}, "
+        rf"radius={tikz_num(radius)}]"
+    )
+
+
 def arc_code(
     vertices: Dict[str, Tuple[float, float]],
     p1: str,
@@ -205,30 +257,16 @@ def arc_code(
     mode: str = "minor",
 ) -> str:
     """
-    Return the TikZ draw command for an arc.
+    Return a complete TikZ draw command for an arc.
 
-    Uses the readable TikZ syntax:
+    Uses:
 
-        arc[start angle=..., delta angle=..., radius=...]
+        \\draw (P1) arc[start angle=..., delta angle=..., radius=...];
 
-    instead of the shorter:
+    instead of:
 
-        arc (start:end:radius)
+        \\draw (center) ++(...:r) arc[...];
 
-    because delta angle makes direction easier to debug.
+    This is cleaner and easier to reuse for shaded regions.
     """
-    from geoparser.renderer import tikz_num  # local import to avoid circular deps
-
-    radius = distance_between(vertices, center, p1)
-
-    start_angle = angle_of_point_around_center(vertices, p1, center)
-    end_angle = angle_of_point_around_center(vertices, p2, center)
-
-    delta = choose_arc_delta(start_angle, end_angle, mode)
-
-    return (
-        rf"\draw ({center}) ++({tikz_num(start_angle)}:{tikz_num(radius)}) "
-        rf"arc[start angle={tikz_num(start_angle)}, "
-        rf"delta angle={tikz_num(delta)}, "
-        rf"radius={tikz_num(radius)}];"
-    )
+    return rf"\draw ({p1}) {arc_path_fragment(vertices, p1, center, p2, mode)};"

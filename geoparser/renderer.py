@@ -4,6 +4,7 @@ from typing import Any, Dict, List, Tuple
 from geoparser.vertices import auto_label_position
 from geoparser.angles import right_angle_marker_code, choose_angle_order
 from geoparser.arcs import arc_code
+from geoparser.shade import shaded_region_code
 
 # ============================================================
 # TikZ / LaTeX rendering
@@ -43,6 +44,7 @@ def generate_tikz(
     label_positions: Dict[str, str],
     circles:         List[Dict[str, Any]],
     arcs:            List[Tuple[str, str, str, str]],
+    shaded:          List[Dict[str, Any]],
 ) -> str:
     """
     Convert structured geometry data into a TikZ picture string.
@@ -53,6 +55,12 @@ def generate_tikz(
     # -- coordinate declarations --
     for name, (x, y) in vertices.items():
         lines.append(rf"\coordinate ({name}) at ({tikz_num(x)},{tikz_num(y)});")
+
+    # -- shaded regions --
+    for region in shaded:
+        code = shaded_region_code(vertices, region)
+        if code:
+            lines.append(code)
 
     # -- circles --
     for circle in circles:
@@ -68,15 +76,6 @@ def generate_tikz(
         else:
             lines.append(rf"\draw ({center}) circle ({r});")
 
-    # -- points + labels --
-    for name in vertices:
-        lines.append(rf"\fill ({name}) circle (2pt);")
-        pos = label_positions.get(
-            name,
-            auto_label_position(name, vertices, segments)
-        )
-        lines.append(rf"\node[{pos}] at ({name}) {{$ {name} $}};")
-
     # -- segments --
     for a, b in segments:
         if a in vertices and b in vertices:
@@ -86,6 +85,15 @@ def generate_tikz(
     for p1, center, p2, mode in arcs:
         if all(pt in vertices for pt in (p1, center, p2)):
             lines.append(arc_code(vertices, p1, center, p2, mode))
+    
+    # -- points + labels --
+    for name in vertices:
+        lines.append(rf"\fill ({name}) circle (2pt);")
+        pos = label_positions.get(
+            name,
+            auto_label_position(name, vertices, segments)
+        )
+        lines.append(rf"\node[{pos}] at ({name}) {{$ {name} $}};")
 
     # -- angle markers --
     for p1, v, p2, deg in angles:

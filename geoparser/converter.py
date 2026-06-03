@@ -30,6 +30,15 @@ def geometry_to_latex(text: str) -> str:
         ''')
         print(tex)
     """
-    vertices, segments, angles, label_positions, circles, arcs = parse_geometry(text)
-    tikz = generate_tikz(vertices, segments, angles, label_positions, circles, arcs)
+    vertices, segments, angles, label_positions, circles, arcs, shaded = parse_geometry(text)
+
+    tikz = generate_tikz(
+        vertices,
+        segments,
+        angles,
+        label_positions,
+        circles,
+        arcs,
+        shaded,
+    )
     return make_tex_document(tikz)

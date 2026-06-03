@@ -76,15 +76,22 @@ Arc rules:
 - Only include arcs that are actually drawn in the diagram.
 
 Shading rules:
-- If a shaded region appears, add a `shade ...` line.
-- Use path tokens to describe the boundary of the shaded region in order.
-- A two-letter token like `AB` means straight segment from A to B.
-- A three-letter token like `ABC` means arc from A to C centered at B.
-- The shade path must go around the region in connected order.
+- If a shaded region appears, include a `shade ...` line.
+- A shade path is written as connected boundary tokens in order.
+- A two-letter token like `AB` means the straight segment from A to B.
+- A three-letter token like `ABC` means the arc from A to C centered at B.
+- If an arc is ambiguous, use tags like `[above]`, `[below]`, `[left]`, `[right]`, `[cw]`, or `[ccw]`.
+- The shade path should trace the region boundary in connected order.
 - Example:
-  - `shade DAB BCD`
-  means shade the region bounded by arc D→B centered at A and arc B→D centered at C.
-- If no shading is present, do not include a shade line.
+  - `shade DAB BCD fill gray!50`
+    means shade the region bounded by arc D→B centered at A, then arc B→D centered at C.
+- If no shaded region is present, do not include a shade line.
+- If a shaded boundary passes through an unlabeled intersection point, create a helper point such as P, Q, R, or I and assign coordinates to it.
+- These helper points may be used in line segments, arcs, and shade paths even if they are not labeled in the original diagram.
+- A shade path may mix straight segments and arcs.
+- A two-letter token like AB means the segment from A to B.
+- A three-letter token like ABC means the arc from A to C centered at B.
+- The shade path should trace the boundary in connected order.
 
 Other rules:
 - Preserve the visual and geometric structure, not exact pixel positions.
