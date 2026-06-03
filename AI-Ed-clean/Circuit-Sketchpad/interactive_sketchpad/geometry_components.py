@@ -75,8 +75,6 @@ def evaluate_expression(expression: str) -> float:
 
 def parse_topology_to_dict(topology: str) -> dict:
 
-    print(f"parsing ({topology})")
-
     #Dictionary containing all vertices of the graph
     vertices = {}
 
@@ -84,14 +82,43 @@ def parse_topology_to_dict(topology: str) -> dict:
     vertices_regex = re.compile(r"Vertex\s*([A-Z])\s*\:\s*\(([^,]+)\s*,\s*(.+)\s*\)", re.IGNORECASE)
 
     for match in vertices_regex.finditer(topology):
-        print(f"Found match: {match.group()} at position {match.start()} to {match.end()}")
         name = match.group(1).upper()
         x = evaluate_expression(match.group(2).strip())
         y = evaluate_expression(match.group(3).strip())
         vertices.update({name : point((x, y), "above right")})
 
+    #List containing all edges of the graph
+    edges = []
+
+    #Regex looking for a substring of the format "Segment [Endpoint 1]-[Endpoint 2] with optional whitespace
+    edges_regex = re.compile(r"Segment\s*([A-Z])\s*\-\s*([A-Z])", re.IGNORECASE)
+
+    for match in edges_regex.finditer(topology):
+        endpoint1 = match.group(1)
+        endpoint2 = match.group(2)
+        edges.append([endpoint1, endpoint2])
+
     drawingInfo = {
-        "vertices" : vertices
+        "vertices" : vertices,
+        "edges" : edges,
+    }
+
+    #List containing all edges of the graph
+    circles = []
+
+    #Regex looking for a substring of the format "Circle [Label] Center [Center Point] Radius [Radius] with optional whitespace
+    circles_regex = re.compile(r"Circle\s*([A-Z])\s*Center\s*([A-Z])\s*Radius(.+)", re.IGNORECASE)
+
+    for match in circles_regex.finditer(topology):
+        label = match.group(1)
+        center = match.group(2)
+        radius = evaluate_expression(match.group(3).strip())
+        circles.append([center, radius])
+
+    drawingInfo = {
+        "vertices" : vertices,
+        "edges" : edges,
+        "circles" : circles,
     }
 
     return drawingInfo
@@ -109,7 +136,6 @@ from pylatex import (
 )
 
 def generate(topology: str, *, dpi: int = 300, pretty: bool = True) -> bytes:
-    print("calling generate")
 
     doc = Document()
 
@@ -146,6 +172,36 @@ def generate(topology: str, *, dpi: int = 300, pretty: bool = True) -> bytes:
                         options = TikZOptions(fill = "black", radius = 0.02)
                     )
                 )
+
+        for edge in edges:
+            point1 = vertexCoordinates.get(edge[0])
+            if (point1 is None):
+                continue
+            point2 = vertexCoordinates.get(edge[1])
+            if (point2 is None):
+                continue
+            pic.append(
+                TikZDraw(
+                    [point1, "--", point2]
+                )
+            )
+        
+        for circle in circles:
+            center = circle[0]
+            if (center is None):
+                continue
+            centerCoordinates = vertexCoordinates.get(center)
+            if (centerCoordinates is None):
+                continue
+            radius = circle[1]
+            if (radius is None):
+                continue
+            pic.append(
+                TikZDraw(
+                    [centerCoordinates, "circle"],
+                    options = TikZOptions(radius = radius)
+                )
+            )
     
     doc.generate_pdf("tikzdraw", clean_tex = False)
 
