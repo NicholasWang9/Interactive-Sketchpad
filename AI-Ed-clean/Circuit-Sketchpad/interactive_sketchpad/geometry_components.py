@@ -98,11 +98,6 @@ def parse_topology_to_dict(topology: str) -> dict:
         endpoint2 = match.group(2)
         edges.append([endpoint1, endpoint2])
 
-    drawingInfo = {
-        "vertices" : vertices,
-        "edges" : edges,
-    }
-
     #List containing all edges of the graph
     circles = []
 

@@ -7,6 +7,8 @@
 \usepackage{tikz}%
 %
 \pagestyle{empty}%
+\usepackage{geometry}%
+\geometry{margin = 0.1in}%
 %
 \begin{document}%
 \normalsize%
@@ -25,6 +27,7 @@
 \path[draw] (0.0,0.0) -- (-1.4142135623730951,0.0);%
 \path[draw] (0.0,0.0) -- (1.4142135623730951,0.0);%
 \path[draw,radius=1.4142135623730951] (0.0,0.0) circle;%
+\path[draw,radius=10] (0.0,0.0) circle;%
 \path[start angle  = 180.0,end angle = 0.0,draw,radius=1] (-1.0,1.0) arc;%
 \end{tikzpicture}%
 \end{document}

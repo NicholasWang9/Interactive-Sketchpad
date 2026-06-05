@@ -77,7 +77,8 @@ drawingInfo = {
         ["O", "D"]
     ],
     "circles" : [
-        ["O", math.sqrt(2)]
+        ["O", math.sqrt(2)],
+        ["O", 10]
     ],
     "arcs" : [
         arc("A", "P", "B", 1)
@@ -87,6 +88,9 @@ drawingInfo = {
 doc = Document()
 
 doc.preamble.append(Command('pagestyle', 'empty'))
+
+doc.preamble.append(Command('usepackage', 'geometry'))
+doc.preamble.append(Command('geometry', 'margin = 0.1in'))
 
 vertices = drawingInfo.get("vertices")
 edges = drawingInfo.get("edges")
