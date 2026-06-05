@@ -123,7 +123,7 @@ def right_angle_marker_code(
     p1: str,
     v: str,
     p2: str,
-    size: float = 0.35,
+    size: float = 0.15,
     label: str = None,
 ) -> List[str]:
     """

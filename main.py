@@ -24,20 +24,20 @@ from geoparser import geometry_to_latex
 
 
 # square with diagonal
-example = """
-A is at (0,0)
-B is at (4,0)
-C is at (4,4)
-D is at (0,4)
-I is at (4-2*sqrt(2),4-2*sqrt(2))
-P is at (4-2*sqrt(3),2)
+# example = """
+# A is at (0,0)
+# B is at (4,0)
+# C is at (4,4)
+# D is at (0,4)
+# I is at (4-2*sqrt(2),4-2*sqrt(2))
+# P is at (4-2*sqrt(3),2)
 
-line segments AB BC CD DA AC
+# line segments AB BC CD DA AC
 
-arcs ABC DCB
+# arcs ABC DCB
 
-shade AI ICP PBA fill gray!50
-"""
+# shade AI ICP PBA fill gray!50
+# """
 
 
 # triangle
@@ -58,21 +58,82 @@ shade AI ICP PBA fill gray!50
 
 
 # one quarter circle two semi circles
+# example = """
+# O is at (0,0)
+# X is at (4,0)
+# Y is at (0,4)
+# M is at (2,0)
+# N is at (0,2)
+# P is at (2,2)
+
+# line segments OX OY
+
+# arcs XOY OMX[above] YNO[right]
+
+# shade OMP PNO fill gray!50
+# shade YOX XMP PNY fill gray!50
+# """
+
+
+# circle triangle circle 
+# example = """
+# O is at (0,0)
+# A is at (-4,4*sqrt(3))
+# B is at (-4,-4*sqrt(3))
+# C is at (8,0)
+# D is at (4,0)
+# E is at (-4,0)
+
+# line segments AB BC CA OC
+
+# circle C1 center O radius 8
+# circle C2 center O radius 4
+
+# arcs AOB AOC BOC
+
+# shade AOB BA fill blue!25
+# shade AOC CA fill blue!25
+# shade BOC CB fill blue!25
+# shade DOE EOD fill blue!25
+# """
+
+# yin yang
+# example = """
+# O is at (0,0)
+# A is at (0,15)
+# B is at (0,-15)
+# P is at (0,5)
+# Q is at (0,-5)
+# C is at (0,10)
+# D is at (0,-10)
+
+# line segments AB
+
+# circle C1 center O radius 15
+
+# arcs AOB[left] AOB[right] APQ[right] PQB[left] ACP[right] QDB[left]
+
+# shade AOB[left] BQP[left] PCA[right] fill blue!25
+# shade AOB[right] BDQ[left] QPA[right] fill blue!25
+# """
+
 example = """
 O is at (0,0)
-X is at (4,0)
-Y is at (0,4)
-M is at (2,0)
-N is at (0,2)
-P is at (2,2)
+A is at (-1/2,sqrt(3)/2)
+B is at (1/2,sqrt(3)/2)
+C is at (sqrt(3)/2,-1/2)
+D is at (-sqrt(3)/2,-1/2)
+P is at (0,(sqrt(3)-1)/2)
 
-line segments OX OY
+line segments AP PC DP PB BC AD
 
-arcs XOY OMX[above] YNO[right]
+angles APB=90 BCA=30
 
-shade OMP PNO fill gray!50
-shade YOX XMP PNY fill gray!50
+circle C1 center O radius 1
+
+arcs DOC[below]
 """
+
 
 
 if __name__ == "__main__":

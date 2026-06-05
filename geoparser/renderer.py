@@ -104,11 +104,11 @@ def generate_tikz(
 
         if abs(deg - 90.0) < 1e-9:
             lines.extend(
-                right_angle_marker_code(vertices, p1d, v, p2d, size=0.35)
+                right_angle_marker_code(vertices, p1d, v, p2d, size=0.15)
             )
         else:
             lines.append(
-                rf'\pic [draw, angle radius=8mm, angle eccentricity=1.35, '
+                rf'\pic [draw, angle radius=4mm, angle eccentricity=1.35, '
                 rf'"$ {deg:g}^\circ $"] '
                 rf'{{angle = {p1d}--{v}--{p2d}}};'
             )
