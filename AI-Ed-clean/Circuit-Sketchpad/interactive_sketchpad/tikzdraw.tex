@@ -7,24 +7,23 @@
 \usepackage{tikz}%
 %
 \pagestyle{empty}%
+\usepackage{geometry}%
+\geometry{margin = 0.1in}%
 %
 \begin{document}%
 \normalsize%
 \begin{tikzpicture}%
-\node[above right] (A) at (-0.7071067811865476,0.0) {A};%
-\path[draw,fill=black,radius=0.02] (-0.7071067811865476,0.0) circle;%
-\node[above right] (B) at (0.7071067811865476,0.0) {B};%
-\path[draw,fill=black,radius=0.02] (0.7071067811865476,0.0) circle;%
-\node[above right] (P) at (0.0,0.7071067811865476) {P};%
-\path[draw,fill=black,radius=0.02] (0.0,0.7071067811865476) circle;%
-\node[above right] (Q) at (0.0,-0.7071067811865476) {Q};%
-\path[draw,fill=black,radius=0.02] (0.0,-0.7071067811865476) circle;%
-\path[draw] (-0.7071067811865476,0.0) -- (0.0,0.7071067811865476);%
-\path[draw] (-0.7071067811865476,0.0) -- (0.0,-0.7071067811865476);%
-\path[draw] (0.7071067811865476,0.0) -- (0.0,0.7071067811865476);%
-\path[draw] (0.7071067811865476,0.0) -- (0.0,-0.7071067811865476);%
-\path[draw] (0.0,0.7071067811865476) -- (0.0,-0.7071067811865476);%
-\path[draw,radius=1.0] (-0.7071067811865476,0.0) circle;%
-\path[draw,radius=1.0] (0.7071067811865476,0.0) circle;%
+\node[above right] (A) at (0.0,5.773502691896258) {A};%
+\path[draw,fill=black,radius=0.04] (0.0,5.773502691896258) circle;%
+\node[above right] (B) at (-3.3333333333333335,0.0) {B};%
+\path[draw,fill=black,radius=0.04] (-3.3333333333333335,0.0) circle;%
+\node[above right] (C) at (3.3333333333333335,0.0) {C};%
+\path[draw,fill=black,radius=0.04] (3.3333333333333335,0.0) circle;%
+\path[line width = 1pt,draw] (0.0,5.773502691896258) -- (-3.3333333333333335,0.0);%
+\path[line width = 1pt,draw] (0.0,5.773502691896258) -- (3.3333333333333335,0.0);%
+\path[line width = 1pt,draw] (-3.3333333333333335,0.0) -- (3.3333333333333335,0.0);%
+\path[line width = 1pt,draw,radius=6.666666666666667] (0.0,5.773502691896258) circle;%
+\path[line width = 1pt,draw,radius=6.666666666666667] (-3.3333333333333335,0.0) circle;%
+\path[line width = 1pt,draw,radius=6.666666666666667] (3.3333333333333335,0.0) circle;%
 \end{tikzpicture}%
 \end{document}

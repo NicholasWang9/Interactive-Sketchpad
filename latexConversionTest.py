@@ -17,7 +17,7 @@ from typing import List
 class point:
 
     #Coordinates of the point's location
-    coordinates: List[int]
+    coordinates: tuple[float]
     #Planned location of the label
     label_position: str
 
@@ -69,7 +69,8 @@ drawingInfo = {
         "C" : point([-math.sqrt(2), 0], "above left"),
         "D" : point([math.sqrt(2), 0], "above right"),
         "O" : point([0, 0], "below"),
-        "P" : point([0, 1], None)
+        "P" : point([0, 1], None),
+        "Z" : point([-10, 0], None)
     },
     "edges" : [
         ["A", "B"],
@@ -77,8 +78,7 @@ drawingInfo = {
         ["O", "D"]
     ],
     "circles" : [
-        ["O", math.sqrt(2)],
-        ["O", 10]
+        ["O", math.sqrt(2)]
     ],
     "arcs" : [
         arc("A", "P", "B", 1)
@@ -97,13 +97,53 @@ edges = drawingInfo.get("edges")
 circles = drawingInfo.get("circles")
 arcs = drawingInfo.get("arcs")
 
+min_x = 0
+max_x = 0
+min_y = 0
+max_y = 0
+
+vertexCoordinates = dict()
+
+rawVertexCoordinates = np.array([vertex.coordinates for vertex in vertices.values() if vertex.label_position is not None])
+
+print(rawVertexCoordinates)
+
+for vertexName in vertices.keys():
+    point = vertices.get(vertexName)
+    vertex = point.coordinates
+    coordinate = TikZCoordinate(vertex[0], vertex[1])
+    vertexCoordinates.update({vertexName : coordinate})
+    min_x = min(rawVertexCoordinates[:, 0])
+    max_x = max(rawVertexCoordinates[:, 0])
+    min_y = min(rawVertexCoordinates[:, 1])
+    max_y = max(rawVertexCoordinates[:, 1])
+
+for circle in circles:
+    center = vertices.get(circle[0]).coordinates
+    radius = circle[1]
+    min_x = min(min_x, center[0] - radius)
+    max_x = max(max_x, center[0] + radius)
+    min_y = min(min_y, center[1] - radius)
+    max_y = max(max_y, center[1] + radius)
+
+for arc in arcs:
+    center = vertices.get(arc.center).coordinates
+    radius = arc.radius
+    min_x = min(min_x, center[0] - radius)
+    max_x = max(max_x, center[0] + radius)
+    min_y = min(min_y, center[1] - radius)
+    max_y = max(max_y, center[1] + radius)
+
+x_width = max_x - min_x
+y_width = max_y - min_y
+max_width = max(x_width, y_width)
+scale_factor = 20 / max_width
+
 with doc.create(TikZ()) as pic:
-    
-    vertexCoordinates = dict()
 
     for vertexName in vertices.keys():
         point = vertices.get(vertexName)
-        vertex = point.coordinates
+        vertex = [coordinate * scale_factor for coordinate in point.coordinates]
         coordinate = TikZCoordinate(vertex[0], vertex[1])
         vertexCoordinates.update({vertexName : coordinate})
         #If the label_position is None then the point should not be labeled and the node is unnecessary
@@ -118,7 +158,7 @@ with doc.create(TikZ()) as pic:
             pic.append(
                 TikZDraw(
                     [coordinate, "circle"],
-                    options = TikZOptions(fill = "black", radius = 0.02)
+                    options = TikZOptions(fill = "black", radius = 0.04)
                 )
             )
 
@@ -131,7 +171,8 @@ with doc.create(TikZ()) as pic:
             continue
         pic.append(
             TikZDraw(
-                [point1, "--", point2]
+                [point1, "--", point2],
+                options = TikZOptions("thick")
             )
         )
     
@@ -148,7 +189,7 @@ with doc.create(TikZ()) as pic:
         pic.append(
             TikZDraw(
                 [centerCoordinates, "circle"],
-                options = TikZOptions(radius = radius)
+                options = TikZOptions("thick", radius = radius * scale_factor)
             )
         )
     
@@ -165,7 +206,8 @@ with doc.create(TikZ()) as pic:
                 options = TikZOptions(
                     f"start angle  = {angles[0]}",
                     f"end angle = {angles[1]}",
-                    radius = arc.radius
+                    "thick",
+                    radius = arc.radius * scale_factor
                 )
             )
         )

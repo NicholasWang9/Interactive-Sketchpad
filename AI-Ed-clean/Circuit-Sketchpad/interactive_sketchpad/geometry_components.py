@@ -1,6 +1,7 @@
 import argparse
 import os
 import random
+import numpy as np
 import math
 import re
 import subprocess
@@ -138,10 +139,56 @@ def generate(topology: str, *, dpi: int = 300, pretty: bool = True) -> bytes:
 
     doc.preamble.append(Command('pagestyle', 'empty'))
 
+    doc.preamble.append(Command('usepackage', 'geometry'))
+    doc.preamble.append(Command('geometry', 'margin = 0.1in'))
+
     vertices = drawingInfo.get("vertices")
     edges = drawingInfo.get("edges")
     circles = drawingInfo.get("circles")
     arcs = drawingInfo.get("arcs")
+
+    min_x = 0
+    max_x = 0
+    min_y = 0
+    max_y = 0
+
+    vertexCoordinates = dict()
+
+    rawVertexCoordinates = np.array([vertex.coordinates for vertex in vertices.values() if vertex.label_position is not None])
+
+    if vertices is not None:
+        for vertexName in vertices.keys():
+            point = vertices.get(vertexName)
+            vertex = point.coordinates
+            coordinate = TikZCoordinate(vertex[0], vertex[1])
+            vertexCoordinates.update({vertexName : coordinate})
+            min_x = min(rawVertexCoordinates[:, 0])
+            max_x = max(rawVertexCoordinates[:, 0])
+            min_y = min(rawVertexCoordinates[:, 1])
+            max_y = max(rawVertexCoordinates[:, 1])
+
+    if circles is not None:
+        for circle in circles:
+            center = vertices.get(circle[0]).coordinates
+            radius = circle[1]
+            min_x = min(min_x, center[0] - radius)
+            max_x = max(max_x, center[0] + radius)
+            min_y = min(min_y, center[1] - radius)
+            max_y = max(max_y, center[1] + radius)
+
+    if arcs is not None:
+        for arc in arcs:
+            center = vertices.get(arc.center).coordinates
+            radius = arc.radius
+            min_x = min(min_x, center[0] - radius)
+            max_x = max(max_x, center[0] + radius)
+            min_y = min(min_y, center[1] - radius)
+            max_y = max(max_y, center[1] + radius)
+
+    x_width = max_x - min_x
+    y_width = max_y - min_y
+    max_width = max(x_width, y_width)
+    scale_factor = 20 / max_width
 
     vertexCoordinates = dict()
 
@@ -149,7 +196,7 @@ def generate(topology: str, *, dpi: int = 300, pretty: bool = True) -> bytes:
 
         for vertexName in vertices.keys():
             point = vertices.get(vertexName)
-            vertex = point.coordinates
+            vertex = [coordinate * scale_factor for coordinate in point.coordinates]
             coordinate = TikZCoordinate(vertex[0], vertex[1])
             vertexCoordinates.update({vertexName : coordinate})
             #If the label_position is None then the point should not be labeled and the node is unnecessary
@@ -164,7 +211,7 @@ def generate(topology: str, *, dpi: int = 300, pretty: bool = True) -> bytes:
                 pic.append(
                     TikZDraw(
                         [coordinate, "circle"],
-                        options = TikZOptions(fill = "black", radius = 0.02)
+                        options = TikZOptions(fill = "black", radius = 0.04, )
                     )
                 )
 
@@ -177,7 +224,8 @@ def generate(topology: str, *, dpi: int = 300, pretty: bool = True) -> bytes:
                 continue
             pic.append(
                 TikZDraw(
-                    [point1, "--", point2]
+                    [point1, "--", point2],
+                    options = TikZOptions("line width = 1pt")
                 )
             )
         
@@ -194,7 +242,7 @@ def generate(topology: str, *, dpi: int = 300, pretty: bool = True) -> bytes:
             pic.append(
                 TikZDraw(
                     [centerCoordinates, "circle"],
-                    options = TikZOptions(radius = radius)
+                    options = TikZOptions("line width = 1pt", radius = radius * scale_factor)
                 )
             )
     
