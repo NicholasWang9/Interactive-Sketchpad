@@ -31,6 +31,9 @@ Start the server using the command:
 Then go to the following link:
 `http://127.0.0.1:8000/interactive_sketchpad/`
 
+Open the whiteboard with the link:
+'http://127.0.0.1:8081/'
+
 and it will open up Interactive Sketchpad and the whiteboard.
 
 Code for running the LLM component of Interactive Sketchpad LLM component can be found in the folder `dynamic_sketchpad`
