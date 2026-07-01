@@ -31,8 +31,17 @@ Start the server using the command:
 Then go to the following link:
 `http://127.0.0.1:8000/interactive_sketchpad/`
 
-Open the whiteboard with the link:
+## Opening the Whiteboard
+
+Open the whiteboard with the link if on the same device:
 'http://127.0.0.1:8081/'
+
+If opening the whiteboard on a separate device, follow the following instructions:
+
+1. Open the terminal and run 'ipconfig'
+2. Find the IPv4 Address under the Wireless LAN adapter Wi-Fi section.
+3. Open the whiteboard with the following link:
+'http://(YOUR IPv4 ADDRESS HERE):8081'
 
 and it will open up Interactive Sketchpad and the whiteboard.
 
