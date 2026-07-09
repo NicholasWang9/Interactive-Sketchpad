@@ -20,3 +20,19 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
+# thingy = """
+# Vertex A:(0,0)
+# Vertex B:(1,0)
+# Vertex C:(1,1)
+# Vertex D:(0,1)
+
+# Segment A-B
+# Segment B-C
+# Segment C-D
+# Segment D-A
+
+# Circle E Center A Radius 0.5
+# """
+# generate(thingy, dpi = 300, pretty = True)

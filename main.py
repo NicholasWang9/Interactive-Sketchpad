@@ -118,21 +118,29 @@ from geoparser import geometry_to_latex
 # """
 
 example = """
-O is at (0,0)
-A is at (-1/2,sqrt(3)/2)
-B is at (1/2,sqrt(3)/2)
-C is at (sqrt(3)/2,-1/2)
-D is at (-sqrt(3)/2,-1/2)
-P is at (0,(sqrt(3)-1)/2)
+A is at (0,sqrt(3))
+B is at (-1,0)
+C is at (1,0)
 
-line segments AP PC DP PB BC AD
+line segments
 
-angles APB=90 BCA=30
+circle C1 center A radius 2
+circle C2 center B radius 2
+circle C3 center C radius 2
 
-circle C1 center O radius 1
-
-arcs DOC[below]
+shade BAC CBA ACB fill gray!50
 """
+
+
+
+
+
+
+
+
+
+
+
 
 
 

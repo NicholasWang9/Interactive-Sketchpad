@@ -18,6 +18,8 @@ async def upload_image(
     file: UploadFile = File(...),
 ):
     ws_session = WebsocketSession.get_by_id(session_id=session_id)
+    print(session_id)
+    print(ws_session)
     init_ws_context(ws_session)
 
     content = await file.read()
