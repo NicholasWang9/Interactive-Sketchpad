@@ -91,7 +91,7 @@ def parse_topology_to_dict(topology: str) -> dict:
     #List containing all edges of the graph
     edges = []
 
-    #Regex looking for a substring of the format "Segment [Endpoint 1]-[Endpoint 2] with optional whitespace
+     #Regex looking for a substring of the format "Segment [Endpoint 1]-[Endpoint 2]" with optional whitespace
     edges_regex = re.compile(r"Segment\s*([A-Z])\s*\-\s*([A-Z])", re.IGNORECASE)
 
     for match in edges_regex.finditer(topology):
@@ -99,7 +99,7 @@ def parse_topology_to_dict(topology: str) -> dict:
         endpoint2 = match.group(2)
         edges.append([endpoint1, endpoint2])
 
-    #List containing all edges of the graph
+    #List containing all circles of the graph
     circles = []
 
     #Regex looking for a substring of the format "Circle [Label] Center [Center Point] Radius [Radius] with optional whitespace
@@ -111,10 +111,33 @@ def parse_topology_to_dict(topology: str) -> dict:
         radius = evaluate_expression(match.group(3).strip())
         circles.append([center, radius])
 
+    #List containing all angles of the graph, BRYAN ADDED NICK PLS CHECK
+    angles = []
+    angles_regex = re.compile(
+        r"angle\s+([A-Z]{3})\s*=\s*([A-Za-z0-9_+\-*/().]+)",
+        re.IGNORECASE,
+    )
+
+    for match in angles_regex.finditer(topology):
+        angle_name = match.group(1).upper()
+        raw_value = match.group(2).strip()
+
+        start_name = angle_name[0]
+        vertex_name = angle_name[1]
+        end_name = angle_name[2]
+
+        if re.search(r"[A-Za-z_]", raw_value):
+            angle_value = raw_value
+        else:
+            angle_value = evaluate_expression(raw_value)
+
+        angles.append([start_name, vertex_name, end_name, angle_value])
+
     drawingInfo = {
         "vertices" : vertices,
         "edges" : edges,
         "circles" : circles,
+        "angles" : angles,
     }
 
     return drawingInfo
@@ -146,6 +169,7 @@ def generate(topology: str, *, dpi: int = 300, pretty: bool = True) -> bytes:
     edges = drawingInfo.get("edges")
     circles = drawingInfo.get("circles")
     arcs = drawingInfo.get("arcs")
+    angles = drawingInfo.get("angles")
 
     min_x = 0
     max_x = 0
@@ -176,6 +200,33 @@ def generate(topology: str, *, dpi: int = 300, pretty: bool = True) -> bytes:
             min_y = min(min_y, center[1] - radius)
             max_y = max(max_y, center[1] + radius)
 
+    #BRYAN ADDED NICK PLS CHECK
+    if angles is not None:
+        for angle in angles:
+            start_name = angle[0]
+            vertex_name = angle[1]
+            end_name = angle[2]
+
+            start_point = vertices.get(start_name)
+            vertex_point = vertices.get(vertex_name)
+            end_point = vertices.get(end_name)
+
+            if start_point is None or vertex_point is None or end_point is None:
+                continue
+
+            start = start_point.coordinates
+            vertex = vertex_point.coordinates
+            end = end_point.coordinates
+
+            # Angles are drawn near the vertex.
+            # This padding gives the angle marker and label some room.
+            padding = 0.5
+
+            min_x = min(min_x, start[0], vertex[0] - padding, end[0])
+            max_x = max(max_x, start[0], vertex[0] + padding, end[0])
+            min_y = min(min_y, start[1], vertex[1] - padding, end[1])
+            max_y = max(max_y, start[1], vertex[1] + padding, end[1])
+    
     if arcs is not None:
         for arc in arcs:
             center = vertices.get(arc.center).coordinates
@@ -245,6 +296,145 @@ def generate(topology: str, *, dpi: int = 300, pretty: bool = True) -> bytes:
                     options = TikZOptions("line width = 1pt", radius = radius * scale_factor)
                 )
             )
+        
+        #BRYAN ADDED NICK PLS CHECK bro there's so much 
+        for angle in angles:
+            start_name = angle[0]
+            vertex_name = angle[1]
+            end_name = angle[2]
+            angle_value = angle[3]
+
+            start_point = vertices.get(start_name)
+            vertex_point = vertices.get(vertex_name)
+            end_point = vertices.get(end_name)
+
+            if start_point is None or vertex_point is None or end_point is None:
+                continue
+
+            start = [coordinate * scale_factor for coordinate in start_point.coordinates]
+            vertex = [coordinate * scale_factor for coordinate in vertex_point.coordinates]
+            end = [coordinate * scale_factor for coordinate in end_point.coordinates]
+
+            start_angle = math.degrees(
+                math.atan2(start[1] - vertex[1], start[0] - vertex[0])
+            )
+
+            end_angle = math.degrees(
+                math.atan2(end[1] - vertex[1], end[0] - vertex[0])
+            )
+
+            ccw_angle = (end_angle - start_angle) % 360
+
+            if isinstance(angle_value, float) or isinstance(angle_value, int):
+                clockwise_angle = 360 - ccw_angle
+
+                if abs(ccw_angle - angle_value) <= abs(clockwise_angle - angle_value):
+                    final_end_angle = start_angle + ccw_angle
+                else:
+                    final_end_angle = start_angle - clockwise_angle
+            else:
+                if ccw_angle <= 180:
+                    final_end_angle = start_angle + ccw_angle
+                else:
+                    final_end_angle = start_angle - (360 - ccw_angle)
+
+            length1 = math.dist(vertex, start)
+            length2 = math.dist(vertex, end)
+
+            marker_size = min(length1, length2) * 0.25
+            marker_size = max(0.35, min(marker_size, 1.0))
+
+            #Right angle marker
+            if angle_value == 90:
+                dx1 = start[0] - vertex[0]
+                dy1 = start[1] - vertex[1]
+                dx2 = end[0] - vertex[0]
+                dy2 = end[1] - vertex[1]
+
+                length1 = math.hypot(dx1, dy1)
+                length2 = math.hypot(dx2, dy2)
+
+                if length1 == 0 or length2 == 0:
+                    continue
+
+                u1 = [dx1 / length1, dy1 / length1]
+                u2 = [dx2 / length2, dy2 / length2]
+
+                square_size = marker_size * 0.5
+
+                a = TikZCoordinate(
+                    vertex[0] + square_size * u1[0],
+                    vertex[1] + square_size * u1[1]
+                )
+
+                b = TikZCoordinate(
+                    vertex[0] + square_size * u1[0] + square_size * u2[0],
+                    vertex[1] + square_size * u1[1] + square_size * u2[1]
+                )
+
+                c = TikZCoordinate(
+                    vertex[0] + square_size * u2[0],
+                    vertex[1] + square_size * u2[1]
+                )
+
+                pic.append(
+                    TikZDraw(
+                        [a, "--", b, "--", c],
+                        options = TikZOptions("line width = 0.8pt")
+                    )
+                )
+
+                label_coordinate = TikZCoordinate(
+                    vertex[0] + 1.2 * square_size * (u1[0] + u2[0]),
+                    vertex[1] + 1.2 * square_size * (u1[1] + u2[1])
+                )
+
+                # Don't need to label right angles
+                # label_node = TikZNode(
+                #     at = label_coordinate,
+                #     text = "$90^\\circ$"
+                # )
+
+                # pic.append(label_node)
+
+            #Regular angle marker
+            else:
+                arc_start_x = vertex[0] + marker_size * math.cos(math.radians(start_angle))
+                arc_start_y = vertex[1] + marker_size * math.sin(math.radians(start_angle))
+
+                arc_start = TikZCoordinate(arc_start_x, arc_start_y)
+
+                pic.append(
+                    TikZDraw(
+                        [
+                            arc_start,
+                            TikZUserPath(
+                                f"arc[start angle = {start_angle}, end angle = {final_end_angle}, radius = {marker_size}]"
+                            )
+                        ],
+                        options = TikZOptions("line width = 0.8pt")
+                    )
+                )
+
+                mid_angle = (start_angle + final_end_angle) / 2
+                label_radius = marker_size + 0.35
+
+                label_coordinate = TikZCoordinate(
+                    vertex[0] + label_radius * math.cos(math.radians(mid_angle)),
+                    vertex[1] + label_radius * math.sin(math.radians(mid_angle))
+                )
+
+                if isinstance(angle_value, float) or isinstance(angle_value, int):
+                    label_text = f"${angle_value:g}^\\circ$"
+                else:
+                    label_text = f"${angle_value}$"
+
+                label_node = TikZNode(
+                    at = label_coordinate,
+                    text = label_text
+                )
+
+                pic.append(label_node)
     
     doc.generate_pdf("tikzdraw", clean_tex = False)
 

@@ -6,22 +6,19 @@ from geometry_components import generate
 
 def main():
     topology = """
-    Vertex A:(3*cos(5*pi/18)-4,3*sin(5*pi/18))
-    Vertex B:(3*cos(5*pi/18),3*sin(5*pi/18))
-    Vertex C:(3*cos(5*pi/18)+4,3*sin(5*pi/18))
-    Vertex D:(0,0)
-    Vertex E:(5*cos(pi/9),-5*sin(pi/9))
-    Vertex F:(5*cos(pi/9)-3,-5*sin(pi/9))
-    Vertex G:(5*cos(pi/9)+3,-5*sin(pi/9))
+    Vertex A:(-6,0)
+    Vertex B:(6,0)
+    Vertex C:(0,6)
+    Vertex O:(0,0)
 
     Segment A-B
-    Segment B-C
-    Segment B-D
-    Segment D-E
-    Segment F-E
-    Segment E-G
+    Segment A-C
+    Segment C-B
 
-    angles CBD=130 BDE=70 DEG=160
+    Circle O Center O Radius 6
+
+    Angle ACB=90
+
     """
 
     # Call your in-memory generator
@@ -30,9 +27,13 @@ def main():
     # Sanity check
     assert png_bytes.startswith(b"\x89PNG\r\n\x1a\n"), "Not a PNG!"
 
-    # Display the image
-    img = Image.open(io.BytesIO(png_bytes))
-    img.show()  # opens system image viewer
+    # Display the image with white background
+    img = Image.open(io.BytesIO(png_bytes)).convert("RGBA")
+
+    white_bg = Image.new("RGBA", img.size, "WHITE")
+    white_bg.paste(img, (0, 0), img)
+
+    white_bg.convert("RGB").show() # opens system image viewer
 
 
 if __name__ == "__main__":
