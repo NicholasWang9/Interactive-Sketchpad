@@ -84,7 +84,7 @@ def parse_topology_to_dict(topology: str) -> dict:
         r"Vertex\s*([A-Z])\s*:\s*\(\s*([^,]+)\s*,\s*((?:[^()]|\([^()]*\))+)\s*\)\s*(above left|above right|below left|below right|above|below|left|right)?",
         re.IGNORECASE,
     )
-    # Nick this was your old one:
+    # Nick this was your old regex:
     # vertices_regex = re.compile(
     #     r"Vertex\s*([A-Z])\s*\:\s*\(([^,]+)\s*,\s*(.+)\s*\)", re.IGNORECASE)
 
@@ -96,7 +96,7 @@ def parse_topology_to_dict(topology: str) -> dict:
         label_position = match.group(4)
 
         if label_position is None:
-            label_position = "above right"
+            label_position = "above right" # default
         else:
             label_position = label_position.lower()
 
