@@ -6,12 +6,12 @@ from geometry_components import generate
 
 def main():
     topology = """
-    Vertex A:(-1,1)
-    Vertex B:(1,1)
-    Vertex C:(-sqrt(2),0)
-    Vertex D:(sqrt(2),0)
-    Vertex O:(0,0)
-    Vertex P:(0,1)
+    Vertex A:(-1,1) above left
+    Vertex B:(1,1) above right
+    Vertex C:(-sqrt(2),0) below left
+    Vertex D:(sqrt(2),0) below right
+    Vertex O:(0,0) below
+    Vertex P:(0,1) above
 
     Segment A-B
     Segment O-C
@@ -24,7 +24,6 @@ def main():
     Circle O center O radius sqrt(2)
 
     Arc APB
-
     """
 
     # Call your in-memory generator

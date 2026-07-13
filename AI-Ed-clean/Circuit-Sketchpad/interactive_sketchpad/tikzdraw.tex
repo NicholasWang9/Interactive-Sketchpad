@@ -13,16 +13,35 @@
 \begin{document}%
 \normalsize%
 \begin{tikzpicture}%
-\node[above right] (A) at (0.0,0.0) {A};%
-\path[draw,fill=black,radius=0.04] (0.0,0.0) circle;%
-\node[above right] (B) at (10.0,0.0) {B};%
-\path[draw,fill=black,radius=0.04] (10.0,0.0) circle;%
-\node[above right] (C) at (10.0,10.0) {C};%
-\path[draw,fill=black,radius=0.04] (10.0,10.0) circle;%
-\path[line width = 1pt,draw] (0.0,0.0) -- (10.0,0.0);%
-\path[line width = 1pt,draw] (10.0,0.0) -- (10.0,10.0);%
-\path[line width = 1pt,draw] (10.0,10.0) -- (0.0,0.0);%
-\path[line width = 0.8pt,draw] (9.5,0.0) -- (9.5,0.5) -- (10.0,0.5);%
-\path[line width = 1pt,draw] (0.0,0.0) arc[start angle = 180.0, delta angle = -90.0, radius = 10.0];%
+\node[left,font=\large] (A) at (-8.571428571428571,5.714285714285714) {A};%
+\path[draw,fill=black,radius=0.04] (-8.571428571428571,5.714285714285714) circle;%
+\node[above,font=\large] (B) at (0.0,5.714285714285714) {B};%
+\path[draw,fill=black,radius=0.04] (0.0,5.714285714285714) circle;%
+\node[right,font=\large] (C) at (8.571428571428571,5.714285714285714) {C};%
+\path[draw,fill=black,radius=0.04] (8.571428571428571,5.714285714285714) circle;%
+\node[left,font=\large] (D) at (-5.714285714285714,0.0) {D};%
+\path[draw,fill=black,radius=0.04] (-5.714285714285714,0.0) circle;%
+\node[below,font=\large] (E) at (2.857142857142857,0.0) {E};%
+\path[draw,fill=black,radius=0.04] (2.857142857142857,0.0) circle;%
+\node[right,font=\large] (F) at (11.428571428571429,0.0) {F};%
+\path[draw,fill=black,radius=0.04] (11.428571428571429,0.0) circle;%
+\node[left,font=\large] (G) at (-2.0915737359110778,2.857142857142857) {G};%
+\path[draw,fill=black,radius=0.04] (-2.0915737359110778,2.857142857142857) circle;%
+\node[left,font=\large] (H) at (-8.571428571428571,2.857142857142857) {H};%
+\path[draw,fill=black,radius=0.04] (-8.571428571428571,2.857142857142857) circle;%
+\node[right,font=\large] (I) at (8.571428571428571,2.857142857142857) {I};%
+\path[draw,fill=black,radius=0.04] (8.571428571428571,2.857142857142857) circle;%
+\path[line width = 1pt,draw] (-8.571428571428571,5.714285714285714) -- (0.0,5.714285714285714);%
+\path[line width = 1pt,draw] (0.0,5.714285714285714) -- (8.571428571428571,5.714285714285714);%
+\path[line width = 1pt,draw] (-5.714285714285714,0.0) -- (2.857142857142857,0.0);%
+\path[line width = 1pt,draw] (2.857142857142857,0.0) -- (11.428571428571429,0.0);%
+\path[line width = 1pt,draw] (0.0,5.714285714285714) -- (-2.0915737359110778,2.857142857142857);%
+\path[line width = 1pt,draw] (-2.0915737359110778,2.857142857142857) -- (2.857142857142857,0.0);%
+\path[line width = 1pt,draw] (-8.571428571428571,2.857142857142857) -- (-2.0915737359110778,2.857142857142857);%
+\path[line width = 1pt,draw] (-2.0915737359110778,2.857142857142857) -- (8.571428571428571,2.857142857142857);%
+\path[line width = 0.8pt,draw] (0.3540896214078503,5.714285714285714) arc[start angle = 0.0, end angle = -126.20602311300311, radius = 0.3540896214078503];%
+\node[font=\normalsize] at (0.3185215790541137,5.086363586429781) {$130^\circ$};%
+\path[line width = 0.8pt,draw] (2.4674314254398597,0.22499999999999998) arc[start angle = 150.0, end angle = 0.0, radius = 0.45];%
+\node[font=\normalsize] at (3.064198093224874,0.7727406610312547) {$150^\circ$};%
 \end{tikzpicture}%
 \end{document}

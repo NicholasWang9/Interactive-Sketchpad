@@ -89,20 +89,24 @@ You must call `generate_geometry` with an argument named `topology`.
 
 The `topology` should follow this format:
 
-Vertex A:(0,0)
-Vertex B:(2,0)
-Vertex C:(2,2*sqrt(3))
-Vertex O:(1,sqrt(3))
+Vertex A:(-1,1) above left
+Vertex B:(1,1) above right
+Vertex C:(-sqrt(2),0) below left
+Vertex D:(sqrt(2),0) below right
+Vertex O:(0,0) below
+Vertex P:(0,1) above
 
 Segment A-B
-Segment B-C
-Segment C-A
+Segment O-C
+Segment O-D
+Segment O-A
+Segment O-B
 
-Angle BAC=60
+Angle AOB=90
 
-Circle O center O radius 2
+Circle O center O radius sqrt(2)
 
-Arc AOC
+Arc APB
 
 Rules for `topology`:
 - VERY IMPORTANT: Calculate exact coordinates from information from the problem and diagram
@@ -303,9 +307,9 @@ User: In triangle ABC, AB = AC and angle A is 120 degrees. Find angle B.
 
 You should call `generate_geometry` with something like:
 
-Vertex A:(0,0)
-Vertex B:(2,-2*sqrt(3))
-Vertex C:(2,2*sqrt(3))
+Vertex A:(0,0) left
+Vertex B:(2,-2*sqrt(3)) below right
+Vertex C:(2,2*sqrt(3)) above right
 
 Segment A-B
 Segment A-C

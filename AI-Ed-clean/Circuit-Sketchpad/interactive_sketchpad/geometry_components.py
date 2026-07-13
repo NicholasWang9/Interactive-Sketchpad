@@ -79,14 +79,28 @@ def parse_topology_to_dict(topology: str) -> dict:
     #Dictionary containing all vertices of the graph
     vertices = {}
 
-    #Regex looking for a substring of the format "Vertex [Label]:([x coordinate],[y coordinate])" with optional whitespace
-    vertices_regex = re.compile(r"Vertex\s*([A-Z])\s*\:\s*\(([^,]+)\s*,\s*(.+)\s*\)", re.IGNORECASE)
+    #Regex looking for a substring of the format "Vertex [Label]:([x coordinate],[y coordinate]) above left" with optional whitespace
+    vertices_regex = re.compile(
+        r"Vertex\s*([A-Z])\s*:\s*\(\s*([^,]+)\s*,\s*((?:[^()]|\([^()]*\))+)\s*\)\s*(above left|above right|below left|below right|above|below|left|right)?",
+        re.IGNORECASE,
+    )
+    # Nick this was your old one:
+    # vertices_regex = re.compile(
+    #     r"Vertex\s*([A-Z])\s*\:\s*\(([^,]+)\s*,\s*(.+)\s*\)", re.IGNORECASE)
+
 
     for match in vertices_regex.finditer(topology):
         name = match.group(1).upper()
         x = evaluate_expression(match.group(2).strip())
         y = evaluate_expression(match.group(3).strip())
-        vertices.update({name : point((x, y), "above right")})
+        label_position = match.group(4)
+
+        if label_position is None:
+            label_position = "above right"
+        else:
+            label_position = label_position.lower()
+
+        vertices.update({name : point((x, y), label_position)})
 
     #List containing all edges of the graph
     edges = []
@@ -302,7 +316,7 @@ def generate(topology: str, *, dpi: int = 300, pretty: bool = True) -> bytes:
                     handle = vertexName,
                     at = coordinate,
                     text = vertexName,
-                    options = TikZOptions(point.label_position)
+                    options = TikZOptions(point.label_position, "font=\\large")
                 )
                 pic.append(node)
                 pic.append(
@@ -387,8 +401,8 @@ def generate(topology: str, *, dpi: int = 300, pretty: bool = True) -> bytes:
             length1 = math.dist(vertex, start)
             length2 = math.dist(vertex, end)
 
-            marker_size = min(length1, length2) * 0.25
-            marker_size = max(0.35, min(marker_size, 1.0))
+            marker_size = min(length1, length2) * 0.10
+            marker_size = max(0.15, min(marker_size, 0.45))
 
             #Right angle marker
             if angle_value == 90:
@@ -406,7 +420,7 @@ def generate(topology: str, *, dpi: int = 300, pretty: bool = True) -> bytes:
                 u1 = [dx1 / length1, dy1 / length1]
                 u2 = [dx2 / length2, dy2 / length2]
 
-                square_size = marker_size * 0.5
+                square_size = marker_size * 0.8
 
                 a = TikZCoordinate(
                     vertex[0] + square_size * u1[0],
@@ -477,7 +491,8 @@ def generate(topology: str, *, dpi: int = 300, pretty: bool = True) -> bytes:
 
                 label_node = TikZNode(
                     at = label_coordinate,
-                    text = label_text
+                    text = label_text,
+                    options = TikZOptions("font=\\normalsize")
                 )
 
                 pic.append(label_node)
