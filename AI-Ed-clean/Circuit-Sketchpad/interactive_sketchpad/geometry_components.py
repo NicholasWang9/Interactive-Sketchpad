@@ -91,7 +91,7 @@ def parse_topology_to_dict(topology: str) -> dict:
     #List containing all edges of the graph
     edges = []
 
-     #Regex looking for a substring of the format "Segment [Endpoint 1]-[Endpoint 2]" with optional whitespace
+    #Regex looking for a substring of the format "Segment [Endpoint 1]-[Endpoint 2]" with optional whitespace
     edges_regex = re.compile(r"Segment\s*([A-Z])\s*\-\s*([A-Z])", re.IGNORECASE)
 
     for match in edges_regex.finditer(topology):
@@ -113,6 +113,11 @@ def parse_topology_to_dict(topology: str) -> dict:
 
     #List containing all angles of the graph, BRYAN ADDED NICK PLS CHECK
     angles = []
+
+    #Regex looking for substrings like:
+    #Angle CBD=130
+    #Angle BDE=x
+    #Angle XYZ=45-y
     angles_regex = re.compile(
         r"angle\s+([A-Z]{3})\s*=\s*([A-Za-z0-9_+\-*/().]+)",
         re.IGNORECASE,
@@ -133,11 +138,36 @@ def parse_topology_to_dict(topology: str) -> dict:
 
         angles.append([start_name, vertex_name, end_name, angle_value])
 
+    #List containing all arcs of the graph
+    arcs = []
+
+    #Regex looking for substrings like:
+    #Arc AOC
+    #Arc BOD
+    #Arc XOY
+    #
+    #Arc AOC means:
+    #A is the start point
+    #O is the center
+    #C is the end point
+    #The arc is drawn clockwise from A to C around O
+    arcs_regex = re.compile(r"Arc\s+([A-Z]{3})", re.IGNORECASE)
+
+    for match in arcs_regex.finditer(topology):
+        arc_name = match.group(1).upper()
+
+        start_name = arc_name[0]
+        center_name = arc_name[1]
+        end_name = arc_name[2]
+
+        arcs.append([start_name, center_name, end_name])
+
     drawingInfo = {
         "vertices" : vertices,
         "edges" : edges,
         "circles" : circles,
         "angles" : angles,
+        "arcs" : arcs,
     }
 
     return drawingInfo
@@ -168,8 +198,8 @@ def generate(topology: str, *, dpi: int = 300, pretty: bool = True) -> bytes:
     vertices = drawingInfo.get("vertices")
     edges = drawingInfo.get("edges")
     circles = drawingInfo.get("circles")
-    arcs = drawingInfo.get("arcs")
     angles = drawingInfo.get("angles")
+    arcs = drawingInfo.get("arcs")
 
     min_x = 0
     max_x = 0
@@ -229,8 +259,24 @@ def generate(topology: str, *, dpi: int = 300, pretty: bool = True) -> bytes:
     
     if arcs is not None:
         for arc in arcs:
-            center = vertices.get(arc.center).coordinates
-            radius = arc.radius
+            start_name = arc[0]
+            center_name = arc[1]
+            end_name = arc[2]
+
+            start_point = vertices.get(start_name)
+            center_point = vertices.get(center_name)
+            end_point = vertices.get(end_name)
+
+            if start_point is None or center_point is None or end_point is None:
+                continue
+
+            start = start_point.coordinates
+            center = center_point.coordinates
+
+            radius = math.dist(center, start)
+
+            # center = vertices.get(arc.center).coordinates
+            # radius = arc.radius
             min_x = min(min_x, center[0] - radius)
             max_x = max(max_x, center[0] + radius)
             min_y = min(min_y, center[1] - radius)
@@ -435,6 +481,67 @@ def generate(topology: str, *, dpi: int = 300, pretty: bool = True) -> bytes:
                 )
 
                 pic.append(label_node)
+
+        #Arc stuff
+        for arc in arcs:
+            start_name = arc[0]
+            center_name = arc[1]
+            end_name = arc[2]
+
+            startCoordinates = vertexCoordinates.get(start_name)
+            centerCoordinates = vertexCoordinates.get(center_name)
+            endCoordinates = vertexCoordinates.get(end_name)
+
+            if startCoordinates is None or centerCoordinates is None or endCoordinates is None:
+                continue
+
+            start_point = vertices.get(start_name)
+            center_point = vertices.get(center_name)
+            end_point = vertices.get(end_name)
+
+            if start_point is None or center_point is None or end_point is None:
+                continue
+
+            start = [coordinate * scale_factor for coordinate in start_point.coordinates]
+            center = [coordinate * scale_factor for coordinate in center_point.coordinates]
+            end = [coordinate * scale_factor for coordinate in end_point.coordinates]
+
+            radius = math.dist(center, start)
+
+            if radius == 0:
+                continue
+
+            start_angle = math.degrees(
+                math.atan2(start[1] - center[1], start[0] - center[0])
+            )
+
+            end_angle = math.degrees(
+                math.atan2(end[1] - center[1], end[0] - center[0])
+            )
+
+            #Arc ABC means:
+            #A is the start point
+            #B is the center
+            #C is the end point
+            #Draw clockwise from A to C
+            ccw_delta = (end_angle - start_angle) % 360
+
+            if ccw_delta == 0:
+                clockwise_delta = -360
+            else:
+                clockwise_delta = ccw_delta - 360
+
+            pic.append(
+                TikZDraw(
+                    [
+                        startCoordinates,
+                        TikZUserPath(
+                            f"arc[start angle = {start_angle}, delta angle = {clockwise_delta}, radius = {radius}]"
+                        )
+                    ],
+                    options = TikZOptions("line width = 1pt")
+                )
+            )
     
     doc.generate_pdf("tikzdraw", clean_tex = False)
 

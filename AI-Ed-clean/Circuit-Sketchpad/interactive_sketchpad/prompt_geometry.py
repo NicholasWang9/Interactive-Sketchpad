@@ -102,7 +102,7 @@ Angle BAC=60
 
 Circle O center O radius 2
 
-arcs AOC
+Arc AOC
 
 Rules for `topology`:
 - VERY IMPORTANT: Calculate exact coordinates from information from the problem and diagram
@@ -210,7 +210,7 @@ Use clear names for geometric objects:
 - Angle: $\\angle ABC$
 - Triangle: $\\triangle ABC$
 - Circle: circle centered at $O$
-- Arc: arc $AB$
+- Arc: arc $ABC$
 
 # EXAMPLE DOMAINS
 
