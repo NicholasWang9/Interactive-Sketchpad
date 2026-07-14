@@ -6,19 +6,26 @@ from geometry_components import generate
 
 def main():
     topology = """
-    Vertex A:(-6,0)
-    Vertex B:(6,0)
-    Vertex C:(0,6)
-    Vertex O:(0,0)
+    Vertex A:(-1,1) above left
+    Vertex B:(1,1) above right
+    Vertex C:(-sqrt(2),0) below left
+    Vertex D:(sqrt(2),0) below right
+    Vertex O:(0,0) below
+    Vertex P:(0,1) above
 
     Segment A-B
-    Segment A-C
-    Segment C-B
+    Segment O-C
+    Segment O-D
+    Segment O-A
+    Segment O-B
 
-    Circle O Center O Radius 6
+    Angle AOB=90
 
-    Angle ACB=90
+    Circle O center O radius sqrt(2)
 
+    Arc APB
+
+    Shade 
     """
 
     # Call your in-memory generator

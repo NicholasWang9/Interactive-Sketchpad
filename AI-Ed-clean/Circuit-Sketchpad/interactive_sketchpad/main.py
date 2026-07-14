@@ -14,7 +14,7 @@ app = FastAPI()
 @app.post("/upload")
 async def upload_image(
     session_id: str,
-    text: str = "Here's my working so far, can you help me?",
+    text: str = "Here's my work so far: can you help me?",
     file: UploadFile = File(...),
 ):
     ws_session = WebsocketSession.get_by_id(session_id=session_id)

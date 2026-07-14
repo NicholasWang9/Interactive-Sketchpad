@@ -15,15 +15,17 @@ further help.
 ![Geometry Teaser](assets/teaser_geometry.png)
 
 ## Installation
+
 1. Install uv https://docs.astral.sh/uv/getting-started/installation/
 2. Run `uv sync` to install dependencies
 
 ## Running Interactive Sketchpad
+
 Add your OpenAI API Key in a .env file
 `OPENAI_API_KEY="YOUR_KEY_HERE"`
 
 To run interactive sketchpad, do:
-`cd interactive_sketchpad`
+`cd interactive_sketchpad`	
 
 Start the server using the command:
 `uv run uvicorn main:app --host 127.0.0.1 --port 8000`
@@ -41,11 +43,12 @@ If opening the whiteboard on a separate device, follow the following instruction
 1. Open the terminal and run 'ipconfig'
 2. Find the IPv4 Address under the Wireless LAN adapter Wi-Fi section.
 3. Open the whiteboard with the following link:
-'http://(YOUR IPv4 ADDRESS HERE):8081'
+   'http://(YOUR IPv4 ADDRESS HERE):8081'
 
 and it will open up Interactive Sketchpad and the whiteboard.
 
 Code for running the LLM component of Interactive Sketchpad LLM component can be found in the folder `dynamic_sketchpad`
 
 ## Evaluation
+
 Run evaluation by running `eval_mlflow.py` in the `eval` directory.

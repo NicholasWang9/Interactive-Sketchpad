@@ -79,14 +79,36 @@ def parse_topology_to_dict(topology: str) -> dict:
     #Dictionary containing all vertices of the graph
     vertices = {}
 
-    #Regex looking for a substring of the format "Vertex [Label]:([x coordinate],[y coordinate])" with optional whitespace
-    vertices_regex = re.compile(r"Vertex\s*([A-Z])\s*\:\s*\(([^,]+)\s*,\s*(.+)\s*\)", re.IGNORECASE)
+    #Regex looking for a substring of the format "Vertex [Label]:([x coordinate],[y coordinate]) above left" with optional whitespace
+    # Nick's regex extended
+    vertices_regex = re.compile(
+        r"Vertex\s*([A-Z])\s*\:\s*\(([^,]+)\s*,\s*(.+)\s*\)\s*(above left|above right|below left|below right|above|below|left|right)?", 
+        re.IGNORECASE,
+    )
+
+    # mine before
+    # vertices_regex = re.compile(
+    #     r"Vertex\s*([A-Z])\s*:\s*\(\s*([^,]+)\s*,\s*((?:[^()]|\([^()]*\))+)\s*\)\s*(above left|above right|below left|below right|above|below|left|right)?",
+    #     re.IGNORECASE,
+    # )
+
+    # Nick this was your old regex:
+    # vertices_regex = re.compile(
+    #     r"Vertex\s*([A-Z])\s*\:\s*\(([^,]+)\s*,\s*(.+)\s*\)", re.IGNORECASE)
+
 
     for match in vertices_regex.finditer(topology):
         name = match.group(1).upper()
         x = evaluate_expression(match.group(2).strip())
         y = evaluate_expression(match.group(3).strip())
-        vertices.update({name : point((x, y), "above right")})
+        label_position = match.group(4)
+
+        if label_position is None:
+            label_position = "above right" # default
+        else:
+            label_position = label_position.lower()
+
+        vertices.update({name : point((x, y), label_position)})
 
     #List containing all edges of the graph
     edges = []
@@ -132,11 +154,36 @@ def parse_topology_to_dict(topology: str) -> dict:
 
         angles.append([start, vertex, end, angle_measure])
 
+    #List containing all arcs of the graph
+    arcs = []
+
+    #Regex looking for substrings like:
+    #Arc AOC
+    #Arc BOD
+    #Arc XOY
+    #
+    #Arc AOC means:
+    #A is the start point
+    #O is the center
+    #C is the end point
+    #The arc is drawn clockwise from A to C around O
+    arcs_regex = re.compile(r"Arc\s+([A-Z]{3})", re.IGNORECASE)
+
+    for match in arcs_regex.finditer(topology):
+        arc_name = match.group(1).upper()
+
+        start_name = arc_name[0]
+        center_name = arc_name[1]
+        end_name = arc_name[2]
+
+        arcs.append([start_name, center_name, end_name])
+
     drawingInfo = {
         "vertices" : vertices,
         "edges" : edges,
         "circles" : circles,
         "angles" : angles,
+        "arcs" : arcs,
     }
 
     return drawingInfo
@@ -167,8 +214,8 @@ def generate(topology: str, *, dpi: int = 300, pretty: bool = True) -> bytes:
     vertices = drawingInfo.get("vertices")
     edges = drawingInfo.get("edges")
     circles = drawingInfo.get("circles")
-    arcs = drawingInfo.get("arcs")
     angles = drawingInfo.get("angles")
+    arcs = drawingInfo.get("arcs")
 
     min_x = 0
     max_x = 0
@@ -228,8 +275,24 @@ def generate(topology: str, *, dpi: int = 300, pretty: bool = True) -> bytes:
     
     if arcs is not None:
         for arc in arcs:
-            center = vertices.get(arc.center).coordinates
-            radius = arc.radius
+            start_name = arc[0]
+            center_name = arc[1]
+            end_name = arc[2]
+
+            start_point = vertices.get(start_name)
+            center_point = vertices.get(center_name)
+            end_point = vertices.get(end_name)
+
+            if start_point is None or center_point is None or end_point is None:
+                continue
+
+            start = start_point.coordinates
+            center = center_point.coordinates
+
+            radius = math.dist(center, start)
+
+            # center = vertices.get(arc.center).coordinates
+            # radius = arc.radius
             min_x = min(min_x, center[0] - radius)
             max_x = max(max_x, center[0] + radius)
             min_y = min(min_y, center[1] - radius)
@@ -255,7 +318,7 @@ def generate(topology: str, *, dpi: int = 300, pretty: bool = True) -> bytes:
                     handle = vertexName,
                     at = coordinate,
                     text = vertexName,
-                    options = TikZOptions(point.label_position)
+                    options = TikZOptions(point.label_position, "font=\\large")
                 )
                 pic.append(node)
                 pic.append(
@@ -340,8 +403,8 @@ def generate(topology: str, *, dpi: int = 300, pretty: bool = True) -> bytes:
             length1 = math.dist(vertex, start)
             length2 = math.dist(vertex, end)
 
-            marker_size = min(length1, length2) * 0.25
-            marker_size = max(0.35, min(marker_size, 1.0))
+            marker_size = min(length1, length2) * 0.10
+            marker_size = max(0.15, min(marker_size, 0.45))
 
             #Right angle marker
             if angle_value == 90:
@@ -359,7 +422,7 @@ def generate(topology: str, *, dpi: int = 300, pretty: bool = True) -> bytes:
                 u1 = [dx1 / length1, dy1 / length1]
                 u2 = [dx2 / length2, dy2 / length2]
 
-                square_size = marker_size * 0.5
+                square_size = marker_size * 0.8
 
                 a = TikZCoordinate(
                     vertex[0] + square_size * u1[0],
@@ -430,10 +493,72 @@ def generate(topology: str, *, dpi: int = 300, pretty: bool = True) -> bytes:
 
                 label_node = TikZNode(
                     at = label_coordinate,
-                    text = label_text
+                    text = label_text,
+                    options = TikZOptions("font=\\normalsize")
                 )
 
                 pic.append(label_node)
+
+        #Arc stuff
+        for arc in arcs:
+            start_name = arc[0]
+            center_name = arc[1]
+            end_name = arc[2]
+
+            startCoordinates = vertexCoordinates.get(start_name)
+            centerCoordinates = vertexCoordinates.get(center_name)
+            endCoordinates = vertexCoordinates.get(end_name)
+
+            if startCoordinates is None or centerCoordinates is None or endCoordinates is None:
+                continue
+
+            start_point = vertices.get(start_name)
+            center_point = vertices.get(center_name)
+            end_point = vertices.get(end_name)
+
+            if start_point is None or center_point is None or end_point is None:
+                continue
+
+            start = [coordinate * scale_factor for coordinate in start_point.coordinates]
+            center = [coordinate * scale_factor for coordinate in center_point.coordinates]
+            end = [coordinate * scale_factor for coordinate in end_point.coordinates]
+
+            radius = math.dist(center, start)
+
+            if radius == 0:
+                continue
+
+            start_angle = math.degrees(
+                math.atan2(start[1] - center[1], start[0] - center[0])
+            )
+
+            end_angle = math.degrees(
+                math.atan2(end[1] - center[1], end[0] - center[0])
+            )
+
+            #Arc ABC means:
+            #A is the start point
+            #B is the center
+            #C is the end point
+            #Draw clockwise from A to C
+            ccw_delta = (end_angle - start_angle) % 360
+
+            if ccw_delta == 0:
+                clockwise_delta = -360
+            else:
+                clockwise_delta = ccw_delta - 360
+
+            pic.append(
+                TikZDraw(
+                    [
+                        startCoordinates,
+                        TikZUserPath(
+                            f"arc[start angle = {start_angle}, delta angle = {clockwise_delta}, radius = {radius}]"
+                        )
+                    ],
+                    options = TikZOptions("line width = 1pt")
+                )
+            )
     
     doc.generate_pdf("tikzdraw", clean_tex = False)
 
