@@ -21,6 +21,42 @@ class point:
         self.coordinates = coordinates
         self.label_position = label_position
 
+class arc:
+
+    #Label of the point at the arc's center
+    center: str
+    #Label of a point on the counterclockwise edge of the corresponding sector
+    counterclockwise_point: str
+    #Label of a point on the clockwise edge of the corresponding sector
+    clockwise_point: str
+    #Radius of the arc
+    radius: float
+
+    def __init__(self, ccw_point: str, center: str, cw_point: str, radius: float):
+        self.counterclockwise_point = ccw_point
+        self.center = center
+        self.clockwise_point = cw_point
+        self.radius = radius
+
+    #Return [start angle, end angle] of the arc given a dictionary of points
+    def calculate_angles(self, vertices: dict):
+        center = vertices.get(self.center)
+        start_point = vertices.get(self.counterclockwise_point)
+        end_point = vertices.get(self.clockwise_point)
+        if (center is None or start_point is None or end_point is None):
+            return None
+        center = center.coordinates
+        start_point = start_point.coordinates
+        end_point = end_point.coordinates
+        x_difference = np.array([start_point[0] - center[0], end_point[0] - center[0]])
+        y_difference = np.array([start_point[1] - center[1], end_point[1] - center[1]])
+        radians = np.arctan(y_difference / x_difference)
+        degrees = (radians * 180 / np.pi).tolist()
+        for i in range(2):
+            if (x_difference[i] < 0):
+                degrees[i] = degrees[i] + 180
+        return degrees
+
 def run_cmd(cmd: List[str], cwd=None) -> None:
     p = subprocess.run(cmd, cwd=cwd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
     if p.returncode != 0:
@@ -80,7 +116,7 @@ def parse_topology_to_dict(topology: str) -> dict:
     vertices = {}
 
     #Regex looking for a substring of the format "Vertex [Label]:([x coordinate],[y coordinate]) above left" with optional whitespace
-    # Nick's regex extended
+    #Old regex extended
     vertices_regex = re.compile(
         r"Vertex\s*([A-Z])\s*\:\s*\(([^,]+)\s*,\s*(.+)\s*\)\s*(above left|above right|below left|below right|above|below|left|right)?", 
         re.IGNORECASE,
@@ -92,7 +128,7 @@ def parse_topology_to_dict(topology: str) -> dict:
     #     re.IGNORECASE,
     # )
 
-    # Nick this was your old regex:
+    # Old regex:
     # vertices_regex = re.compile(
     #     r"Vertex\s*([A-Z])\s*\:\s*\(([^,]+)\s*,\s*(.+)\s*\)", re.IGNORECASE)
 
@@ -104,7 +140,7 @@ def parse_topology_to_dict(topology: str) -> dict:
         label_position = match.group(4)
 
         if label_position is None:
-            label_position = "above right" # default
+            label_position = None
         else:
             label_position = label_position.lower()
 
@@ -140,7 +176,7 @@ def parse_topology_to_dict(topology: str) -> dict:
     angles_regex = re.compile(r"Angle\s*([A-Z]{3})\s*=\s*(.+)", re.IGNORECASE)
 
     for match in angles_regex.finditer(topology):
-        angle_name = match.group(1)
+        angle_name = match.group(1).upper()
         raw_measure = match.group(2).strip()
 
         start = angle_name[0]
@@ -157,17 +193,8 @@ def parse_topology_to_dict(topology: str) -> dict:
     #List containing all arcs of the graph
     arcs = []
 
-    #Regex looking for substrings like:
-    #Arc AOC
-    #Arc BOD
-    #Arc XOY
-    #
-    #Arc AOC means:
-    #A is the start point
-    #O is the center
-    #C is the end point
-    #The arc is drawn clockwise from A to C around O
-    arcs_regex = re.compile(r"Arc\s+([A-Z]{3})", re.IGNORECASE)
+    #Regex looking for a substring of the format "Arc [Counterclockwise endpoint][Center][Clockwise endpoint]" with optional whitespace
+    arcs_regex = re.compile(r"Arc\s*([A-Z]{3})", re.IGNORECASE)
 
     for match in arcs_regex.finditer(topology):
         arc_name = match.group(1).upper()
