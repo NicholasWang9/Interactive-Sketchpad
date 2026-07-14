@@ -106,7 +106,7 @@ Angle AOB=90
 
 Circle O center O radius sqrt(2)
 
-Arc APB radius 1
+Arc APB
 
 Rules for `topology`:
 - VERY IMPORTANT: Calculate exact coordinates from information from the problem and diagram
