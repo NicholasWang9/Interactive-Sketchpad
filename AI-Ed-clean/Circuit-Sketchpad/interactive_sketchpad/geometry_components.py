@@ -91,7 +91,7 @@ def parse_topology_to_dict(topology: str) -> dict:
     #List containing all edges of the graph
     edges = []
 
-     #Regex looking for a substring of the format "Segment [Endpoint 1]-[Endpoint 2]" with optional whitespace
+    #Regex looking for a substring of the format "Segment [Endpoint 1]-[Endpoint 2]" with optional whitespace
     edges_regex = re.compile(r"Segment\s*([A-Z])\s*\-\s*([A-Z])", re.IGNORECASE)
 
     for match in edges_regex.finditer(topology):
@@ -102,7 +102,7 @@ def parse_topology_to_dict(topology: str) -> dict:
     #List containing all circles of the graph
     circles = []
 
-    #Regex looking for a substring of the format "Circle [Label] Center [Center Point] Radius [Radius] with optional whitespace
+    #Regex looking for a substring of the format "Circle [Label] Center [Center Point] Radius [Radius]" with optional whitespace
     circles_regex = re.compile(r"Circle\s*([A-Z])\s*Center\s*([A-Z])\s*Radius(.+)", re.IGNORECASE)
 
     for match in circles_regex.finditer(topology):
@@ -113,25 +113,24 @@ def parse_topology_to_dict(topology: str) -> dict:
 
     #List containing all angles of the graph, BRYAN ADDED NICK PLS CHECK
     angles = []
-    angles_regex = re.compile(
-        r"angle\s+([A-Z]{3})\s*=\s*([A-Za-z0-9_+\-*/().]+)",
-        re.IGNORECASE,
-    )
+
+    #Regex looking for a substring of the format "Angle [Angle Name] = [Angle Measure]" with optional whitespace
+    angles_regex = re.compile(r"Angle\s*([A-Z]{3})\s*=\s*(.+)", re.IGNORECASE)
 
     for match in angles_regex.finditer(topology):
-        angle_name = match.group(1).upper()
-        raw_value = match.group(2).strip()
+        angle_name = match.group(1)
+        raw_measure = match.group(2).strip()
 
-        start_name = angle_name[0]
-        vertex_name = angle_name[1]
-        end_name = angle_name[2]
+        start = angle_name[0]
+        vertex = angle_name[1]
+        end = angle_name[2]
 
-        if re.search(r"[A-Za-z_]", raw_value):
-            angle_value = raw_value
+        if re.search(r"[A-Za-z_]", raw_measure):
+            angle_measure = raw_measure
         else:
-            angle_value = evaluate_expression(raw_value)
+            angle_measure = evaluate_expression(raw_measure)
 
-        angles.append([start_name, vertex_name, end_name, angle_value])
+        angles.append([start, vertex, end, angle_measure])
 
     drawingInfo = {
         "vertices" : vertices,
@@ -180,16 +179,17 @@ def generate(topology: str, *, dpi: int = 300, pretty: bool = True) -> bytes:
 
     rawVertexCoordinates = np.array([vertex.coordinates for vertex in vertices.values() if vertex.label_position is not None])
 
+    #Check for maximum sizes to scale the image to fit
     if vertices is not None:
         for vertexName in vertices.keys():
             point = vertices.get(vertexName)
             vertex = point.coordinates
             coordinate = TikZCoordinate(vertex[0], vertex[1])
             vertexCoordinates.update({vertexName : coordinate})
-            min_x = min(rawVertexCoordinates[:, 0])
-            max_x = max(rawVertexCoordinates[:, 0])
-            min_y = min(rawVertexCoordinates[:, 1])
-            max_y = max(rawVertexCoordinates[:, 1])
+        min_x = min(rawVertexCoordinates[:, 0])
+        max_x = max(rawVertexCoordinates[:, 0])
+        min_y = min(rawVertexCoordinates[:, 1])
+        max_y = max(rawVertexCoordinates[:, 1])
 
     if circles is not None:
         for circle in circles:
@@ -200,7 +200,6 @@ def generate(topology: str, *, dpi: int = 300, pretty: bool = True) -> bytes:
             min_y = min(min_y, center[1] - radius)
             max_y = max(max_y, center[1] + radius)
 
-    #BRYAN ADDED NICK PLS CHECK
     if angles is not None:
         for angle in angles:
             start_name = angle[0]
