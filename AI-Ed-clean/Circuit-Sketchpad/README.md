@@ -25,7 +25,7 @@ Add your OpenAI API Key in a .env file
 `OPENAI_API_KEY="YOUR_KEY_HERE"`
 
 To run interactive sketchpad, do:
-`cd interactive_sketchpad`	
+`cd interactive_sketchpad`
 
 Start the server using the command:
 `uv run uvicorn main:app --host 127.0.0.1 --port 8000`

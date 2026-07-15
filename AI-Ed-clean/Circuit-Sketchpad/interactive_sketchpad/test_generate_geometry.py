@@ -19,13 +19,13 @@ def main():
     Segment O-A
     Segment O-B
 
-    Angle AOB=90
+    Angle AOB=80
 
     Circle O center O radius sqrt(2)
 
     Arc APB
 
-    Shade 
+    Shade APB BA
     """
 
     # Call your in-memory generator
