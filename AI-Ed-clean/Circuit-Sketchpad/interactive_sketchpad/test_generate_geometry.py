@@ -19,7 +19,7 @@ def main():
     Segment O-A
     Segment O-B
 
-    Angle AOB=80
+    Angle AOB=90
 
     Circle O center O radius sqrt(2)
 

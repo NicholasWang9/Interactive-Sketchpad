@@ -13,24 +13,27 @@
 \begin{document}%
 \normalsize%
 \begin{tikzpicture}%
-\node[above left,font=\Large] (A) at (-7.071067811865475,7.071067811865475) {A};%
-\path[draw,fill=black,radius=0.04] (-7.071067811865475,7.071067811865475) circle;%
-\node[above right,font=\Large] (B) at (7.071067811865475,7.071067811865475) {B};%
-\path[draw,fill=black,radius=0.04] (7.071067811865475,7.071067811865475) circle;%
-\node[below left,font=\Large] (C) at (-10.0,0.0) {C};%
-\path[draw,fill=black,radius=0.04] (-10.0,0.0) circle;%
-\node[below right,font=\Large] (D) at (10.0,0.0) {D};%
-\path[draw,fill=black,radius=0.04] (10.0,0.0) circle;%
+\node[above left,font=\Large] (A) at (-5.85786437626905,5.85786437626905) {A};%
+\path[draw,fill=black,radius=0.04] (-5.85786437626905,5.85786437626905) circle;%
+\node[above right,font=\Large] (B) at (5.85786437626905,5.85786437626905) {B};%
+\path[draw,fill=black,radius=0.04] (5.85786437626905,5.85786437626905) circle;%
+\node[below left,font=\Large] (C) at (-8.284271247461902,0.0) {C};%
+\path[draw,fill=black,radius=0.04] (-8.284271247461902,0.0) circle;%
+\node[below right,font=\Large] (D) at (8.284271247461902,0.0) {D};%
+\path[draw,fill=black,radius=0.04] (8.284271247461902,0.0) circle;%
 \node[below,font=\Large] (O) at (0.0,0.0) {O};%
 \path[draw,fill=black,radius=0.04] (0.0,0.0) circle;%
-\path[fill = gray!30,draw = none,draw] (-7.071067811865475,7.071067811865475) -- (-7.071067811865475,7.071067811865475) -- cycle;%
-\path[line width = 1pt,draw] (-7.071067811865475,7.071067811865475) -- (7.071067811865475,7.071067811865475);%
-\path[line width = 1pt,draw] (0.0,0.0) -- (-10.0,0.0);%
-\path[line width = 1pt,draw] (0.0,0.0) -- (10.0,0.0);%
-\path[line width = 1pt,draw] (0.0,0.0) -- (-7.071067811865475,7.071067811865475);%
-\path[line width = 1pt,draw] (0.0,0.0) -- (7.071067811865475,7.071067811865475);%
-\path[line width = 1pt,draw,radius=10.0] (0.0,0.0) circle;%
+\node[above,font=\Large] (P) at (0.0,5.85786437626905) {P};%
+\path[draw,fill=black,radius=0.04] (0.0,5.85786437626905) circle;%
+\path[fill = gray!30,draw = none,draw] (-5.85786437626905,5.85786437626905) arc[start angle = 180.0, delta angle = -180.0, radius = 5.85786437626905] -- (-5.85786437626905,5.85786437626905) -- cycle;%
+\path[line width = 1pt,draw] (-5.85786437626905,5.85786437626905) -- (5.85786437626905,5.85786437626905);%
+\path[line width = 1pt,draw] (0.0,0.0) -- (-8.284271247461902,0.0);%
+\path[line width = 1pt,draw] (0.0,0.0) -- (8.284271247461902,0.0);%
+\path[line width = 1pt,draw] (0.0,0.0) -- (-5.85786437626905,5.85786437626905);%
+\path[line width = 1pt,draw] (0.0,0.0) -- (5.85786437626905,5.85786437626905);%
+\path[line width = 1pt,draw,radius=8.284271247461902] (0.0,0.0) circle;%
 \path[line width = 0.8pt,draw] (-0.2474873734152916,0.24748737341529164) arc[start angle = 135.0, end angle = 45.0, radius = 0.35];%
 \node[font=\normalsize] at (4.286263797015736e-17,0.7) {$80^\circ$};%
+\path[start angle  = 180.0,end angle = 0.0,thick,draw,radius=5.85786437626905] (-5.85786437626905,5.85786437626905) arc;%
 \end{tikzpicture}%
 \end{document}
