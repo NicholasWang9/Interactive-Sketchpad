@@ -50,7 +50,7 @@ class arc:
         end_point = end_point.coordinates
         x_difference = np.array([start_point[0] - center[0], end_point[0] - center[0]])
         y_difference = np.array([start_point[1] - center[1], end_point[1] - center[1]])
-        radians = np.arctan(y_difference / x_difference)
+        radians = np.arctan(np.divide(y_difference, x_difference))
         degrees = (radians * 180 / np.pi).tolist()
         for i in range(2):
             if (x_difference[i] < 0):
