@@ -55,6 +55,8 @@ class arc:
         for i in range(2):
             if (x_difference[i] < 0):
                 degrees[i] = degrees[i] + 180
+        if (degrees[1] - degrees[0] > 0):
+            degrees[1] = degrees[1] - 360
         return degrees
     
 class angle:
@@ -93,6 +95,8 @@ class angle:
         for i in range(2):
             if (x_difference[i] < 0):
                 degrees[i] = degrees[i] + 180
+        if (degrees[1] - degrees[0] > 0):
+            degrees[1] = degrees[1] - 360
         return degrees
 
 def run_cmd(cmd: List[str], cwd=None) -> None:
@@ -343,7 +347,7 @@ def generate(topology: str, *, dpi: int = 300, pretty: bool = True) -> bytes:
     x_width = max_x - min_x
     y_width = max_y - min_y
     max_width = max(x_width, y_width)
-    scale_factor = 20 / max_width
+    scale_factor = 18 / max_width
 
     vertexCoordinates = dict()
 
@@ -401,13 +405,15 @@ def generate(topology: str, *, dpi: int = 300, pretty: bool = True) -> bytes:
                 )
             )
         
-        #BRYAN ADDED NICK PLS CHECK bro there's so much 
         for angle in angles:
-            counterclockwise_point = vertices.get(angle.counterclockwise_point).coordinates
-            center = vertices.get(angle.center).coordinates
-            clockwise_point = vertices.get(angle.clockwise_point).coordinates
+            counterclockwise_point = [coordinate * scale_factor for coordinate in vertices.get(angle.counterclockwise_point).coordinates]
+            center = [coordinate * scale_factor for coordinate in vertices.get(angle.center).coordinates]
+            clockwise_point = [coordinate * scale_factor for coordinate in vertices.get(angle.clockwise_point).coordinates]
 
-            start_angle, end_angle = angle.calculate_angles(vertices)
+            angle_bounds = angle.calculate_angles(vertices)
+            if angle_bounds is None:
+                continue
+            start_angle, end_angle = angle_bounds
 
             angle_value = angle.measure
 
@@ -429,18 +435,18 @@ def generate(topology: str, *, dpi: int = 300, pretty: bool = True) -> bytes:
                 square_size = marker_size * 0.8
 
                 a = TikZCoordinate(
-                    vertex[0] + square_size * counterclockwise_edge_vector[0],
-                    vertex[1] + square_size * counterclockwise_edge_vector[1]
+                    center[0] + square_size * counterclockwise_edge_vector[0],
+                    center[1] + square_size * counterclockwise_edge_vector[1]
                 )
 
                 b = TikZCoordinate(
-                    vertex[0] + square_size * (counterclockwise_edge_vector[0] + clockwise_edge_vector[0]),
-                    vertex[1] + square_size * (counterclockwise_edge_vector[1] + clockwise_edge_vector[1])
+                    center[0] + square_size * (counterclockwise_edge_vector[0] + clockwise_edge_vector[0]),
+                    center[1] + square_size * (counterclockwise_edge_vector[1] + clockwise_edge_vector[1])
                 )
 
                 c = TikZCoordinate(
-                    vertex[0] + square_size * clockwise_edge_vector[0],
-                    vertex[1] + square_size * clockwise_edge_vector[1]
+                    center[0] + square_size * clockwise_edge_vector[0],
+                    center[1] + square_size * clockwise_edge_vector[1]
                 )
 
                 pic.append(
@@ -473,8 +479,8 @@ def generate(topology: str, *, dpi: int = 300, pretty: bool = True) -> bytes:
                 label_distancee = marker_size + 0.35
 
                 label_coordinate = TikZCoordinate(
-                    vertex[0] + label_distancee * math.cos(math.radians(mid_angle)),
-                    vertex[1] + label_distancee * math.sin(math.radians(mid_angle))
+                    center[0] + label_distancee * math.cos(math.radians(mid_angle)),
+                    center[1] + label_distancee * math.sin(math.radians(mid_angle))
                 )
 
                 if isinstance(angle_value, float) or isinstance(angle_value, int):

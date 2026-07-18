@@ -675,7 +675,7 @@ Python-style math expression rules:
 ## ANGLE RULES 
 
 - Include only angles that are explicitly marked, labeled, or important for the setup.
-- 'Angle ABC' means a clockwise angle from A to C centered at B.
+- IMPORTANT: 'Angle ABC' means a counterclockwise angle from A to C centered at B.
 - Do not include inferred angles just because they can be calculated.
 - Use this angle format: 'Angle ABC=60'.
 - 'Angle ABC=60' means angle ABC is 60 degrees, with B as the vertex.
@@ -703,7 +703,7 @@ Python-style math expression rules:
 - Include arcs when present.
 - Use this arc format: 'Arc ABC' or 'Arc XOY'.
 - For arcs, use three-letter notation.
-- 'Arc ABC' means a clockwise arc from A to C centered at B.
+- IMPORTANT: 'Arc ABC' means a counterclockwise arc from A to C centered at B.
 - The middle letter is always the center of the arc.
 - The first and third letters must be actual arc endpoints.
 - The middle letter must be the center of the circle containing the arc.
