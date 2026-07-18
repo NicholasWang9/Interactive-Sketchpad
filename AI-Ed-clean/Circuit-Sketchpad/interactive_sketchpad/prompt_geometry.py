@@ -588,6 +588,7 @@ Python-style math expression rules:
 ## ANGLE RULES 
 
 - Include only angles that are explicitly marked, labeled, or important for the setup.
+- 'Angle ABC' means a clockwise angle from A to C centered at B.
 - Do not include inferred angles just because they can be calculated.
 - Use this angle format: 'Angle ABC=60'.
 - 'Angle ABC=60' means angle ABC is 60 degrees, with B as the vertex.

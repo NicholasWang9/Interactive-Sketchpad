@@ -56,6 +56,44 @@ class arc:
             if (x_difference[i] < 0):
                 degrees[i] = degrees[i] + 180
         return degrees
+    
+class angle:
+    #Label of the point at the angle's center
+    center: str
+    #Label of a point on the counterclockwise edge of the angle
+    counterclockwise_point: str
+    #Label of a point on the clockwise edge of the angle
+    clockwise_point: str
+    #Measure label of the angle
+    measure = ""
+
+    def __init__(self, ccw_point: str, center: str, cw_point: str, raw_measure: str):
+        self.counterclockwise_point = ccw_point
+        self.center = center
+        self.clockwise_point = cw_point
+        if re.search(r"[A-Za-z_]", raw_measure):
+            self.measure = raw_measure
+        else:
+            self.measure = evaluate_expression(raw_measure)
+
+    #Return [start angle, end angle] of the angle given a dictionary of points
+    def calculate_angles(self, vertices: dict):
+        center = vertices.get(self.center)
+        start_point = vertices.get(self.counterclockwise_point)
+        end_point = vertices.get(self.clockwise_point)
+        if (center is None or start_point is None or end_point is None):
+            return None
+        center = center.coordinates
+        start_point = start_point.coordinates
+        end_point = end_point.coordinates
+        x_difference = np.array([start_point[0] - center[0], end_point[0] - center[0]])
+        y_difference = np.array([start_point[1] - center[1], end_point[1] - center[1]])
+        radians = np.arctan(y_difference / x_difference)
+        degrees = (radians * 180 / np.pi).tolist()
+        for i in range(2):
+            if (x_difference[i] < 0):
+                degrees[i] = degrees[i] + 180
+        return degrees
 
 def run_cmd(cmd: List[str], cwd=None) -> None:
     p = subprocess.run(cmd, cwd=cwd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
@@ -179,16 +217,11 @@ def parse_topology_to_dict(topology: str) -> dict:
         angle_name = match.group(1).upper()
         raw_measure = match.group(2).strip()
 
-        start = angle_name[0]
-        vertex = angle_name[1]
-        end = angle_name[2]
+        counterclockwise_point = angle_name[0]
+        center = angle_name[1]
+        clockwise_point = angle_name[2]
 
-        if re.search(r"[A-Za-z_]", raw_measure):
-            angle_measure = raw_measure
-        else:
-            angle_measure = evaluate_expression(raw_measure)
-
-        angles.append([start, vertex, end, angle_measure])
+        angles.append(angle(counterclockwise_point, center, clockwise_point, raw_measure))
 
     #List containing all arcs of the graph
     arcs = []
@@ -285,29 +318,18 @@ def generate(topology: str, *, dpi: int = 300, pretty: bool = True) -> bytes:
 
     if angles is not None:
         for angle in angles:
-            start_name = angle[0]
-            vertex_name = angle[1]
-            end_name = angle[2]
-
-            start_point = vertices.get(start_name)
-            vertex_point = vertices.get(vertex_name)
-            end_point = vertices.get(end_name)
-
-            if start_point is None or vertex_point is None or end_point is None:
-                continue
-
-            start = start_point.coordinates
-            vertex = vertex_point.coordinates
-            end = end_point.coordinates
+            counterclockwise_point = vertices.get(angle.counterclockwise_point).coordinates
+            center = vertices.get(angle.center).coordinates
+            clockwise_point = vertices.get(angle.clockwise_point).coordinates
 
             # Angles are drawn near the vertex.
             # This padding gives the angle marker and label some room.
             padding = 0.5
 
-            min_x = min(min_x, start[0], vertex[0] - padding, end[0])
-            max_x = max(max_x, start[0], vertex[0] + padding, end[0])
-            min_y = min(min_y, start[1], vertex[1] - padding, end[1])
-            max_y = max(max_y, start[1], vertex[1] + padding, end[1])
+            min_x = min(min_x, counterclockwise_point[0], center[0] - padding, clockwise_point[0])
+            max_x = max(max_x, counterclockwise_point[0], center[0] + padding, clockwise_point[0])
+            min_y = min(min_y, counterclockwise_point[1], center[1] - padding, clockwise_point[1])
+            max_y = max(max_y, counterclockwise_point[1], center[1] + padding, clockwise_point[1])
     
     if arcs is not None:
         for arc in arcs:
@@ -381,82 +403,44 @@ def generate(topology: str, *, dpi: int = 300, pretty: bool = True) -> bytes:
         
         #BRYAN ADDED NICK PLS CHECK bro there's so much 
         for angle in angles:
-            start_name = angle[0]
-            vertex_name = angle[1]
-            end_name = angle[2]
-            angle_value = angle[3]
+            counterclockwise_point = vertices.get(angle.counterclockwise_point).coordinates
+            center = vertices.get(angle.center).coordinates
+            clockwise_point = vertices.get(angle.clockwise_point).coordinates
 
-            start_point = vertices.get(start_name)
-            vertex_point = vertices.get(vertex_name)
-            end_point = vertices.get(end_name)
+            start_angle, end_angle = angle.calculate_angles(vertices)
 
-            if start_point is None or vertex_point is None or end_point is None:
+            angle_value = angle.measure
+
+            length1 = math.dist(vertex, counterclockwise_point)
+            length2 = math.dist(vertex, clockwise_point)
+
+            if length1 == 0 or length2 == 0:
                 continue
 
-            start = [coordinate * scale_factor for coordinate in start_point.coordinates]
-            vertex = [coordinate * scale_factor for coordinate in vertex_point.coordinates]
-            end = [coordinate * scale_factor for coordinate in end_point.coordinates]
-
-            start_angle = math.degrees(
-                math.atan2(start[1] - vertex[1], start[0] - vertex[0])
-            )
-
-            end_angle = math.degrees(
-                math.atan2(end[1] - vertex[1], end[0] - vertex[0])
-            )
-
-            ccw_angle = (end_angle - start_angle) % 360
-
-            if isinstance(angle_value, float) or isinstance(angle_value, int):
-                clockwise_angle = 360 - ccw_angle
-
-                if abs(ccw_angle - angle_value) <= abs(clockwise_angle - angle_value):
-                    final_end_angle = start_angle + ccw_angle
-                else:
-                    final_end_angle = start_angle - clockwise_angle
-            else:
-                if ccw_angle <= 180:
-                    final_end_angle = start_angle + ccw_angle
-                else:
-                    final_end_angle = start_angle - (360 - ccw_angle)
-
-            length1 = math.dist(vertex, start)
-            length2 = math.dist(vertex, end)
-
+            #Attempt to make the angle marking proportional to edge length while still bounded to [0.15, 0.45]
             marker_size = min(length1, length2) * 0.10
             marker_size = max(0.15, min(marker_size, 0.45))
 
             #Right angle marker
             if angle_value == 90:
-                dx1 = start[0] - vertex[0]
-                dy1 = start[1] - vertex[1]
-                dx2 = end[0] - vertex[0]
-                dy2 = end[1] - vertex[1]
-
-                length1 = math.hypot(dx1, dy1)
-                length2 = math.hypot(dx2, dy2)
-
-                if length1 == 0 or length2 == 0:
-                    continue
-
-                u1 = [dx1 / length1, dy1 / length1]
-                u2 = [dx2 / length2, dy2 / length2]
+                counterclockwise_edge_vector = [counterclockwise_point[0] - center[0] / length1, counterclockwise_point[1] - center[1] / length1]
+                clockwise_edge_vector = [clockwise_point[0] - center[0] / length1, clockwise_point[1] - center[1] / length1]
 
                 square_size = marker_size * 0.8
 
                 a = TikZCoordinate(
-                    vertex[0] + square_size * u1[0],
-                    vertex[1] + square_size * u1[1]
+                    vertex[0] + square_size * counterclockwise_edge_vector[0],
+                    vertex[1] + square_size * counterclockwise_edge_vector[1]
                 )
 
                 b = TikZCoordinate(
-                    vertex[0] + square_size * u1[0] + square_size * u2[0],
-                    vertex[1] + square_size * u1[1] + square_size * u2[1]
+                    vertex[0] + square_size * (counterclockwise_edge_vector[0] + clockwise_edge_vector[0]),
+                    vertex[1] + square_size * (counterclockwise_edge_vector[1] + clockwise_edge_vector[1])
                 )
 
                 c = TikZCoordinate(
-                    vertex[0] + square_size * u2[0],
-                    vertex[1] + square_size * u2[1]
+                    vertex[0] + square_size * clockwise_edge_vector[0],
+                    vertex[1] + square_size * clockwise_edge_vector[1]
                 )
 
                 pic.append(
@@ -465,45 +449,32 @@ def generate(topology: str, *, dpi: int = 300, pretty: bool = True) -> bytes:
                         options = TikZOptions("line width = 0.8pt")
                     )
                 )
-
-                label_coordinate = TikZCoordinate(
-                    vertex[0] + 1.2 * square_size * (u1[0] + u2[0]),
-                    vertex[1] + 1.2 * square_size * (u1[1] + u2[1])
-                )
-
-                # Don't need to label right angles
-                # label_node = TikZNode(
-                #     at = label_coordinate,
-                #     text = "$90^\\circ$"
-                # )
-
-                # pic.append(label_node)
-
+            
             #Regular angle marker
             else:
-                arc_start_x = vertex[0] + marker_size * math.cos(math.radians(start_angle))
-                arc_start_y = vertex[1] + marker_size * math.sin(math.radians(start_angle))
+                arc_start_x = center[0] + marker_size * math.cos(math.radians(start_angle))
+                arc_start_y = center[1] + marker_size * math.sin(math.radians(start_angle))
 
-                arc_start = TikZCoordinate(arc_start_x, arc_start_y)
+                marker_start = TikZCoordinate(arc_start_x, arc_start_y)
 
                 pic.append(
                     TikZDraw(
-                        [
-                            arc_start,
-                            TikZUserPath(
-                                f"arc[start angle = {start_angle}, end angle = {final_end_angle}, radius = {marker_size}]"
-                            )
-                        ],
-                        options = TikZOptions("line width = 0.8pt")
+                        [marker_start, "arc"],
+                        options = TikZOptions(
+                            f"start angle  = {start_angle}",
+                            f"end angle = {end_angle}",
+                            "thick",
+                            radius = marker_size
+                        )
                     )
                 )
 
-                mid_angle = (start_angle + final_end_angle) / 2
-                label_radius = marker_size + 0.35
+                mid_angle = (start_angle + end_angle) / 2
+                label_distancee = marker_size + 0.35
 
                 label_coordinate = TikZCoordinate(
-                    vertex[0] + label_radius * math.cos(math.radians(mid_angle)),
-                    vertex[1] + label_radius * math.sin(math.radians(mid_angle))
+                    vertex[0] + label_distancee * math.cos(math.radians(mid_angle)),
+                    vertex[1] + label_distancee * math.sin(math.radians(mid_angle))
                 )
 
                 if isinstance(angle_value, float) or isinstance(angle_value, int):
@@ -516,7 +487,6 @@ def generate(topology: str, *, dpi: int = 300, pretty: bool = True) -> bytes:
                     text = label_text,
                     options = TikZOptions("font=\\normalsize")
                 )
-
                 pic.append(label_node)
 
         for arc in arcs:
