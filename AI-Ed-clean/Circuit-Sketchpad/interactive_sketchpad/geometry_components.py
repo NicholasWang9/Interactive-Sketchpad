@@ -410,6 +410,10 @@ def generate(topology: str, *, dpi: int = 300, pretty: bool = True) -> bytes:
             center = [coordinate * scale_factor for coordinate in vertices.get(angle.center).coordinates]
             clockwise_point = [coordinate * scale_factor for coordinate in vertices.get(angle.clockwise_point).coordinates]
 
+            print(counterclockwise_point)
+            print(center)
+            print(clockwise_point)
+
             angle_bounds = angle.calculate_angles(vertices)
             if angle_bounds is None:
                 continue
@@ -419,6 +423,9 @@ def generate(topology: str, *, dpi: int = 300, pretty: bool = True) -> bytes:
 
             length1 = math.dist(vertex, counterclockwise_point)
             length2 = math.dist(vertex, clockwise_point)
+
+            print(length1)
+            print(length2)
 
             if length1 == 0 or length2 == 0:
                 continue
@@ -430,7 +437,7 @@ def generate(topology: str, *, dpi: int = 300, pretty: bool = True) -> bytes:
             #Right angle marker
             if angle_value == 90:
                 counterclockwise_edge_vector = [counterclockwise_point[0] - center[0] / length1, counterclockwise_point[1] - center[1] / length1]
-                clockwise_edge_vector = [clockwise_point[0] - center[0] / length1, clockwise_point[1] - center[1] / length1]
+                clockwise_edge_vector = [clockwise_point[0] - center[0] / length2, clockwise_point[1] - center[1] / length2]
 
                 square_size = marker_size * 0.8
 
