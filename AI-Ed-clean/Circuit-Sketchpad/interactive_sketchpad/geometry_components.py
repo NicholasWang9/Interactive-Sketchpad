@@ -297,7 +297,7 @@ def generate(topology: str, *, dpi: int = 300, pretty: bool = True) -> bytes:
 
     vertexCoordinates = dict()
 
-    rawVertexCoordinates = np.array([vertex.coordinates for vertex in vertices.values() if vertex.label_position is not None])
+    rawVertexCoordinates = [vertex.coordinates for vertex in vertices.values() if vertex.label_position is not None]
 
     #Check for maximum sizes to scale the image to fit
     if vertices is not None:
@@ -306,10 +306,10 @@ def generate(topology: str, *, dpi: int = 300, pretty: bool = True) -> bytes:
             vertex = point.coordinates
             coordinate = TikZCoordinate(vertex[0], vertex[1])
             vertexCoordinates.update({vertexName : coordinate})
-        min_x = min(rawVertexCoordinates[:, 0])
-        max_x = max(rawVertexCoordinates[:, 0])
-        min_y = min(rawVertexCoordinates[:, 1])
-        max_y = max(rawVertexCoordinates[:, 1])
+        min_x = min([coordinate[0] for coordinate in rawVertexCoordinates])
+        max_x = max([coordinate[0] for coordinate in rawVertexCoordinates])
+        min_y = min([coordinate[1] for coordinate in rawVertexCoordinates])
+        max_y = max([coordinate[1] for coordinate in rawVertexCoordinates])
 
     if circles is not None:
         for circle in circles:
@@ -455,7 +455,7 @@ def generate(topology: str, *, dpi: int = 300, pretty: bool = True) -> bytes:
                     center[0] + square_size * clockwise_edge_vector[0],
                     center[1] + square_size * clockwise_edge_vector[1]
                 )
-
+                
                 pic.append(
                     TikZDraw(
                         [a, "--", b, "--", c],
@@ -483,11 +483,11 @@ def generate(topology: str, *, dpi: int = 300, pretty: bool = True) -> bytes:
                 )
 
                 mid_angle = (start_angle + end_angle) / 2
-                label_distancee = marker_size + 0.35
+                label_distance = marker_size + 0.35
 
                 label_coordinate = TikZCoordinate(
-                    center[0] + label_distancee * math.cos(math.radians(mid_angle)),
-                    center[1] + label_distancee * math.sin(math.radians(mid_angle))
+                    center[0] + label_distance * math.cos(math.radians(mid_angle)),
+                    center[1] + label_distance * math.sin(math.radians(mid_angle))
                 )
 
                 if isinstance(angle_value, float) or isinstance(angle_value, int):
