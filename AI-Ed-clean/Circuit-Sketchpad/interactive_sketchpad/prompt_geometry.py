@@ -315,7 +315,7 @@ Segment A-B
 Segment A-C
 Segment B-C
 
-Angle BAC=120
+Angle CAB=120
 
 Then respond:
 "Here is the diagram. Since $AB = AC$, what can we say about the two base angles $\\angle B$ and $\\angle C$?"
