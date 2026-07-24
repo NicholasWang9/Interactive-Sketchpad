@@ -921,7 +921,7 @@ async def main(message: cl.Message):
         _, final_text = await run_responses_with_tool_loop(
             conversation=conversation,
             tools=tools,
-            model=os.environ.get("OPENAI_MODEL", "gpt-5.5"),
+            model=os.environ.get("OPENAI_MODEL", "gpt-5.6"),
             instructions_text=cfg["instructions"],
         )
     except Exception as e:

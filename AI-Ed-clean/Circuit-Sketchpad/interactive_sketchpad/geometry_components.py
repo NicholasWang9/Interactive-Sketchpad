@@ -304,8 +304,6 @@ def generate(topology: str, *, dpi: int = 300, pretty: bool = True) -> bytes:
         for vertexName in vertices.keys():
             point = vertices.get(vertexName)
             vertex = point.coordinates
-            coordinate = TikZCoordinate(vertex[0], vertex[1])
-            vertexCoordinates.update({vertexName : coordinate})
         min_x = min([coordinate[0] for coordinate in rawVertexCoordinates])
         max_x = max([coordinate[0] for coordinate in rawVertexCoordinates])
         min_y = min([coordinate[1] for coordinate in rawVertexCoordinates])
@@ -421,8 +419,8 @@ def generate(topology: str, *, dpi: int = 300, pretty: bool = True) -> bytes:
 
             angle_value = angle.measure
 
-            length1 = math.dist(vertex, counterclockwise_point)
-            length2 = math.dist(vertex, clockwise_point)
+            length1 = math.dist(center, counterclockwise_point)
+            length2 = math.dist(center, clockwise_point)
 
             print(length1)
             print(length2)
@@ -436,8 +434,8 @@ def generate(topology: str, *, dpi: int = 300, pretty: bool = True) -> bytes:
 
             #Right angle marker
             if angle_value == 90:
-                counterclockwise_edge_vector = [counterclockwise_point[0] - center[0] / length1, counterclockwise_point[1] - center[1] / length1]
-                clockwise_edge_vector = [clockwise_point[0] - center[0] / length2, clockwise_point[1] - center[1] / length2]
+                counterclockwise_edge_vector = [(counterclockwise_point[0] - center[0]) / length1, (counterclockwise_point[1] - center[1]) / length1]
+                clockwise_edge_vector = [(clockwise_point[0] - center[0]) / length2, (clockwise_point[1] - center[1]) / length2]
 
                 square_size = marker_size * 0.8
 
