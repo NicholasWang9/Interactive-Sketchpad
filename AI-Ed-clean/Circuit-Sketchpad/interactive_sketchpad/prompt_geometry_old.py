@@ -312,7 +312,7 @@ Vertex B:(2,-2*sqrt(3)) below right
 Vertex C:(2,2*sqrt(3)) above right
 
 Segment A-B
-Segment A-C
+Segment A-C  
 Segment B-C
 
 Angle CAB=120
