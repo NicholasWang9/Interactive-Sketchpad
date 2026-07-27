@@ -251,12 +251,68 @@ def parse_topology_to_dict(topology: str) -> dict:
 
         arcs.append(arc(counterclockwise_point, center, clockwise_point, radius))
 
+    #List containing all shaded regions of the graph
+    shading = []
+
+    #Regex looking for substrings like:
+    #Shade AB BC CA
+    #Shade ABC CD DA
+    #Shade ABC CAB BCA
+    #Shade AB BC CA blue
+    #Shade AB BC CA fill blue
+    #
+    #For shade tokens:
+    #AB means straight segment from A to B
+    #ABC means clockwise arc from A to C centered at B
+    shading_regex = re.compile(r"^\s*Shade\s+(.+)$", re.IGNORECASE | re.MULTILINE)
+    shade_token_regex = re.compile(r"^[A-Z]{2,3}$", re.IGNORECASE)
+
+    for match in shading_regex.finditer(topology):
+        raw_shade = match.group(1).strip()
+        raw_parts = raw_shade.split()
+
+        fill_color = "gray!30"
+        shade_tokens = raw_parts
+
+        fill_index = None
+        for index, raw_part in enumerate(raw_parts):
+            if raw_part.lower() == "fill":
+                fill_index = index
+                break
+
+        if fill_index is not None:
+            shade_tokens = raw_parts[:fill_index]
+
+            if fill_index + 1 < len(raw_parts):
+                fill_color = raw_parts[fill_index + 1]
+
+        elif len(raw_parts) > 0 and shade_token_regex.fullmatch(raw_parts[-1]) is None:
+            fill_color = raw_parts[-1]
+            shade_tokens = raw_parts[:-1]
+
+        clean_tokens = []
+
+        for shade_token in shade_tokens:
+            shade_token = shade_token.strip().upper()
+
+            if shade_token_regex.fullmatch(shade_token) is None:
+                continue
+
+            clean_tokens.append(shade_token)
+
+        if len(clean_tokens) > 0:
+            shading.append({
+                "tokens" : clean_tokens,
+                "fill" : fill_color,
+            })
+
     drawingInfo = {
         "vertices" : vertices,
         "edges" : edges,
         "circles" : circles,
         "angles" : angles,
         "arcs" : arcs,
+        "shading" : shading
     }
 
     return drawingInfo
@@ -290,6 +346,7 @@ def generate(topology: str, *, dpi: int = 300, pretty: bool = True) -> bytes:
     circles = drawingInfo.get("circles")
     angles = drawingInfo.get("angles")
     arcs = drawingInfo.get("arcs")
+    shading = drawingInfo.get("shading")
 
     min_x = 0
     max_x = 0
@@ -342,6 +399,54 @@ def generate(topology: str, *, dpi: int = 300, pretty: bool = True) -> bytes:
             max_x = max(max_x, center[0] + radius)
             min_y = min(min_y, center[1] - radius)
             max_y = max(max_y, center[1] + radius)
+        
+    if shading is not None:
+        for shade in shading:
+            shade_tokens = shade.get("tokens")
+
+            if shade_tokens is None:
+                continue
+
+            for shade_token in shade_tokens:
+                if len(shade_token) == 2:
+                    start_name = shade_token[0]
+                    end_name = shade_token[1]
+
+                    start_point = vertices.get(start_name)
+                    end_point = vertices.get(end_name)
+
+                    if start_point is None or end_point is None:
+                        continue
+
+                    start = start_point.coordinates
+                    end = end_point.coordinates
+
+                    min_x = min(min_x, start[0], end[0])
+                    max_x = max(max_x, start[0], end[0])
+                    min_y = min(min_y, start[1], end[1])
+                    max_y = max(max_y, start[1], end[1])
+
+                elif len(shade_token) == 3:
+                    start_name = shade_token[0]
+                    center_name = shade_token[1]
+                    end_name = shade_token[2]
+
+                    start_point = vertices.get(start_name)
+                    center_point = vertices.get(center_name)
+                    end_point = vertices.get(end_name)
+
+                    if start_point is None or center_point is None or end_point is None:
+                        continue
+
+                    start = start_point.coordinates
+                    center = center_point.coordinates
+
+                    radius = math.dist(center, start)
+
+                    min_x = min(min_x, center[0] - radius)
+                    max_x = max(max_x, center[0] + radius)
+                    min_y = min(min_y, center[1] - radius)
+                    max_y = max(max_y, center[1] + radius)
 
     x_width = max_x - min_x
     y_width = max_y - min_y
@@ -372,6 +477,101 @@ def generate(topology: str, *, dpi: int = 300, pretty: bool = True) -> bytes:
                         options = TikZOptions(fill = "black", radius = 0.04, )
                     )
                 )
+        
+        # Shading should be drawn first so edges, arcs, angles, and labels appear on top.
+        # Approach: build one clear path representation from named segments/arcs,
+        # then pass that whole path fragment as ONE TikZUserPath to TikZDraw.
+        # This avoids consecutive TikZUserPath objects and does not use NoEscape.
+        for shade in shading:
+            shade_tokens = shade.get("tokens")
+            fill_color = shade.get("fill", "gray!30")
+
+            if shade_tokens is None or len(shade_tokens) == 0:
+                continue
+
+            first_token = shade_tokens[0]
+            first_start_name = first_token[0]
+            first_start_coordinate = vertexCoordinates.get(first_start_name)
+
+            if first_start_coordinate is None:
+                continue
+
+            path_fragments = []
+
+            for shade_token in shade_tokens:
+                if len(shade_token) == 2:
+                    end_name = shade_token[1]
+                    end_point = vertices.get(end_name)
+
+                    if end_point is None:
+                        continue
+
+                    end = [coordinate * scale_factor for coordinate in end_point.coordinates]
+
+                    # Segment token AB means draw from current point to B.
+                    path_fragments.append(f"-- ({end[0]},{end[1]})")
+
+                elif len(shade_token) == 3:
+                    start_name = shade_token[0]
+                    center_name = shade_token[1]
+                    end_name = shade_token[2]
+
+                    start_point = vertices.get(start_name)
+                    center_point = vertices.get(center_name)
+                    end_point = vertices.get(end_name)
+
+                    if start_point is None or center_point is None or end_point is None:
+                        continue
+
+                    start = [coordinate * scale_factor for coordinate in start_point.coordinates]
+                    center = [coordinate * scale_factor for coordinate in center_point.coordinates]
+                    end = [coordinate * scale_factor for coordinate in end_point.coordinates]
+
+                    radius = math.dist(center, start)
+
+                    if radius == 0:
+                        continue
+
+                    start_angle = math.degrees(
+                        math.atan2(start[1] - center[1], start[0] - center[0])
+                    )
+
+                    end_angle = math.degrees(
+                        math.atan2(end[1] - center[1], end[0] - center[0])
+                    )
+
+                    # Shade token ABC means:
+                    # A is the start point
+                    # B is the center
+                    # C is the end point
+                    # Draw clockwise from A to C
+                    ccw_delta = (end_angle - start_angle) % 360
+
+                    if ccw_delta == 0:
+                        clockwise_delta = -360
+                    else:
+                        clockwise_delta = ccw_delta - 360
+
+                    # Arc token ABC means draw the arc from the current point to C.
+                    path_fragments.append(
+                        f"arc[start angle = {start_angle}, delta angle = {clockwise_delta}, radius = {radius}]"
+                    )
+
+            if len(path_fragments) == 0:
+                continue
+
+            path_fragments.append("-- cycle")
+            path_after_start = " ".join(path_fragments)
+
+            pic.append(
+                TikZDraw(
+                    [
+                        first_start_coordinate,
+                        TikZUserPath(path_after_start)
+                    ],
+                    options = TikZOptions(f"fill = {fill_color}", "draw = none")
+                )
+            )
 
         for edge in edges:
             point1 = vertexCoordinates.get(edge[0])
@@ -429,7 +629,6 @@ def generate(topology: str, *, dpi: int = 300, pretty: bool = True) -> bytes:
             if length1 == 0 or length2 == 0:
                 continue
 
-            #Attempt to make the angle marking proportional to edge length while still bounded to [0.15, 0.45]
             marker_size = min(length1, length2) * 0.10
             marker_size = max(0.15, min(marker_size, 0.45))
 
