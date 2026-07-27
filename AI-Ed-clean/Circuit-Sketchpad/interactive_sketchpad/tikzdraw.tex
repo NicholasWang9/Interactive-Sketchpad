@@ -13,26 +13,20 @@
 \begin{document}%
 \normalsize%
 \begin{tikzpicture}%
-\node[left,font=\large] (A) at (-9.0,0.0) {A};%
+\node[above,font=\Large] (A) at (0.0,6.75) {A};%
+\path[draw,fill=black,radius=0.04] (0.0,6.75) circle;%
+\node[below left,font=\Large] (B) at (-9.0,0.0) {B};%
 \path[draw,fill=black,radius=0.04] (-9.0,0.0) circle;%
-\node[right,font=\large] (B) at (9.0,0.0) {B};%
+\node[below right,font=\Large] (C) at (9.0,0.0) {C};%
 \path[draw,fill=black,radius=0.04] (9.0,0.0) circle;%
-\node[left,font=\large] (C) at (-9.0,9.0) {C};%
-\path[draw,fill=black,radius=0.04] (-9.0,9.0) circle;%
-\node[right,font=\large] (D) at (9.0,9.0) {D};%
-\path[draw,fill=black,radius=0.04] (9.0,9.0) circle;%
-\node[below,font=\large] (E) at (0.0,0.0) {E};%
+\node[below,font=\Large] (D) at (0.0,0.0) {D};%
 \path[draw,fill=black,radius=0.04] (0.0,0.0) circle;%
-\node[right,font=\large] (F) at (0.0,3.0) {F};%
-\path[draw,fill=black,radius=0.04] (0.0,3.0) circle;%
-\node[above,font=\large] (G) at (7.150500000000001,9.0) {G};%
-\path[draw,fill=black,radius=0.04] (7.150500000000001,9.0) circle;%
+\node[above right,font=\Large] (E) at (4.5,3.375) {E};%
+\path[draw,fill=black,radius=0.04] (4.5,3.375) circle;%
+\path[line width = 1pt,draw] (0.0,6.75) -- (-9.0,0.0);%
+\path[line width = 1pt,draw] (0.0,6.75) -- (9.0,0.0);%
 \path[line width = 1pt,draw] (-9.0,0.0) -- (9.0,0.0);%
-\path[line width = 1pt,draw] (-9.0,9.0) -- (9.0,9.0);%
-\path[line width = 1pt,draw] (0.0,0.0) -- (0.0,3.0);%
-\path[line width = 1pt,draw] (0.0,3.0) -- (7.150500000000001,9.0);%
-\path[line width = 0.8pt,draw] (-0.24000000000000005,0.0) -- (-0.24000000000000005,0.24000000000000005) -- (0.0,0.24000000000000005);%
-\path[start angle  = 0.0,end angle = -139.99991495151932,thick,draw,radius=0.18494999999999992] (7.335450000000001,9.0) arc;%
-\node[font=\normalsize] at (7.333464048761442,8.497311568304163) {$40^\circ$};%
+\path[line width = 1pt,draw] (0.0,6.75) -- (0.0,0.0);%
+\path[line width = 1pt,draw] (-9.0,0.0) -- (4.5,3.375);%
 \end{tikzpicture}%
 \end{document}
