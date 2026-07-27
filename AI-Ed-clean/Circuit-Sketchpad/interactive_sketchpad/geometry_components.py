@@ -39,8 +39,9 @@ from pylatex import (
     TikZPath,
     TikZOptions,
     TikZUserPath,
-    Command
+    Command,
 )
+
 
 def generate(topology: str, *, dpi: int = 300, pretty: bool = True) -> bytes:
 
@@ -131,7 +132,7 @@ def generate(topology: str, *, dpi: int = 300, pretty: bool = True) -> bytes:
                     handle = vertexName,
                     at = coordinate,
                     text = vertexName,
-                    options = TikZOptions(point.label_position, "font=\\large")
+                    options = TikZOptions(point.label_position, "font=\\Large")
                 )
                 pic.append(node)
                 pic.append(
