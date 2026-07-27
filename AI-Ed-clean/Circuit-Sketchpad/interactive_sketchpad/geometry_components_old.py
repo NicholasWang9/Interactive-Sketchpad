@@ -629,6 +629,36 @@ def generate(topology: str, *, dpi: int = 300, pretty: bool = True) -> bytes:
             if length1 == 0 or length2 == 0:
                 continue
 
+            start = [coordinate * scale_factor for coordinate in start_point.coordinates]
+            vertex = [coordinate * scale_factor for coordinate in center_point.coordinates]
+            end = [coordinate * scale_factor for coordinate in end_point.coordinates]
+
+            start_angle = math.degrees(
+                math.atan2(start[1] - vertex[1], start[0] - vertex[0])
+            )
+
+            end_angle = math.degrees(
+                math.atan2(end[1] - vertex[1], end[0] - vertex[0])
+            )
+
+            ccw_angle = (end_angle - start_angle) % 360
+
+            if isinstance(angle_value, float) or isinstance(angle_value, int):
+                clockwise_angle = 360 - ccw_angle
+
+                if abs(ccw_angle - angle_value) <= abs(clockwise_angle - angle_value):
+                    final_end_angle = start_angle + ccw_angle
+                else:
+                    final_end_angle = start_angle - clockwise_angle
+            else:
+                if ccw_angle <= 180:
+                    final_end_angle = start_angle + ccw_angle
+                else:
+                    final_end_angle = start_angle - (360 - ccw_angle)
+
+            length1 = math.dist(vertex, start)
+            length2 = math.dist(vertex, end)
+
             marker_size = min(length1, length2) * 0.10
             marker_size = max(0.15, min(marker_size, 0.45))
 
