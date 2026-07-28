@@ -82,8 +82,8 @@ class angle:
         return degrees
 
 def parse_arcs_from_topology(topology: str, topologyDict: dict) -> dict:
-    #List containing all arcs of the graph
-    arcs = []
+    #Dict containing all arcs of the graph
+    arcs = {}
 
     #Regex looking for a substring of the format "Arc [Counterclockwise endpoint][Center][Clockwise endpoint] Radius [radius]" with optional whitespace
     arcs_regex = re.compile(r"Arc\s*([A-Z]{3})", re.IGNORECASE)
@@ -108,8 +108,7 @@ def parse_arcs_from_topology(topology: str, topologyDict: dict) -> dict:
             continue
 
         radius = math.dist(center_vertex.coordinates, clockwise_vertex.coordinates)
-
-        arcs.append(arc(counterclockwise_point, center, clockwise_point, radius))
+        arcs.update({arc_name : arc(counterclockwise_point, center, clockwise_point, radius)})
     
     topologyDict.update({"arcs" : arcs})
     return arcs

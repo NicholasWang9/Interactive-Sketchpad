@@ -65,15 +65,9 @@ def generate(topology: str, *, dpi: int = 300, pretty: bool = True) -> bytes:
     min_y = 0
     max_y = 0
 
-    vertexCoordinates = dict()
-
-    rawVertexCoordinates = [vertex.coordinates for vertex in vertices.values() if vertex.label_position is not None]
-
     #Check for maximum sizes to scale the image to fit
     if vertices is not None:
-        for vertexName in vertices.keys():
-            point = vertices.get(vertexName)
-            vertex = point.coordinates
+        rawVertexCoordinates = [vertex.coordinates for vertex in vertices.values() if vertex.label_position is not None]
         min_x = min([coordinate[0] for coordinate in rawVertexCoordinates])
         max_x = max([coordinate[0] for coordinate in rawVertexCoordinates])
         min_y = min([coordinate[1] for coordinate in rawVertexCoordinates])
@@ -104,7 +98,8 @@ def generate(topology: str, *, dpi: int = 300, pretty: bool = True) -> bytes:
             max_y = max(max_y, counterclockwise_point[1], center[1] + padding, clockwise_point[1])
     
     if arcs is not None:
-        for arc in arcs:
+        for arcName in arcs.keys():
+            arc = arcs.get(arcName)
             center = vertices.get(arc.center).coordinates
             radius = arc.radius
             min_x = min(min_x, center[0] - radius)
@@ -121,26 +116,27 @@ def generate(topology: str, *, dpi: int = 300, pretty: bool = True) -> bytes:
 
     with doc.create(TikZ()) as pic:
 
-        for vertexName in vertices.keys():
-            point = vertices.get(vertexName)
-            vertex = [coordinate * scale_factor for coordinate in point.coordinates]
-            coordinate = TikZCoordinate(vertex[0], vertex[1])
-            vertexCoordinates.update({vertexName : coordinate})
-            #If the label_position is None then the point should not be labeled and the node is unnecessary
-            if (point.label_position is not None):
-                node = TikZNode(
-                    handle = vertexName,
-                    at = coordinate,
-                    text = vertexName,
-                    options = TikZOptions(point.label_position, "font=\\Large")
-                )
-                pic.append(node)
-                pic.append(
-                    TikZDraw(
-                        [coordinate, "circle"],
-                        options = TikZOptions(fill = "black", radius = 0.04, )
+        if vertices is not None:
+            for vertexName in vertices.keys():
+                point = vertices.get(vertexName)
+                vertex = [coordinate * scale_factor for coordinate in point.coordinates]
+                coordinate = TikZCoordinate(vertex[0], vertex[1])
+                vertexCoordinates.update({vertexName : coordinate})
+                #If the label_position is None then the point should not be labeled and the node is unnecessary
+                if (point.label_position is not None):
+                    node = TikZNode(
+                        handle = vertexName,
+                        at = coordinate,
+                        text = vertexName,
+                        options = TikZOptions(point.label_position, "font=\\Large")
                     )
-                )
+                    pic.append(node)
+                    pic.append(
+                        TikZDraw(
+                            [coordinate, "circle"],
+                            options = TikZOptions(fill = "black", radius = 0.04, )
+                        )
+                    )
 
         if edges is not None:
             for edge in edges:
@@ -267,7 +263,8 @@ def generate(topology: str, *, dpi: int = 300, pretty: bool = True) -> bytes:
                     pic.append(label_node)
 
         if arcs is not None:
-            for arc in arcs:
+            for arcName in arcs.keys():
+                arc = arcs.get(arcName)
                 angles = arc.calculate_angles(vertices)
                 if (angles is None):
                     continue
