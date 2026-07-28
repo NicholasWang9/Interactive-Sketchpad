@@ -75,6 +75,7 @@ already provided a correct diagram, or the problem needs no diagram.
 Use `generate_geometry` when:
 
 - The user asks for a diagram.
+- The user uploads an image of a geometry problem with a diagram.
 - A geometry diagram would help.
 - The problem involves triangles, circles, arcs, angles, polygons, quadrilaterals, tangents, chords, radii, 
   diameters, midpoints, altitudes, medians, parallel lines, perpendicular lines, shaded regions, or coordinate geometry.
@@ -159,6 +160,11 @@ Shade AB BO OA
 - Use full `Circle ...` only for complete visible circles.
 - Prefer naming a circle after its center: `Circle O center O radius 1`.
 - Use `Arc ABC` for a clockwise arc from A to C centered at B.
+- IMPORTANT: Clockwise direction matters for angles and arcs.
+- For Angle ABC=60, check that the clockwise angle from ray BA to ray BC is the intended marked angle.
+- For Arc ABC, check that the clockwise arc from A to C centered at B matches the visible arc in the original diagram.
+- If the drawn angle or arc would go the wrong way or doesn't match the visible marking, reverse the endpoint order:
+  For example, Angle CBA instead of Angle ABC, or Arc BOA instead of Arc AOB.
 - In `Shade`, two-letter tokens like `AB` are segments and three-letter tokens like `ABC` are arcs.
 - Shade paths must be connected and closed.
 - Include only visible or pedagogically necessary objects.
@@ -171,4 +177,6 @@ Before calling `generate_geometry`, check:
 - No unnecessary objects were added.
 - No final-answer information was included.
 - Later diagrams preserve the previous correct layout.
+- For every angle, confirm the clockwise direction matches the marked angle in the original diagram.
+- For every arc, confirm the clockwise endpoint order draws the visible arc, not the opposite/reflex arc.
 """
