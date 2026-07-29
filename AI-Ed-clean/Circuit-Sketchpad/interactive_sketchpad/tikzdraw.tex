@@ -13,25 +13,24 @@
 \begin{document}%
 \normalsize%
 \begin{tikzpicture}%
-\node[above,font=\Large] (A) at (0.0,6.75) {A};%
-\path[draw,fill=black,radius=0.04] (0.0,6.75) circle;%
-\node[left,font=\Large] (B) at (-9.0,0.0) {B};%
-\path[draw,fill=black,radius=0.04] (-9.0,0.0) circle;%
-\node[right,font=\Large] (C) at (9.0,0.0) {C};%
-\path[draw,fill=black,radius=0.04] (9.0,0.0) circle;%
-\node[below,font=\Large] (D) at (0.0,0.0) {D};%
-\path[draw,fill=black,radius=0.04] (0.0,0.0) circle;%
-\node[above right,font=\Large] (E) at (4.5,3.375) {E};%
-\path[draw,fill=black,radius=0.04] (4.5,3.375) circle;%
-\node[below,font=\Large] (F) at (4.5,0.0) {F};%
+\node[below,font=\Large] (A) at (0.0,-4.5) {A};%
+\path[draw,fill=black,radius=0.04] (0.0,-4.5) circle;%
+\node[left,font=\Large] (B) at (-4.5,0.0) {B};%
+\path[draw,fill=black,radius=0.04] (-4.5,0.0) circle;%
+\node[above,font=\Large] (C) at (0.0,4.5) {C};%
+\path[draw,fill=black,radius=0.04] (0.0,4.5) circle;%
+\node[right,font=\Large] (D) at (4.5,0.0) {D};%
 \path[draw,fill=black,radius=0.04] (4.5,0.0) circle;%
-\path[line width = 1pt,draw] (0.0,6.75) -- (-9.0,0.0);%
-\path[line width = 1pt,draw] (0.0,6.75) -- (9.0,0.0);%
-\path[line width = 1pt,draw] (-9.0,0.0) -- (9.0,0.0);%
-\path[line width = 1pt,draw] (0.0,6.75) -- (0.0,0.0);%
-\path[line width = 1pt,draw] (-9.0,0.0) -- (4.5,3.375);%
-\path[line width = 1pt,draw] (4.5,3.375) -- (4.5,0.0);%
-\path[line width = 0.8pt,draw] (0.0,0.36000000000000004) -- (-0.36000000000000004,0.36000000000000004) -- (-0.36000000000000004,0.0);%
-\path[line width = 0.8pt,draw] (4.5,0.27) -- (4.23,0.27) -- (4.23,0.0);%
+\node[below left,font=\Large] (P) at (-4.5,-4.5) {P};%
+\path[draw,fill=black,radius=0.04] (-4.5,-4.5) circle;%
+\node[below right,font=\Large] (Q) at (4.5,-4.5) {Q};%
+\path[draw,fill=black,radius=0.04] (4.5,-4.5) circle;%
+\path[line width = 1pt,draw] (-4.5,0.0) -- (4.5,0.0);%
+\path[line width = 1pt,draw] (-4.5,0.0) -- (-4.5,-4.5);%
+\path[line width = 1pt,draw] (-4.5,-4.5) -- (4.5,-4.5);%
+\path[line width = 1pt,draw] (4.5,-4.5) -- (4.5,0.0);%
+\path[start angle  = 180.0,end angle = 0.0,thick,draw,radius=4.5] (-4.5,0.0) arc;%
+\path[start angle  = 90.0,end angle = 0.0,thick,draw,radius=4.5] (-4.5,0.0) arc;%
+\path[start angle  = 180.0,end angle = 90.0,thick,draw,radius=4.5] (0.0,-4.5) arc;%
 \end{tikzpicture}%
 \end{document}
