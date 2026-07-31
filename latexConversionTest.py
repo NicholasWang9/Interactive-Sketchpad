@@ -59,6 +59,8 @@ class arc:
         for i in range(2):
             if (x_difference[i] < 0):
                 degrees[i] = degrees[i] + 180
+        if (degrees[1] - degrees[0] > 0):
+            degrees[1] = degrees[1] - 360
         return degrees
 
 
@@ -80,8 +82,15 @@ drawingInfo = {
     "circles" : [
         ["O", math.sqrt(2)]
     ],
-    "arcs" : [
-        arc("A", "P", "B", 1)
+    "arcs" : {
+        "APB" : arc("A", "P", "B", 1),
+        "AOB" : arc("A", "O", "B", math.sqrt(2)),
+        "DOC" : arc("D", "O", "C", math.sqrt(2))
+    },
+    "shaded regions" : [
+        ["APB", "BOA"],
+        ["AO", "OB", "BA"],
+        ["COD", "DO", "OC"]
     ]
 }
 
@@ -96,6 +105,7 @@ vertices = drawingInfo.get("vertices")
 edges = drawingInfo.get("edges")
 circles = drawingInfo.get("circles")
 arcs = drawingInfo.get("arcs")
+shaded_regions = drawingInfo.get("shaded regions")
 
 min_x = 0
 max_x = 0
@@ -103,10 +113,9 @@ min_y = 0
 max_y = 0
 
 vertexCoordinates = dict()
+adjustedVertexCoordinates = dict()
 
 rawVertexCoordinates = np.array([vertex.coordinates for vertex in vertices.values() if vertex.label_position is not None])
-
-print(rawVertexCoordinates)
 
 for vertexName in vertices.keys():
     point = vertices.get(vertexName)
@@ -126,7 +135,8 @@ for circle in circles:
     min_y = min(min_y, center[1] - radius)
     max_y = max(max_y, center[1] + radius)
 
-for arc in arcs:
+for arcName in arcs.keys():
+    arc = arcs.get(arcName)
     center = vertices.get(arc.center).coordinates
     radius = arc.radius
     min_x = min(min_x, center[0] - radius)
@@ -144,6 +154,7 @@ with doc.create(TikZ()) as pic:
     for vertexName in vertices.keys():
         point = vertices.get(vertexName)
         vertex = [coordinate * scale_factor for coordinate in point.coordinates]
+        adjustedVertexCoordinates.update({vertexName : vertex})
         coordinate = TikZCoordinate(vertex[0], vertex[1])
         vertexCoordinates.update({vertexName : coordinate})
         #If the label_position is None then the point should not be labeled and the node is unnecessary
@@ -193,7 +204,8 @@ with doc.create(TikZ()) as pic:
             )
         )
     
-    for arc in arcs:
+    for arcName in arcs.keys():
+        arc = arcs.get(arcName)
         angles = arc.calculate_angles(vertices)
         if (angles is None):
             continue
@@ -211,5 +223,56 @@ with doc.create(TikZ()) as pic:
                 )
             )
         )
+
+    for shaded_region in shaded_regions:
+        start_point = shaded_region[0][0]
+        #Do not render a shaded region if the first point of a border is invalid
+        coordinates = adjustedVertexCoordinates.get(start_point)
+        if (coordinates is None):
+            break
+        region_command = f"\\fill[black!25] ({coordinates[0]}, {coordinates[1]})"
+        current_point = start_point
+        for border in shaded_region:
+            #Do not render a shaded region if the borders don't form a continuous path
+            if (border[0] != current_point):
+                break
+            #Do not render a shaded region if the first point of a border is invalid
+            if (adjustedVertexCoordinates.get(border[0]) is None):
+                break
+            #Check if the border is a line segment
+            if (len(border) == 2):
+                current_point = border[1]
+                #Do not render a shaded region if a border takes you to an invalid point
+                coordinates = adjustedVertexCoordinates.get(current_point)
+                if (coordinates is None):
+                    break
+                region_command = region_command + f" -- ({coordinates[0]}, {coordinates[1]})"
+            elif (len(border) == 3):
+                current_point = border[2]
+                #Do not render a shaded region if a border takes you to an invalid point or uses an invalid point as the center of the arc
+                coordinates = adjustedVertexCoordinates.get(current_point)
+                if (coordinates is None or adjustedVertexCoordinates.get(border[1]) is None):
+                    break
+                #Check the arcs dictionary for the arc in both directions to determine orientation
+                #Default orientation is clockwise
+                arc = arcs.get(border)
+                if (arc is None):
+                    #If default orientation is not found, check counterclockwise orientation by reversing the arc order
+                    arc = arcs.get(border[::-1])
+                    #Do not render a shaded region if a border is invalid
+                    if (arc is None):
+                        break
+                    angles = arc.calculate_angles(vertices)[::-1]
+                else:
+                    angles = arc.calculate_angles(vertices)
+                #Do not render the shaded region if the angle calculation fails
+                if (angles is None):
+                    break
+                region_command = region_command + f" arc[start angle = {angles[0]}, end angle = {angles[1]}, radius = {arc.radius * scale_factor}]"
+        else:
+            region_command = region_command + ";"
+            pic.append(
+                TikZUserPath(region_command)
+            )
 
 doc.generate_pdf("tikzdraw", clean_tex = False)

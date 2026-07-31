@@ -3,11 +3,13 @@ import math
 from dataclasses import dataclass
 from functools import lru_cache
 from pathlib import Path
+import numpy as np
 import geometry_components_utilities as utilities
 import geometry_components_vertices as geo_vertices
 import geometry_components_edges as geo_edges
 import geometry_components_circles as geo_circles
 import geometry_components_arcs_and_angles as geo_arcs_and_angles
+import geometry_components_shaded_regions as geo_shade
 
 def parse_topology_to_dict(topology: str) -> dict:
 
@@ -67,11 +69,11 @@ def generate(topology: str, *, dpi: int = 300, pretty: bool = True) -> bytes:
 
     #Check for maximum sizes to scale the image to fit
     if vertices is not None:
-        rawVertexCoordinates = [vertex.coordinates for vertex in vertices.values() if vertex.label_position is not None]
-        min_x = min([coordinate[0] for coordinate in rawVertexCoordinates])
-        max_x = max([coordinate[0] for coordinate in rawVertexCoordinates])
-        min_y = min([coordinate[1] for coordinate in rawVertexCoordinates])
-        max_y = max([coordinate[1] for coordinate in rawVertexCoordinates])
+        rawVertexCoordinates = np.array([vertex.coordinates for vertex in vertices.values() if vertex.label_position is not None])
+        min_x = min(rawVertexCoordinates[:, 0])
+        max_x = max(rawVertexCoordinates[:, 0])
+        min_y = min(rawVertexCoordinates[:, 1])
+        max_y = max(rawVertexCoordinates[:, 1])
 
     if circles is not None:
         for circle in circles:
@@ -113,6 +115,8 @@ def generate(topology: str, *, dpi: int = 300, pretty: bool = True) -> bytes:
     scale_factor = 18 / max_width
 
     vertexCoordinates = dict()
+    adjustedVertexCoordinates = dict()
+
 
     with doc.create(TikZ()) as pic:
 
@@ -120,6 +124,7 @@ def generate(topology: str, *, dpi: int = 300, pretty: bool = True) -> bytes:
             for vertexName in vertices.keys():
                 point = vertices.get(vertexName)
                 vertex = [coordinate * scale_factor for coordinate in point.coordinates]
+                adjustedVertexCoordinates.update({vertexName : vertex})
                 coordinate = TikZCoordinate(vertex[0], vertex[1])
                 vertexCoordinates.update({vertexName : coordinate})
                 #If the label_position is None then the point should not be labeled and the node is unnecessary
