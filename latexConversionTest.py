@@ -230,7 +230,7 @@ with doc.create(TikZ()) as pic:
         coordinates = adjustedVertexCoordinates.get(start_point)
         if (coordinates is None):
             break
-        region_command = f"\\fill[black!25] ({coordinates[0]}, {coordinates[1]})"
+        region_command = f"\\filldraw[thick, fill opacity = 0.1] ({coordinates[0]}, {coordinates[1]})"
         current_point = start_point
         for border in shaded_region:
             #Do not render a shaded region if the borders don't form a continuous path
