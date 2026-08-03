@@ -188,6 +188,7 @@ Shade APB BOA
   For example, `Angle CBA=60` instead of `Angle ABC=60`, or `Arc BOA` instead of `Arc AOB`.
 - In `Shade`, two-letter tokens like `AB` are segments and three-letter tokens like `ABC` are arcs.
 - Shade paths must be connected and closed.
+- Tokens used in shade paths must be defined ahead of time
 - Include only visible or pedagogically necessary objects.
 
 Before calling `generate_geometry`, check:
