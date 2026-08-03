@@ -154,6 +154,7 @@ Angle AOB=90
 Circle O center O radius sqrt(2)
 
 Arc APB
+Arc AOB
 
 Shade APB BOA
 

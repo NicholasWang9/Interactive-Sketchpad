@@ -13,20 +13,14 @@
 \begin{document}%
 \normalsize%
 \begin{tikzpicture}%
-\node[below left,font=\Large] (A) at (0.0,0.0) {A};%
-\path[draw,fill=black,radius=0.04] (0.0,0.0) circle;%
-\node[below right,font=\Large] (B) at (6.0,0.0) {B};%
-\path[draw,fill=black,radius=0.04] (6.0,0.0) circle;%
-\node[above right,font=\Large] (C) at (6.0,6.0) {C};%
-\path[draw,fill=black,radius=0.04] (6.0,6.0) circle;%
-\node[above left,font=\Large] (D) at (0.0,6.0) {D};%
-\path[draw,fill=black,radius=0.04] (0.0,6.0) circle;%
-\path[line width = 1pt,draw] (0.0,0.0) -- (6.0,0.0);%
-\path[line width = 1pt,draw] (6.0,0.0) -- (6.0,6.0);%
-\path[line width = 1pt,draw] (6.0,6.0) -- (0.0,6.0);%
-\path[line width = 1pt,draw] (0.0,6.0) -- (0.0,0.0);%
-\path[start angle  = 90.0,end angle = 0.0,thick,draw,radius=6.0] (0.0,6.0) arc;%
-\path[start angle  = -90.0,end angle = -180.0,thick,draw,radius=6.0] (6.0,0.0) arc;%
-\filldraw[thick, fill opacity = 0.1] (0.0, 6.0) arc[start angle = 90.0, end angle = 0.0, radius = 6.0] arc[start angle = -90.0, end angle = -180.0, radius = 6.0];%
+\node[above,font=\Large] (A) at (0.0,5.196152422706632) {A};%
+\path[draw,fill=black,radius=0.04] (0.0,5.196152422706632) circle;%
+\node[left,font=\Large] (B) at (-3.0,0.0) {B};%
+\path[draw,fill=black,radius=0.04] (-3.0,0.0) circle;%
+\node[right,font=\Large] (C) at (3.0,0.0) {C};%
+\path[draw,fill=black,radius=0.04] (3.0,0.0) circle;%
+\path[line width = 1pt,draw,radius=6.0] (0.0,5.196152422706632) circle;%
+\path[line width = 1pt,draw,radius=6.0] (-3.0,0.0) circle;%
+\path[line width = 1pt,draw,radius=6.0] (3.0,0.0) circle;%
 \end{tikzpicture}%
 \end{document}
