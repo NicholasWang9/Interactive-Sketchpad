@@ -24,8 +24,9 @@ def main():
     Circle O center O radius sqrt(2)
 
     Arc APB
+    Arc AOB
 
-    Shade APB BA
+    Shade APB BOA
     """
 
     # Call your in-memory generator

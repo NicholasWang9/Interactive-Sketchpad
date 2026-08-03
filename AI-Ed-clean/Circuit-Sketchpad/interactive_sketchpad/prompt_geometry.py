@@ -183,13 +183,16 @@ Shade APB BOA
 - Do not invent unknown or final-answer angle measures.
 - Use full `Circle ...` only for complete visible circles.
 - Prefer naming a circle after its center: `Circle O center O radius 1`.
-- Use `Arc ABC` for a clockwise arc from A to C centered at B. 
-- Use no spaces or dashes in arc formatting: Do NOT use `Arc A-B-C` or `Arc A B C`.
+- Use `Arc AOB` for a clockwise arc from A to B centered at O. 
+- NEVER use spaces or dashes in arc formatting: Do NOT use `Arc A-B-C`, `Arc A B C`, or `Arc AB C`.
 - *IMPORTANT*: Clockwise direction matters for angles and arcs. If the drawn angle or arc would go the wrong way, reverse the endpoint order: 
   For example, `Angle CBA=60` instead of `Angle ABC=60`, or `Arc BOA` instead of `Arc AOB`.
-- In `Shade`, two-letter tokens like `AB` are segments and three-letter tokens like `ABC` are arcs.
-- Shade paths must be connected and closed.
-- Tokens used in shade paths must be defined ahead of time
+- In `Shade`, two-letter tokens like `AB` denote line segments and three-letter tokens like `AOB` denote arcs.
+- Write `Shade` tokens in boundary traversal order. Each token must start where the previous token ends.
+- `Shade` paths must be connected, closed, and use only previously defined tokens.
+- Define every arc referenced in `Shade` before the `Shade` line, using the direction that continues the boundary traversal:
+  For example, define `Arc AOB` if `AOB` appears in the `Shade` path; use the reverse arc if required by the renderer.
+- Define only segments and arcs that are visible or required as boundaries of the shaded region.
 - Include only visible or pedagogically necessary objects.
 
 Before calling `generate_geometry`, check:
@@ -201,6 +204,11 @@ Before calling `generate_geometry`, check:
 - For later diagrams, unchanged topology stays unchanged.
 - For every angle, confirm the clockwise direction matches the marked angle in the original diagram.
 - For every arc, confirm the clockwise endpoint order matches the visible arc, not the opposite/reflex arc.
+- For every three-letter arc token used in `Shade`, confirm that there is a corresponding `Arc ...` line defined earlier, 
+  or a deliberately defined reverse arc that renders the correct boundary.
+- The shaded path is closed and connected in order: each token starts where the previous token ends, 
+  and the final token ends where the first token starts.
+- Shading uses only boundary objects of the target shaded region, not extra arcs or segments.
 - For redraws or corrections, compare the new topology against the previous correct topology.
 - Corrections change only the requested elements (e.g., angles, arcs, or auxiliary constructions).
 """
