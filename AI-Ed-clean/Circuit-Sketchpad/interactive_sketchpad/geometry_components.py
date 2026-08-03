@@ -15,7 +15,7 @@ def parse_topology_to_dict(topology: str) -> dict:
 
     drawingInfo = {}
 
-    #List containing all vertices of the graph
+    #Dict containing all vertices of the graph
     vertices = geo_vertices.parse_vertices_from_topology(topology, drawingInfo)
 
     #List containing all edges of the graph
@@ -27,8 +27,11 @@ def parse_topology_to_dict(topology: str) -> dict:
     #List containing all angles of the graph
     angles = geo_arcs_and_angles.parse_angles_from_topology(topology, drawingInfo)
 
-    #List containing all arcs of the graph
+    #Dict containing all arcs of the graph
     arcs = geo_arcs_and_angles.parse_arcs_from_topology(topology, drawingInfo)
+
+    #List containing all shaded regions of the graph
+    shaded_regions = geo_shade.parse_shaded_regions_from_topology(topology, drawingInfo)
 
     return drawingInfo
 
@@ -61,6 +64,7 @@ def generate(topology: str, *, dpi: int = 300, pretty: bool = True) -> bytes:
     circles = drawingInfo.get("circles")
     angles = drawingInfo.get("angles")
     arcs = drawingInfo.get("arcs")
+    shaded_regions = drawingInfo.get("shaded regions")
 
     min_x = 0
     max_x = 0
@@ -116,7 +120,6 @@ def generate(topology: str, *, dpi: int = 300, pretty: bool = True) -> bytes:
 
     vertexCoordinates = dict()
     adjustedVertexCoordinates = dict()
-
 
     with doc.create(TikZ()) as pic:
 
@@ -287,6 +290,59 @@ def generate(topology: str, *, dpi: int = 300, pretty: bool = True) -> bytes:
                         )
                     )
                 )
+
+        for shaded_region in shaded_regions:
+            start_point = shaded_region[0][0]
+            #Do not render a shaded region if the first point of a border is invalid
+            coordinates = adjustedVertexCoordinates.get(start_point)
+            if (coordinates is None):
+                break
+            region_command = f"\\filldraw[thick, fill opacity = 0.1] ({coordinates[0]}, {coordinates[1]})"
+            current_point = start_point
+            for border in shaded_region:
+                #Do not render a shaded region if the borders don't form a continuous path
+                if (border[0] != current_point):
+                    break
+                #Do not render a shaded region if the first point of a border is invalid
+                if (adjustedVertexCoordinates.get(border[0]) is None):
+                    break
+                #Check if the border is a line segment
+                if (len(border) == 2):
+                    current_point = border[1]
+                    #Do not render a shaded region if a border takes you to an invalid point
+                    coordinates = adjustedVertexCoordinates.get(current_point)
+                    if (coordinates is None):
+                        break
+                    region_command = region_command + f" -- ({coordinates[0]}, {coordinates[1]})"
+                elif (len(border) == 3):
+                    current_point = border[2]
+                    #Do not render a shaded region if a border takes you to an invalid point or uses an invalid point as the center of the arc
+                    coordinates = adjustedVertexCoordinates.get(current_point)
+                    if (coordinates is None or adjustedVertexCoordinates.get(border[1]) is None):
+                        break
+                    #Check the arcs dictionary for the arc in both directions to determine orientation
+                    #Default orientation is clockwise
+                    arc = arcs.get(border)
+                    if (arc is None):
+                        #If default orientation is not found, check counterclockwise orientation by reversing the arc order
+                        arc = arcs.get(border[::-1])
+                        #Do not render a shaded region if a border is invalid
+                        if (arc is None):
+                            break
+                        angles = arc.calculate_angles(vertices)[::-1]
+                    else:
+                        angles = arc.calculate_angles(vertices)
+                    #Do not render the shaded region if the angle calculation fails
+                    if (angles is None):
+                        break
+                    region_command = region_command + f" arc[start angle = {angles[0]}, end angle = {angles[1]}, radius = {arc.radius * scale_factor}]"
+            else:
+                #Only render a shaded region if it is properly closed
+                if (current_point == start_point):
+                    region_command = region_command + ";"
+                    pic.append(
+                        TikZUserPath(region_command)
+                    )
     
     doc.generate_pdf("tikzdraw", clean_tex = False)
 

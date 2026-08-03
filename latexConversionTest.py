@@ -270,9 +270,11 @@ with doc.create(TikZ()) as pic:
                     break
                 region_command = region_command + f" arc[start angle = {angles[0]}, end angle = {angles[1]}, radius = {arc.radius * scale_factor}]"
         else:
-            region_command = region_command + ";"
-            pic.append(
-                TikZUserPath(region_command)
-            )
+            #Only render a shaded region if it is properly closed
+            if (current_point == start_point):
+                region_command = region_command + ";"
+                pic.append(
+                    TikZUserPath(region_command)
+                )
 
 doc.generate_pdf("tikzdraw", clean_tex = False)

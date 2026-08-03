@@ -1,6 +1,6 @@
 import re
 
-def parse_edges_from_topology(topology: str, topologyDict:dict) -> dict:
+def parse_edges_from_topology(topology: str, topologyDict:dict) -> list:
     #List containing all edges of the graph
     edges = []
 

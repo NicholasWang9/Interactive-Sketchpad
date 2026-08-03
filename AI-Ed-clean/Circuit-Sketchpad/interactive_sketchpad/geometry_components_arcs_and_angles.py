@@ -113,7 +113,7 @@ def parse_arcs_from_topology(topology: str, topologyDict: dict) -> dict:
     topologyDict.update({"arcs" : arcs})
     return arcs
 
-def parse_angles_from_topology(topology: str, topologyDict: dict) -> dict:
+def parse_angles_from_topology(topology: str, topologyDict: dict) -> list:
     #List containing all angles of the graph
     angles = []
 

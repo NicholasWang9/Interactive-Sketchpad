@@ -1,7 +1,7 @@
 import re
 import geometry_components_utilities as utilities
 
-def parse_circles_from_topology(topology: str, topologyDict: dict) -> dict:
+def parse_circles_from_topology(topology: str, topologyDict: dict) -> list:
     #List containing all circles of the graph
     circles = []
 
