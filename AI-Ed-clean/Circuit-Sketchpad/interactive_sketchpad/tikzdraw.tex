@@ -13,6 +13,7 @@
 \begin{document}%
 \normalsize%
 \begin{tikzpicture}%
+<<<<<<< Updated upstream
 \node[right,font=\Large] (A) at (5.142857142857142,0.0) {A};%
 \path[draw,fill=black,radius=0.04] (5.142857142857142,0.0) circle;%
 \node[above right,font=\Large] (B) at (2.571428571428571,4.453844933748542) {B};%
@@ -51,5 +52,25 @@
 \filldraw[thick, fill opacity = 0.1] (5.142857142857142, 0.0) -- (1.2857142857142856, 6.680767400622813) arc[start angle = 120.0, end angle = -120.0, radius = 7.714285714285714] -- (5.142857142857142, 0.0);%
 \filldraw[thick, fill opacity = 0.1] (2.571428571428571, 4.453844933748542) -- (0.0, 4.453844933748542) arc[start angle = 180.0, end angle = 120.0, radius = 2.5714285714285716] -- (2.571428571428571, 4.453844933748542);%
 \filldraw[thick, fill opacity = 0.1] (2.571428571428571, -4.453844933748542) -- (1.2857142857142856, -6.680767400622813) arc[start angle = 240.0, end angle = 180.0, radius = 2.571428571428571] -- (2.571428571428571, -4.453844933748542);%
+=======
+\node[right,font=\Large] (A) at (5.196152422706632,3.0) {A};%
+\path[draw,fill=black,radius=0.04] (5.196152422706632,3.0) circle;%
+\node[above right,font=\Large] (B) at (5.196152422706632,9.0) {B};%
+\path[draw,fill=black,radius=0.04] (5.196152422706632,9.0) circle;%
+\node[above left,font=\Large] (C) at (-5.196152422706632,9.0) {C};%
+\path[draw,fill=black,radius=0.04] (-5.196152422706632,9.0) circle;%
+\node[left,font=\Large] (D) at (-10.392304845413264,0.0) {D};%
+\path[draw,fill=black,radius=0.04] (-10.392304845413264,0.0) circle;%
+\node[below left,font=\Large] (E) at (-5.196152422706632,-9.0) {E};%
+\path[draw,fill=black,radius=0.04] (-5.196152422706632,-9.0) circle;%
+\node[below right,font=\Large] (F) at (5.196152422706632,-9.0) {F};%
+\path[draw,fill=black,radius=0.04] (5.196152422706632,-9.0) circle;%
+\path[line width = 1pt,draw] (5.196152422706632,3.0) -- (5.196152422706632,9.0);%
+\path[line width = 1pt,draw] (5.196152422706632,9.0) -- (-5.196152422706632,9.0);%
+\path[line width = 1pt,draw] (-5.196152422706632,9.0) -- (-10.392304845413264,0.0);%
+\path[line width = 1pt,draw] (-10.392304845413264,0.0) -- (-5.196152422706632,-9.0);%
+\path[line width = 1pt,draw] (-5.196152422706632,-9.0) -- (5.196152422706632,-9.0);%
+\path[line width = 1pt,draw] (5.196152422706632,-9.0) -- (5.196152422706632,3.0);%
+>>>>>>> Stashed changes
 \end{tikzpicture}%
 \end{document}
