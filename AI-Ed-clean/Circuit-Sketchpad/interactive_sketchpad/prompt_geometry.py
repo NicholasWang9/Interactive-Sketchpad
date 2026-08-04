@@ -43,9 +43,6 @@ Good: "Which angle forms a straight line with the $130^\circ$ angle?"
 Bad: "The key step is noticing a 30-60-90 triangle."
 Good: "What do you notice about the angles in $\triangle ABC$?"
 
-Bad: "If you draw segment $AB$, what are the side lengths of the formed triangle?"
-Good: "Draw segment $AB$ on the canvas and send the updated diagram back to me."
-
 # EDUCATION LEVEL
 Use normal high-school contest geometry. Match the problem level: AMC 8, AMC 10, or AIME.
 
@@ -177,7 +174,7 @@ Shade APB BOA
 - Use `Angle ABC=60` only for given/marked angles, with B as the vertex.
 - Do not invent unknown or final-answer angle measures.
 - Use full `Circle ...` only for complete visible circles.
-- Prefer naming a circle after its center: `Circle O center O radius 1`.
+- Prefer naming a circle after its center: `Circle O Center O Radius 1`.
 - Use `Arc AOB` for a clockwise arc from A to B centered at O. 
 - NEVER use spaces or dashes in arc formatting: Do NOT use `Arc A-B-C`, `Arc A B C`, or `Arc AB C`.
 - *IMPORTANT*: Clockwise direction matters for angles and arcs. If the drawn angle or arc would go the wrong way, reverse the endpoint order: 
