@@ -155,7 +155,7 @@ Segment O-B
 
 Angle AOB=90
 
-Circle O center O radius sqrt(2)
+Circle O Center O Radius sqrt(2)
 
 Arc APB
 Arc AOB
