@@ -348,4 +348,5 @@ def generate(topology: str, *, dpi: int = 300, pretty: bool = True) -> bytes:
 
     utilities.pdf_to_png("tikzdraw.pdf", "tikzdraw.png", dpi = dpi)
     pngpath = Path() / "tikzdraw.png"
+    print(drawingInfo.get("shaded regions"))
     return pngpath.read_bytes()

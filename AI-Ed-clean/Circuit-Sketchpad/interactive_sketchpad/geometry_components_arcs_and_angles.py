@@ -86,7 +86,7 @@ def parse_arcs_from_topology(topology: str, topologyDict: dict) -> dict:
     arcs = {}
 
     #Regex looking for a substring of the format "Arc [Counterclockwise endpoint][Center][Clockwise endpoint] Radius [radius]" with optional whitespace
-    arcs_regex = re.compile(r"Arc\s*([A-Z]{3})", re.IGNORECASE)
+    arcs_regex = re.compile(r"Arc\s*([A-Z]{3})")
 
     vertices = topologyDict.get("vertices")
 
@@ -118,7 +118,7 @@ def parse_angles_from_topology(topology: str, topologyDict: dict) -> list:
     angles = []
 
     #Regex looking for a substring of the format "Angle [Angle Name] = [Angle Measure]" with optional whitespace
-    angles_regex = re.compile(r"Angle\s*([A-Z]{3})\s*=\s*(.+)", re.IGNORECASE)
+    angles_regex = re.compile(r"Angle\s*([A-Z]{3})\s*=\s*(.+)")
 
     vertices = topologyDict.get("vertices")
     

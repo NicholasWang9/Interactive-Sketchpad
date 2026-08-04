@@ -20,8 +20,7 @@ def parse_vertices_from_topology(topology: str, topologyDict: dict) -> dict:
     #Regex looking for a substring of the format "Vertex [Label]:([x coordinate],[y coordinate]) above left" with optional whitespace
     #Old regex extended
     vertices_regex = re.compile(
-        r"Vertex\s*([A-Z])\s*\:\s*\(([^,]+)\s*,\s*(.+)\s*\)\s*(above left|above right|below left|below right|above|below|left|right)?", 
-        re.IGNORECASE,
+        r"Vertex\s*([A-Z])\s*\:\s*\(([^,]+)\s*,\s*(.+)\s*\)\s*(above left|above right|below left|below right|above|below|left|right)?"
     )
 
     # mine before

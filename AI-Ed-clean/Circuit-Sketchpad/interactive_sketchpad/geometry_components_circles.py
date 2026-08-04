@@ -6,7 +6,7 @@ def parse_circles_from_topology(topology: str, topologyDict: dict) -> list:
     circles = []
 
     #Regex looking for a substring of the format "Circle [Label] Center [Center Point] Radius [Radius]" with optional whitespace
-    circles_regex = re.compile(r"Circle\s*([A-Z])\s*Center\s*([A-Z])\s*Radius(.+)", re.IGNORECASE)
+    circles_regex = re.compile(r"Circle\s*([A-Z])\s*Center\s*([A-Z])\s*Radius(.+)")
     
     for match in circles_regex.finditer(topology):
         label = match.group(1)
