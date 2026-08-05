@@ -181,9 +181,9 @@ def generate(topology: str, *, dpi: int = 300, pretty: bool = True) -> bytes:
 
         if angles is not None:
             for angle in angles:
-                counterclockwise_point = [coordinate * scale_factor for coordinate in vertices.get(angle.counterclockwise_point).coordinates]
-                center = [coordinate * scale_factor for coordinate in vertices.get(angle.center).coordinates]
-                clockwise_point = [coordinate * scale_factor for coordinate in vertices.get(angle.clockwise_point).coordinates]
+                counterclockwise_point = adjustedVertexCoordinates.get(angle.counterclockwise_point)
+                center = adjustedVertexCoordinates.get(angle.center)
+                clockwise_point = adjustedVertexCoordinates.get(angle.clockwise_point)
 
                 angle_bounds = angle.calculate_angles(vertices)
                 if angle_bounds is None:
