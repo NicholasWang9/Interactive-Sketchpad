@@ -177,11 +177,9 @@ Shade APB BOA
 - Use full `Circle ...` only for complete visible circles.
 - Prefer naming a circle after its center: `Circle O Center O Radius 1`.
 - Use single-letter centers only: do not use `Circle O1 Center O1` or `Circle C2 Center C2`.
-- Use `Arc AOB` for a clockwise arc from A to B centered at O. 
 - NEVER use spaces or dashes in arc formatting: Do NOT use `Arc A-O-B`, `Arc A O B`, or `Arc AO B`.
 - *IMPORTANT*: Vertex order matters for angles and arcs. The order of the first and last vertices determines the direction of the angle or arc.
-  If the current order selects the wrong angle or arc (e.g. reflex instead of the marked angle), reverse the endpoint order: 
-  For example, `Angle CBA=60` instead of `Angle ABC=60`, or `Arc BOA` instead of `Arc AOB`.
+  'Arc AOB' is an arc centered at O that starts at A and connects clockwise to B.
 - In `Shade`, two-letter tokens like `AB` denote line segments and three-letter tokens like `AOB` denote arcs.
 - Write `Shade` tokens in boundary traversal order. Each token must start where the previous token ends.
 - `Shade` paths must be connected, closed, and use only previously defined tokens.
