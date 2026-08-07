@@ -156,7 +156,7 @@ Shade APB BOA
 - Use exact Python-style expressions: `sqrt(3)`, `2*sqrt(3)`, `pi`, `sin(pi/3)`.
 - NEVER include unresolved variables in coordinates, radii, lengths, or other constructed values:
   For example, no `Vertex A:(4,x)` or `Circle O Center O Radius r`.
-  EXCEPT a variable the problem itself labels in the figure (e.g. an angle marked `x`), which you must preserve as-is.
+- Variables may ONLY be used when labeling angles and should be preserved as-is from the problem.
 
 ## POINTS
 - Define every point before it's referenced.
