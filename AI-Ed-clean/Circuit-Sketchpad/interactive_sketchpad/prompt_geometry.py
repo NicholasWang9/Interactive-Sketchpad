@@ -175,9 +175,12 @@ Shade APB BOA
 ## ANGLES
 - Use `Angle ABC=60` for given/marked angles only, with B as the vertex.
 - Meaning: in our topology, we define `Angle ABC=60` as the *clockwise* angle from A to C centered at B.
+- No spaces or dashes: never use `Angle A-B-C`, `Angle A B C`, or `Angle AB C`.
+- Reference the original diagram and the previously confirmed correct diagram to render the correct angle: 
+  For example, in a regular hexagon, if `Angle ABC=120` is rendered, it should be the interior angle.
 - If an angle representation selects the wrong (reflex) angle, reverse the endpoints:
   For example, if `Angle ABC=60` is marked counterclockwise in the original diagram, render `Angle CBA=60`.
-- Never invent an unknown or final-answer angle measure.
+- Never label an unknown or final-answer angle measure.
 
 ## ARCS
 - Use `Arc AOB` for given/marked arcs only, with O as the center of the arc.
@@ -210,10 +213,18 @@ Before calling `generate_geometry`, verify:
 1. Every referenced point is defined, and no unresolved variables remain.
 2. Every angle/arc clockwise endpoint order matches the marked (not opposite/reflex) version.
 3. Every `Shade` path is closed, connected, and each token has a matching definition above it.
-4. All geometric constraints are satisfied before presenting the diagram. 
-   If any constraint fails, revise the diagram until it is correct. Only show the final verified version.
-5. Follow the vertex order specified in the problem. Determine legs and bases as necessary.
-6. No unnecessary objects or answer-revealing information were added.
-7. For edits: everything unchanged from the prior correct topology stays the same, and only
+4. Follow the vertex order specified in the problem. Determine legs and bases as necessary.
+5. No unnecessary objects or answer-revealing information were added.
+6. For edits: everything unchanged from the prior correct topology stays the same, and only
    the requested correction/construction was modified.
+
+# PRE-SEND VALIDATION
+
+After `generate_geometry` returns and before sending the generated diagram to the student, verify:
+
+1. All geometric constraints and given measurements are satisfied.
+2. Compare the rendered diagram against the original diagram, using the original diagram and its *marked* measurements as visual guidance.
+3. The topology, layout, labels, markings, and geometric relationships reproduce the original figure as faithfully as possible.
+4. For edits, verify that only the requested change was made and all previously correct geometry remains the same.
+5. If any constraint fails, revise the topology and regenerate. *ONLY* present the final verified version to the student.
 """
