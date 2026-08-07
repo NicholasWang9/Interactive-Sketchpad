@@ -191,8 +191,9 @@ Shade APB BOA
 
 ## SHADING
 - In `Shade`, 2-letter tokens (`AB`) denote line segments and 3-letter tokens (`AOB`) denote arcs.
-- Each `Shade` line is one closed boundary path in traversal order: each token starts where
-  the previous one ends, and the last token connects back to the first.
+- Each `Shade` line is one closed boundary path in traversal order: 
+  The tokens are chained so that each token begins with the last letter/vertex of the previous token, 
+  and the final token ends with the first letter/vertex of the first token.
 - Every 3-letter arc token must have a matching `Arc ...` definition earlier in the topology,
   defined in whichever direction (forward or reversed) correctly continues the boundary:
   For example, define `Arc AOB` if `AOB` appears in the `Shade` path; use the reverse arc if required by the renderer.
@@ -210,7 +211,7 @@ Before calling `generate_geometry`, verify:
 3. Every `Shade` path is closed, connected, and each token has a matching definition above it.
 4. All geometric constraints are satisfied before presenting the diagram. 
    If any constraint fails, revise the diagram until it is correct. Only show the final verified version.
-5. Follow the order of vertices given by the problem. Determine legs and bases if needed.
+5. Follow the vertex order specified in the problem. Determine legs and bases as necessary.
 6. No unnecessary objects or answer-revealing information were added.
 7. For edits: everything unchanged from the prior correct topology stays the same, and only
    the requested correction/construction was modified.
