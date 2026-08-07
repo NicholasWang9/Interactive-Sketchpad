@@ -200,7 +200,7 @@ Shade APB BOA
 - Include only segments and arcs that are visible or required as boundaries of the shaded region.
 - If a shaded region has a hole and cannot be represented as one closed path, 
   split it into multiple simple closed shaded regions using helper line segments.
-- Each `Shade` line must represent one hole-free closed region.
+- Each `Shade` line must represent one closed region with no holes.
 
 # PRE-CALL CHECKLIST
 
