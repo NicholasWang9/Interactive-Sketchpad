@@ -87,7 +87,8 @@ FIRST diagram:
 
 LATER diagrams:
 
-- ALWAYS keep original point *labels*; move label *positions* only when a new auxiliary construction interferes with them.
+- ALWAYS keep original point *labels*
+- If necessary, move label *positions* if they would intersect with new auxiliary constructions.
 - Change only the specific correction, construction, or newly confirmed information requested.
 - Partial diagrams should be drawn after the first diagram when the student circles the region on the canvas.
 
@@ -145,8 +146,7 @@ Shade APB BOA
 - Include only visible or pedagogically necessary objects: nothing extra, no final-answer information, no unrequested auxiliary constructions.
 - Use exact Python-style expressions: `sqrt(3)`, `2*sqrt(3)`, `pi`, `sin(pi/3)`.
 - NEVER include unresolved variables in coordinates, radii, lengths, or other constructed values:
-  For example, no `Vertex A:(4,x)` or `Circle O Center O Radius r`.
-  EXCEPT a variable the problem itself labels in the diagram (e.g. an angle marked `x`), which you must preserve as-is.
+  For example, no `Vertex A:(4,x)` or `Circle O Center O Radius r`. EXCEPT a variable the problem itself labels in the diagram (e.g. an angle marked `x`), which you must preserve as-is.
 
 ## POINTS
 - Define every point before it's referenced.
@@ -156,7 +156,7 @@ Shade APB BOA
 - Add label positions only to avoid overlap: `above`, `below`, `left`, `right`, `above left`, etc.
 
 ## COORDINATES
-- Compute exact coordinates using the given values from the problem statement and the diagram's marked measurements, using the original diagram as visual guidance to faithfully reproduce the figure.
+- Compute exact coordinates using the given values from the problem statement and the diagram's marked measurements, using the original diagram or the previous working diagram as visual guidance to faithfully reproduce the figure.
 - Internal geometric derivations may be used only to compute valid rendering coordinates. Do not expose derived geometric information as diagram annotations, labels, markings, or tutoring facts unless it has been explicitly established with the student.
 - Coordinates are for rendering only. Do not reference them in tutoring unless the problem is coordinate geometry.
 
@@ -170,30 +170,18 @@ Shade APB BOA
 - On later diagrams, add a confirmed angle measure only when the student requests it, or when displaying it directly supports the current tutoring step.
 - No spaces or dashes: never use `Angle A-B-C`, `Angle A B C`, or `Angle AB C`.
 - Before marking an angle, first inspect the original diagram or the previous working diagram to determine the intended region between the rays of the angle. 
-- If the original
-The marked angle must have the stated measure and must correspond to the geometric region shown in the diagram; 
-do not mark the reflex angle unless the diagram explicity indicates it.
-Reference the original diagram and the previous working diagram to render the correct angle: 
-  For example, in a regular hexagon, if `Angle ABC=120` is rendered, it should be the interior angle.
-  
-- If an angle representation selects the wrong (reflex) angle, reverse the endpoints:
+- If the original diagram has a marked angle: preserve the marked region and stated measure and express the angle using the clockwise ordering of its rays. If the given notation uses the opposite (counterclockwise) ordering, reverse the endpoints while keeping the same measure. 
   For example, if `Angle ABC=60` is marked counterclockwise in the original diagram, render `Angle CBA=60`.
-
-First inspect the original diagram and any previous working diagram to identify the intended geometric region of the angle.
-If the original diagram has a marked angle: preserve the marked region and express the angle using the clockwise ordering of its rays. If the given notation uses the opposite (counterclockwise) ordering, reverse the endpoints while keeping the same measure.
-Example: if the diagram marks the counterclockwise Angle ABC = 60°, render it as Angle CBA = 60°.
-If no angle is marked: determine the intended region from the diagram before rendering the angle. Use the non-reflex/interior angle unless the diagram explicitly indicates a different region.
-Example: in a regular hexagon, Angle ABC = 120° should represent the interior angle.
-  
-  - Never invent an unknown or final-answer angle measure.
+- If no angle is marked: determine the intended region from the diagram before rendering the angle. Use the non-reflex/interior angle unless the diagram explicitly indicates a different region. 
+  For example, in a regular hexagon, if `Angle ABC=120` is rendered, it should be the interior angle.
+- Never invent an unknown or final-answer angle measure.
 
 ## ARCS
 - Use `Arc AOB` for given/marked arcs only, with O as the center of the arc.
 - Meaning: in our topology, we define `Arc AOB` as the arc centered at O that starts at A and connects *clockwise* to B.
 - Include only given/marked arcs that are visible in the working diagram or required for rendering/shading.
 - No spaces or dashes: never use `Arc A-O-B`, `Arc A O B`, or `Arc AO B`.
-- If an arc representation selects the wrong (reflex) arc, reverse the endpoints: 
-  For example, if `Arc AOB` is marked counterclockwise in the original diagram, render `Arc BOA`.
+- If an arc representation selects the wrong (reflex) arc, reverse the endpoints: For example, if `Arc AOB` is marked counterclockwise in the original diagram, render `Arc BOA`.
 
 ## CIRCLES
 - Use `Circle O Center O Radius 1` for full visible circles only, named by center.
@@ -202,10 +190,8 @@ Example: in a regular hexagon, Angle ABC = 120° should represent the interior a
 
 ## SHADING
 - In `Shade`, 2-letter tokens (`AB`) denote line segments and 3-letter tokens (`AOB`) denote arcs.
-- Each `Shade` line is one closed boundary path in traversal order: 
-  The tokens are chained so that each token begins with the last letter/vertex of the previous token, and the final token ends with the first letter/vertex of the first token.
-- Every 3-letter arc token must have a matching `Arc ...` definition earlier in the topology, defined in whichever direction (forward or reversed) correctly continues the boundary:
-  For example, define `Arc AOB` if `AOB` appears in the `Shade` path; use the reverse arc if required by the renderer.
+- Each `Shade` line is one closed boundary path in traversal order: The tokens are chained so that each token begins with the last letter/vertex of the previous token, and the final token ends with the first letter/vertex of the first token.
+- Every 3-letter arc token must have a matching `Arc ...` definition earlier in the topology, defined in whichever direction (forward or reversed) correctly continues the boundary: For example, define `Arc AOB` if `AOB` appears in the `Shade` path; use the reverse arc if required by the renderer.
 - Include only segments and arcs that are visible or required as boundaries of the shaded region.
 - If a shaded region has a hole and cannot be represented as one closed path, split it into multiple simple closed shaded regions using helper line segments.
 - Each `Shade` line must represent one closed region with no holes.
