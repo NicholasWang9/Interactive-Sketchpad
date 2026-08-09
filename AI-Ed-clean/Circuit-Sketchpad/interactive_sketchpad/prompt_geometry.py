@@ -160,7 +160,8 @@ Shade APB BOA
 
 ## POINTS
 - Define every point before it's referenced.
-- Use the problem's original labels; always single capital letters.
+- Use the problem's original labels
+- Always use single capital letters
 - Add helper points only when needed for rendering (arcs, intersections, shaded boundaries), and only if actually used.
 - Add label positions only to avoid overlap: `above`, `below`, `left`, `right`, `above left`, etc.
 
