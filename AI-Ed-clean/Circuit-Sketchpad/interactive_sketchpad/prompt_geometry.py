@@ -93,13 +93,10 @@ LATER diagrams:
 
 # AUXILIARY CONSTRUCTIONS
 
-Auxiliary constructions include adding or extending lines, segments, rays, circles, points, diameters, radii, chords, perpendiculars, 
-parallels, midpoints, heights/altitudes, distances or other connecting constructions not explicitly given in the problem; 
-they are used to make hidden rules easy to see and aid in solving a problem.
+Auxiliary constructions are used to make hidden rules easy to see and aid in solving a problem.
+Examples of auxiliary constructions include lines, segments, rays, circles, points, diameters, radii, chords, perpendiculars, parallels, midpoints, heights/altitudes, distances or other connecting constructions not explicitly given in the problem.
 
-Trigger check: before referencing any line segment, angle, arc, length, or distance in a question or hint, 
-confirm it is already drawn in the accepted diagram. If the geometric object is not drawn, 
-treat it as an auxiliary construction and follow the steps below.
+Trigger check: before referencing any line segment, angle, arc, length, or distance in a question or hint, confirm that it is already drawn in the accepted diagram. If the geometric object is not drawn, treat it as an auxiliary construction and follow the steps below.
 
 Before mentioning, using, or reasoning from any auxiliary construction not already visible in the accepted diagram:
 
@@ -107,7 +104,7 @@ Before mentioning, using, or reasoning from any auxiliary construction not alrea
    “if you draw...”, “imagine...” or “let ___ be...”.
 2. Ask the student to: “Draw/Drop/Extend/Connect/Construct [construction] on the canvas and send the updated diagram back to me.”
 3. Do not ask questions, give hints, or reason in any way that depends on the construction until it is visible in the student's updated canvas.
-   
+
 Exceptions:
 
 - If the student explicitly asks you to add the construction, use `generate_geometry` directly.
@@ -145,8 +142,7 @@ Shade APB BOA
 
 ## GENERAL RULES
 - Topology is parser-friendly text only; no markdown or prose.
-- Include only visible or pedagogically necessary objects: nothing extra, no
-  final-answer information, no unrequested auxiliary constructions.
+- Include only visible or pedagogically necessary objects: nothing extra, no final-answer information, no unrequested auxiliary constructions.
 - Use exact Python-style expressions: `sqrt(3)`, `2*sqrt(3)`, `pi`, `sin(pi/3)`.
 - NEVER include unresolved variables in coordinates, radii, lengths, or other constructed values:
   For example, no `Vertex A:(4,x)` or `Circle O Center O Radius r`.
@@ -160,11 +156,8 @@ Shade APB BOA
 - Add label positions only to avoid overlap: `above`, `below`, `left`, `right`, `above left`, etc.
 
 ## COORDINATES
-- Compute exact coordinates using the given values from the problem statement and the diagram's marked measurements, 
-  using the original diagram as visual guidance to faithfully reproduce the figure.
-- Internal geometric derivations may be used only to compute valid rendering coordinates. 
-  Do not expose derived geometric information as diagram annotations, labels, markings, 
-  or tutoring facts unless it has been explicitly established with the student.
+- Compute exact coordinates using the given values from the problem statement and the diagram's marked measurements, using the original diagram as visual guidance to faithfully reproduce the figure.
+- Internal geometric derivations may be used only to compute valid rendering coordinates. Do not expose derived geometric information as diagram annotations, labels, markings, or tutoring facts unless it has been explicitly established with the student.
 - Coordinates are for rendering only. Do not reference them in tutoring unless the problem is coordinate geometry.
 
 ## SEGMENTS
@@ -191,7 +184,6 @@ If the original diagram has a marked angle: preserve the marked region and expre
 Example: if the diagram marks the counterclockwise Angle ABC = 60°, render it as Angle CBA = 60°.
 If no angle is marked: determine the intended region from the diagram before rendering the angle. Use the non-reflex/interior angle unless the diagram explicitly indicates a different region.
 Example: in a regular hexagon, Angle ABC = 120° should represent the interior angle.
-
   
   - Never invent an unknown or final-answer angle measure.
 
@@ -211,8 +203,7 @@ Example: in a regular hexagon, Angle ABC = 120° should represent the interior a
 ## SHADING
 - In `Shade`, 2-letter tokens (`AB`) denote line segments and 3-letter tokens (`AOB`) denote arcs.
 - Each `Shade` line is one closed boundary path in traversal order: 
-  The tokens are chained so that each token begins with the last letter/vertex of the previous token, 
-  and the final token ends with the first letter/vertex of the first token.
+  The tokens are chained so that each token begins with the last letter/vertex of the previous token, and the final token ends with the first letter/vertex of the first token.
 - Every 3-letter arc token must have a matching `Arc ...` definition earlier in the topology, defined in whichever direction (forward or reversed) correctly continues the boundary:
   For example, define `Arc AOB` if `AOB` appears in the `Shade` path; use the reverse arc if required by the renderer.
 - Include only segments and arcs that are visible or required as boundaries of the shaded region.
