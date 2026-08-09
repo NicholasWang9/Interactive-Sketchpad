@@ -175,7 +175,7 @@ Shade APB BOA
 - If the original diagram has a marked angle: preserve the marked region and stated measure and express the angle using the clockwise ordering of its rays. If the given notation uses the opposite (counterclockwise) ordering, reverse the endpoints while keeping the same measure. 
   For example, if `Angle ABC=60` is marked counterclockwise in the original diagram, render `Angle CBA=60`.
 - If no angle is marked: determine the intended region from the diagram before rendering the angle. Use the non-reflex/interior angle unless the diagram explicitly indicates a different region. 
-  For example, in a regular hexagon, if `Angle ABC=120` is rendered, it should be the interior angle.
+  For example, in a regular hexagon, if asked to render `Angle ABC=120`, use the ordering of vertices that will render the interior angle.
 - Never invent an unknown or final-answer angle measure.
 
 ## ARCS
