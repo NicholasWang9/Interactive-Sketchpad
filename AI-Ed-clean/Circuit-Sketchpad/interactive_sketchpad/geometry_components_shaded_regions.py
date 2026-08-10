@@ -13,7 +13,6 @@ def parse_shaded_regions_from_topology(topology: str, topologyDict: dict) -> lis
     border_regex = re.compile(r"[A-Z]{2,3}")
 
     for match in shaded_region_regex.finditer(topology):
-        print(match)
         #Create shaded regions that are lists of each border used in each shaded region
         shaded_regions.append([border.group() for border in border_regex.finditer(match.group())])
 
