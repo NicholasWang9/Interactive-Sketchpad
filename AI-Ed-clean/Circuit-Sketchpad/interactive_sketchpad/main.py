@@ -1,12 +1,16 @@
+import logging
 import tempfile
+import traceback
 
 import chainlit as cl
 from chainlit.context import init_ws_context
 from chainlit.session import WebsocketSession
 from chainlit.utils import mount_chainlit
-from fastapi import FastAPI, File, Request, UploadFile
+from fastapi import FastAPI, File, HTTPException, Request, UploadFile
 
 from interactive_sketchpad.chatbot import main
+
+logger = logging.getLogger("interactive_sketchpad")
 
 app = FastAPI()
 
@@ -18,24 +22,38 @@ async def upload_image(
     file: UploadFile = File(...),
 ):
     ws_session = WebsocketSession.get_by_id(session_id=session_id)
-    print(session_id)
-    print(ws_session)
-    init_ws_context(ws_session)
+    if ws_session is None:
+        raise HTTPException(
+            status_code=404,
+            detail=(
+                f"No active chat session found for id {session_id!r}. "
+                "This happens if the chat tab was reloaded after the whiteboard "
+                "opened (each reload starts a new session) -- reopen the "
+                "whiteboard from the current chat tab and try again."
+            ),
+        )
 
-    content = await file.read()
+    try:
+        init_ws_context(ws_session)
 
-    image_element = cl.Image(
-        name=file.filename, content=content, display="inline", size="large"
-    )
+        content = await file.read()
 
-    with tempfile.NamedTemporaryFile(delete=False, suffix=file.filename) as temp_file:
-        temp_file.write(content)
-        temp_file_path = temp_file.name  # Get the temporary file path
-        image_element.path = temp_file_path
+        image_element = cl.Image(
+            name=file.filename, content=content, display="inline", size="large"
+        )
 
-        message = cl.Message(content=text, elements=[image_element])
-        await message.send()
-        await main(message)
+        with tempfile.NamedTemporaryFile(delete=False, suffix=file.filename) as temp_file:
+            temp_file.write(content)
+            temp_file.flush()
+            temp_file_path = temp_file.name  # Get the temporary file path
+            image_element.path = temp_file_path
+
+            message = cl.Message(content=text, elements=[image_element])
+            await message.send()
+            await main(message)
+    except Exception as e:
+        logger.error("Failed to deliver whiteboard image to chat: %s", traceback.format_exc())
+        raise HTTPException(status_code=500, detail=f"{type(e).__name__}: {e}") from e
 
     return {"message": "Image received"}
 

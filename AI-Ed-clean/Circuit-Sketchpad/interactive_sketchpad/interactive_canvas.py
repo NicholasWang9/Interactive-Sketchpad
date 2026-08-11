@@ -20,12 +20,22 @@ SESSION_ID = sys.argv[1] if len(sys.argv) > 1 else "default"
 # Matches the older tkinter version's behavior by default.
 CHATBOT_UPLOAD_URL = os.environ.get("CHATBOT_UPLOAD_URL", "http://127.0.0.1:8000/upload")
 
+# Chat UI to embed alongside the canvas (the Chainlit app).
+CHAT_UI_URL = os.environ.get("CHAT_UI_URL", "http://127.0.0.1:8000/interactive_sketchpad")
+
 app = FastAPI()
 
 # In-memory history per session_id:
 #   history[session_id] = ([png_bytes0, png_bytes1, ...], cursor_index)
 _history: Dict[str, Tuple[List[bytes], int]] = {}
 _lock = threading.Lock()
+
+# The most recently started chat session. The chat frontend generates a new
+# session id on every page load (no cross-reload persistence), so rather
+# than binding this server to one session for its whole lifetime, the
+# chatbot notifies us of the current session on every chat start, and the
+# whiteboard page (below) polls for it and follows along automatically.
+_latest_session: str = SESSION_ID
 
 # Optional: cap history to avoid memory blowups
 MAX_HISTORY = 200
@@ -97,9 +107,59 @@ def home(session: str = Query(default=SESSION_ID)):
       :root {{
         color-scheme: light;
       }}
+      html, body {{
+        height: 100%;
+      }}
       body {{
         font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
-        margin: 20px;
+        margin: 0;
+      }}
+      .app-layout {{
+        display: flex;
+        gap: 12px;
+        align-items: stretch;
+        height: 100vh;
+        box-sizing: border-box;
+        padding: 16px;
+      }}
+      .pane {{
+        display: flex;
+        flex-direction: column;
+        min-width: 0;
+        min-height: 0;
+      }}
+      .pane-header {{
+        font-weight: 600;
+        margin-bottom: 8px;
+        flex: 0 0 auto;
+      }}
+      .chat-pane {{
+        flex: 1 1 50%;
+        min-width: 0;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        padding: 10px;
+        box-sizing: border-box;
+      }}
+      .chat-pane iframe {{
+        flex: 1 1 auto;
+        width: 100%;
+        border: 0;
+        border-radius: 4px;
+      }}
+      .canvas-pane {{
+        flex: 1 1 50%;
+        min-width: 0;
+        overflow: auto;
+      }}
+      @media (max-width: 1000px) {{
+        .app-layout {{
+          flex-direction: column;
+          height: auto;
+        }}
+        .chat-pane {{
+          flex: 0 0 480px;
+        }}
       }}
       .meta {{ color: #666; margin: 8px 0; }}
       .bar {{
@@ -140,52 +200,63 @@ def home(session: str = Query(default=SESSION_ID)):
     </style>
   </head>
   <body>
-    <h2>Interactive Sketchpad Canvas (Web)</h2>
-    <div class="meta">Session: <code id="sess">{session}</code></div>
+    <div class="app-layout">
+      <aside class="pane chat-pane">
+        <div class="pane-header">Chat</div>
+        <iframe id="chatFrame" src="{CHAT_UI_URL}" title="Tutor chat"></iframe>
+      </aside>
 
-    <div class="bar">
-      <button id="back">◀ Back</button>
-      <button id="fwd">Forward ▶</button>
+      <main class="pane canvas-pane">
+        <h2>Interactive Sketchpad Canvas (Web)</h2>
+        <div class="meta">Session: <code id="sess">{session}</code></div>
 
-      <span class="meta">Index:</span>
-      <span id="idx" class="meta">-</span>
-      <span class="meta">/</span>
-      <span id="total" class="meta">-</span>
+        <div class="bar">
+          <button id="back">◀ Back</button>
+          <button id="fwd">Forward ▶</button>
 
-      <input id="slider" type="range" min="0" max="0" value="0" step="1" />
+          <span class="meta">Index:</span>
+          <span id="idx" class="meta">-</span>
+          <span class="meta">/</span>
+          <span id="total" class="meta">-</span>
 
-      <label class="meta">
-        <input id="follow" type="checkbox" checked />
-        Follow latest
-      </label>
+          <input id="slider" type="range" min="0" max="0" value="0" step="1" />
 
-      <span id="status" class="meta"></span>
-    </div>
+          <label class="meta">
+            <input id="follow" type="checkbox" checked />
+            Follow latest
+          </label>
 
-    <div class="bar">
-      <strong>Drawing</strong>
-      <button id="toggleDraw">Disable drawing</button>
-      <label class="meta">Color <input id="colorPicker" type="color" value="#d62828" /></label>
-      <label class="meta">Brush <input id="brushSize" type="number" min="1" max="64" step="1" value="4" /></label>
-      <button id="eraser">Eraser</button>
-      <button id="undoStroke">Undo stroke</button>
-      <button id="clearDrawing">Clear drawing</button>
-      <span class="sep">|</span>
-      <button id="sendDrawing">Send image back to tutor</button>
-    </div>
+          <span id="status" class="meta"></span>
+        </div>
 
-    <div class="canvas-wrap" id="canvasWrap">
-      <img id="baseImg" src="/image.png?session={session}&ts=0" alt="No image yet" draggable="false" />
-      <canvas id="drawCanvas"></canvas>
-    </div>
+        <div class="bar">
+          <strong>Drawing</strong>
+          <button id="toggleDraw">Disable drawing</button>
+          <label class="meta">Color <input id="colorPicker" type="color" value="#d62828" /></label>
+          <label class="meta">Brush <input id="brushSize" type="number" min="1" max="64" step="1" value="4" /></label>
+          <button id="eraser">Eraser</button>
+          <button id="undoStroke">Undo stroke</button>
+          <button id="clearDrawing">Clear drawing</button>
+          <span class="sep">|</span>
+          <button id="sendDrawing">Send image back to tutor</button>
+        </div>
 
-    <div class="meta">
-      Shortcuts: <code>←</code>/<code>→</code> for back/forward, <code>f</code> toggles follow-latest.
-      Hold mouse and drag to draw.
+        <div class="canvas-wrap" id="canvasWrap">
+          <img id="baseImg" src="/image.png?session={session}&ts=0" alt="No image yet" draggable="false" />
+          <canvas id="drawCanvas"></canvas>
+        </div>
+
+        <div class="meta">
+          Shortcuts: <code>←</code>/<code>→</code> for back/forward, <code>f</code> toggles follow-latest.
+          Hold mouse and drag to draw.
+        </div>
+      </main>
     </div>
 
     <script>
-      const sessionId = "{session}";
+      let sessionId = "{session}";
+      const sessEl = document.getElementById("sess");
+      const chatFrame = document.getElementById("chatFrame");
       const img = document.getElementById("baseImg");
       const canvas = document.getElementById("drawCanvas");
       const wrap = document.getElementById("canvasWrap");
@@ -447,7 +518,27 @@ def home(session: str = Query(default=SESSION_ID)):
       img.addEventListener("load", resizeDrawingCanvas);
       window.addEventListener("resize", resizeDrawingCanvas);
 
+      async function checkLatestSession() {{
+        try {{
+          const r = await fetch("/latest_session");
+          if (!r.ok) return;
+          const data = await r.json();
+          if (data.session && data.session !== sessionId) {{
+            sessionId = data.session;
+            sessEl.textContent = sessionId;
+            lastTotal = -1;
+            await syncUI();
+            await refreshImage(true);
+            setStatus("switched to new chat session");
+          }}
+        }} catch (e) {{
+          // ignore transient errors
+        }}
+      }}
+
       async function poll() {{
+        await checkLatestSession();
+
         const s = await getState();
         if (!s) return;
         await syncUI();
@@ -469,6 +560,22 @@ def home(session: str = Query(default=SESSION_ID)):
   </body>
 </html>
 """
+
+
+@app.post("/register_session")
+def register_session(session: str = Query(...)):
+    """
+    Called by the chatbot on every chat start so this (possibly long-lived,
+    shared) canvas server knows which chat session is currently active.
+    """
+    global _latest_session
+    _latest_session = session
+    return {"status": "ok", "session": session}
+
+
+@app.get("/latest_session")
+def latest_session():
+    return {"session": _latest_session}
 
 
 @app.get("/state")

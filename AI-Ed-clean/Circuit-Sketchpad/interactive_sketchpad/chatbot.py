@@ -39,6 +39,7 @@ from openai import AsyncOpenAI, OpenAI
 from circuit_components_3 import generate
 # from render_latex import generate as generate_latex_bytes  # if you have a separate renderer
 from geometry_components import generate as generate_geometry
+from geometry_components_utilities import apply_topology_edit
 
 import re
 
@@ -140,9 +141,11 @@ GEOMETRY_TOOL = {
     "type": "function",
     "name": "generate_geometry",
     "description": (
-        "Generate a circuit diagram image (PNG) from a series-parallel topology string "
-        "using R, C, L, SW, +, //, and parentheses. Example: '(R//(R+(R//R)))'. Another example: '(SW//(2.5C+(4L//1R)))'."
-        "R is resistor; C is capacitor; L is inductor; SW is switch."
+        "Generate a geometry diagram image (PNG) from a full topology description "
+        "(Vertex/Segment/Angle/Arc/Circle/Shade lines). Use this only for the very first "
+        "diagram of a problem, or a full redraw when the diagram must change so much that "
+        "editing it would not be simpler. For every other update to an existing diagram, "
+        "use `edit_geometry` instead so you don't have to retype the whole topology."
     ),
     "parameters": {
         "type": "object",
@@ -152,6 +155,40 @@ GEOMETRY_TOOL = {
             "pretty": {"type": "boolean", "default": True},
         },
         "required": ["topology"],
+    },
+}
+
+GEOMETRY_EDIT_TOOL = {
+    "type": "function",
+    "name": "edit_geometry",
+    "description": (
+        "Incrementally edit the current working geometry topology instead of retyping it "
+        "from scratch -- use this for every geometry diagram update after the first one, "
+        "since it is much faster than regenerating the full topology. "
+        "`add` is a list of topology lines to add; if a line has the same key as an existing "
+        "line it replaces that line instead of duplicating it (e.g. re-adding 'Vertex A:(...)' "
+        "after moving point A, or 'Angle ABC=...' after changing its measure). "
+        "`remove` is a list of keys of lines to delete: 'Vertex A', 'Segment A-B', 'Angle ABC', "
+        "'Arc AOB', 'Circle O', or, for Shade lines (which have no short key), the exact line text. "
+        "Only include the lines that are actually changing -- never repeat unchanged lines."
+    ),
+    "parameters": {
+        "type": "object",
+        "properties": {
+            "add": {
+                "type": "array",
+                "items": {"type": "string"},
+                "description": "Topology lines to add or replace (by key), e.g. ['Vertex D:(2,1) above', 'Segment C-D'].",
+            },
+            "remove": {
+                "type": "array",
+                "items": {"type": "string"},
+                "description": "Keys (or, for Shade lines, exact text) of lines to delete, e.g. ['Angle ABC'].",
+            },
+            "dpi": {"type": "integer", "default": 300},
+            "pretty": {"type": "boolean", "default": True},
+        },
+        "required": [],
     },
 }
 
@@ -170,7 +207,7 @@ def get_profile_config():
         return {
             "name": "Geometry Tutor",
             "instructions": instructions_geometry,
-            "tools": [GEOMETRY_TOOL]
+            "tools": [GEOMETRY_TOOL, GEOMETRY_EDIT_TOOL]
         }
 
     return {
@@ -189,6 +226,7 @@ config.ui.name = ASSISTANT_NAME
 canvas_process = None
 # CANVAS_APP_URL = "http://0.0.0.0:8081/send_image_to_canvas"
 CANVAS_APP_URL = "http://127.0.0.1:8081/send_image_to_canvas"
+CANVAS_UI_URL = os.environ.get("CANVAS_UI_URL", "http://127.0.0.1:8081")
 PENDING_CANVAS_UPLOADS: Dict[str, List[str]] = {}
 
 
@@ -727,19 +765,55 @@ async def run_responses_with_tool_loop(
             pretty = bool(args.get("pretty", True))
             print(description)
 
-            # Placeholder for now: render a simple text-based placeholder image.
             png_bytes = generate_geometry(description, dpi=dpi, pretty=pretty,)
 
             await send_image_to_canvas(png_bytes)
+            cl.user_session.set("geometry_topology", description)
 
             output_str = json.dumps(
                 {
                     "status": "ok",
                     "artifact_type": "geometry_diagram",
                     "display_target": "interactive_canvas",
-                    "note": "Geometry placeholder rendered. Continue with exactly one tutoring step that references this diagram.",
+                    "note": "Geometry diagram rendered. Continue with exactly one tutoring step that references this diagram.",
                 }
             )
+
+        elif name == "edit_geometry":
+            current_topology = cl.user_session.get("geometry_topology")
+
+            if not current_topology:
+                output_str = json.dumps(
+                    {
+                        "status": "error",
+                        "error": (
+                            "No existing geometry topology to edit yet. "
+                            "Call generate_geometry first to create the initial diagram."
+                        ),
+                    }
+                )
+            else:
+                add_lines = args.get("add", []) or []
+                remove_keys = args.get("remove", []) or []
+                dpi = int(args.get("dpi", 300))
+                pretty = bool(args.get("pretty", True))
+
+                merged_topology = apply_topology_edit(current_topology, add_lines, remove_keys)
+                print(merged_topology)
+
+                png_bytes = generate_geometry(merged_topology, dpi=dpi, pretty=pretty)
+
+                await send_image_to_canvas(png_bytes)
+                cl.user_session.set("geometry_topology", merged_topology)
+
+                output_str = json.dumps(
+                    {
+                        "status": "ok",
+                        "artifact_type": "geometry_diagram",
+                        "display_target": "interactive_canvas",
+                        "note": "Geometry diagram updated. Continue with exactly one tutoring step that references this diagram.",
+                    }
+                )
 
         elif name == "generate_latex":
             latex = args.get("latex", "")
@@ -834,26 +908,47 @@ async def start_chat():
     cl.user_session.set("conversation", [])
     cl.user_session.set("active_tutor", cfg["name"])
     cl.user_session.set("sent_artifact_ids", set())
+    cl.user_session.set("geometry_topology", None)
 
     await cl.Message(
         content=f"Hello, I'm your {cfg['name']}! What can I help you with?"
     ).send()
 
+    session_id = cl.user_session.get("id")
+
     global canvas_process
-    canvas_process = subprocess.Popen(
-        [sys.executable, "interactive_canvas.py", cl.user_session.get("id")]
-    )
+    if canvas_process is None or canvas_process.poll() is not None:
+        # Canvas server isn't running yet: start it once. It stays up for
+        # the lifetime of this process and is shared across chat sessions
+        # (e.g. reloads), so later sessions never race it for port 8081.
+        canvas_process = subprocess.Popen(
+            [sys.executable, "interactive_canvas.py", session_id]
+        )
+        # Give it a moment to start listening before the first registration.
+        await asyncio.sleep(1.0)
+
+    # Tell the (possibly already-running) canvas server which session is
+    # currently active, so its whiteboard page -- and the chat iframe it
+    # embeds -- both talk to the same live chat session.
+    try:
+        async with httpx.AsyncClient() as client:
+            await client.post(
+                f"{CANVAS_UI_URL}/register_session", params={"session": session_id}
+            )
+    except Exception as e:
+        print(f"Failed to register session with canvas server: {e}")
 
 
 @cl.on_chat_end
 async def end_chat():
-    """Terminate the drawing app when chat ends."""
-    global canvas_process
-    if canvas_process and canvas_process.poll() is None:
-        canvas_process.terminate()
-        canvas_process.wait()
-        canvas_process = None
-        print("Interactive canvas closed.")
+    """
+    Note: the canvas process is intentionally NOT terminated here. It is a
+    single shared server (see on_chat_start) that stays up across chat
+    sessions -- e.g. the chat iframe the whiteboard embeds ends its own
+    session on every reload, and tearing down the canvas along with it
+    would break the whiteboard for whoever else is using it.
+    """
+    pass
 
 
 @cl.on_message
