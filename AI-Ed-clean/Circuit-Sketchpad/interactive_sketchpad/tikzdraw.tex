@@ -13,17 +13,19 @@
 \begin{document}%
 \normalsize%
 \begin{tikzpicture}%
-\node[above left,font=\Large] (G) at (-7.2,10.648943609579309) {G};%
-\path[draw,fill=black,radius=0.04] (-7.2,10.648943609579309) circle;%
-\node[above right,font=\Large] (H) at (7.2,10.648943609579309) {H};%
-\path[draw,fill=black,radius=0.04] (7.2,10.648943609579309) circle;%
-\node[below right,font=\Large] (I) at (9.0,0.0) {I};%
-\path[draw,fill=black,radius=0.04] (9.0,0.0) circle;%
-\node[below left,font=\Large] (J) at (-9.0,0.0) {J};%
-\path[draw,fill=black,radius=0.04] (-9.0,0.0) circle;%
-\path[line width = 1pt,draw] (-7.2,10.648943609579309) -- (7.2,10.648943609579309);%
-\path[line width = 1pt,draw] (7.2,10.648943609579309) -- (9.0,0.0);%
-\path[line width = 1pt,draw] (9.0,0.0) -- (-9.0,0.0);%
-\path[line width = 1pt,draw] (-9.0,0.0) -- (-7.2,10.648943609579309);%
+\node[left,font=\Large] (A) at (0.0,0.0) {A};%
+\path[draw,fill=black,radius=0.04] (0.0,0.0) circle;%
+\node[right,font=\Large] (B) at (7.5,0.0) {B};%
+\path[draw,fill=black,radius=0.04] (7.5,0.0) circle;%
+\node[above,font=\Large] (C) at (4.800000000000001,3.5999999999999996) {C};%
+\path[draw,fill=black,radius=0.04] (4.800000000000001,3.5999999999999996) circle;%
+\node[below,font=\Large] (D) at (4.800000000000001,-3.5999999999999996) {D};%
+\path[draw,fill=black,radius=0.04] (4.800000000000001,-3.5999999999999996) circle;%
+\path[line width = 1pt,draw] (0.0,0.0) -- (7.5,0.0);%
+\path[line width = 1pt,draw,radius=6.0] (0.0,0.0) circle;%
+\path[line width = 1pt,draw,radius=4.5] (7.5,0.0) circle;%
+\path[start angle  = 36.86989764584401,end angle = -36.86989764584401,thick,draw,radius=6.0] (4.800000000000001,3.5999999999999996) arc;%
+\path[start angle  = 233.13010235415598,end angle = 126.86989764584402,thick,draw,radius=4.5] (4.800000000000001,-3.5999999999999996) arc;%
+\filldraw[thick, fill opacity = 0.1] (4.800000000000001, 3.5999999999999996) arc[start angle = 36.86989764584401, end angle = -36.86989764584401, radius = 6.0] arc[start angle = 233.13010235415598, end angle = 126.86989764584402, radius = 4.5];%
 \end{tikzpicture}%
 \end{document}
