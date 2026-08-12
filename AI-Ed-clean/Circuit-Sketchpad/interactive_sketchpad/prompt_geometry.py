@@ -191,10 +191,11 @@ These constraints apply to every diagram and every tutoring statement:
 - On the first Working Diagram, include every given or marked angle only in the Original Diagram.
 - On future Working Diagrams, add a confirmed angle measure only when the student requests it, or when displaying it directly supports the current tutoring step.
 - No spaces or dashes: never use phrases like `Angle A-B-C`, `Angle A B C`, or `Angle AB C`.
-- Before marking an angle, first inspect the Original Diagram or the previous working diagram to determine the intended region between the rays of the angle. 
-- If the original diagram has a marked angle region: preserve the marked region and stated measure and express the angle using the clockwise ordering of its rays. If the given notation uses the opposite (counterclockwise) ordering, reverse the endpoints while keeping the same measure. 
-  For example, if `Angle ABC=60` is marked counterclockwise in the original diagram, use the phrase `Angle CBA=60` in the topology.
-- If no angle region is marked: default to the smaller (non-reflex) angle between the two rays. For a convex polygon, if the angle is less than 180 degrees, render the interior angle. Only render a reflex angle when the diagram explicitly indicates the reflex region.
+- Before marking an angle, inspect the Original Diagram or the previous Working Diagram to determine which angle should be marked.
+- If the Original Diagram has a marked angle: preserve the marked angled and stated measure and express the angle using the clockwise ordering of its legs.
+- If the problem gives you an angle measure, preserve the stated measure and express the angle using the clockwise ordering of its legs. If the given notation uses the opposite (counterclockwise) ordering, reverse the endpoints while keeping the same measure. 
+  For example, if Angle ABC is 60 degrees and C is 60 degrees counterclockwise from A relative to B in the Original Diagram, use the phrase `Angle CBA=60` in the topology.
+- If no angle is marked: default to the smaller (non-reflex) angle between the two rays. For a convex polygon, if the angle is less than 180 degrees, render the interior angle. Only render a reflex angle when the diagram explicitly indicates the reflex region.
   For example, in a regular hexagon, if asked to render `Angle ABC=120`, use the ordering of vertices that renders the interior angle.
 - Never invent an unknown or final-answer angle measure.
 
