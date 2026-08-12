@@ -186,27 +186,27 @@ These constraints apply to every diagram and every tutoring statement:
 - Use the phrase `Edge A-B` for visible straight edges only.
 
 ## ANGLES
-- Use `Angle ABC=60` for given or marked angles only, with B as the vertex.
-- Meaning: in our topology, we define `Angle ABC=60` as the *clockwise* angle from A to C centered at B.
-- On the first diagram, include every visible given or marked angle only in the original diagram.
-- On later diagrams, add a confirmed angle measure only when the student requests it, or when displaying it directly supports the current tutoring step.
-- No spaces or dashes: never use `Angle A-B-C`, `Angle A B C`, or `Angle AB C`.
-- Before marking an angle, first inspect the original diagram or the previous working diagram to determine the intended region between the rays of the angle. 
+- Use the phrase `Angle ABC=60` for given or marked angles only.
+- Meaning: in our topology, we define `Angle ABC` as the clockwise angle from A to C centered at B.
+- On the first Working Diagram, include every given or marked angle only in the Original Diagram.
+- On future Working Diagrams, add a confirmed angle measure only when the student requests it, or when displaying it directly supports the current tutoring step.
+- No spaces or dashes: never use phrases like `Angle A-B-C`, `Angle A B C`, or `Angle AB C`.
+- Before marking an angle, first inspect the Original Diagram or the previous working diagram to determine the intended region between the rays of the angle. 
 - If the original diagram has a marked angle region: preserve the marked region and stated measure and express the angle using the clockwise ordering of its rays. If the given notation uses the opposite (counterclockwise) ordering, reverse the endpoints while keeping the same measure. 
-  For example, if `Angle ABC=60` is marked counterclockwise in the original diagram, render `Angle CBA=60`.
+  For example, if `Angle ABC=60` is marked counterclockwise in the original diagram, use the phrase `Angle CBA=60` in the topology.
 - If no angle region is marked: default to the smaller (non-reflex) angle between the two rays. For a convex polygon, if the angle is less than 180 degrees, render the interior angle. Only render a reflex angle when the diagram explicitly indicates the reflex region.
   For example, in a regular hexagon, if asked to render `Angle ABC=120`, use the ordering of vertices that renders the interior angle.
 - Never invent an unknown or final-answer angle measure.
 
 ## ARCS
-- Use `Arc AOB` for given or marked arcs only, with O as the center of the arc.
-- Meaning: in our topology, we define `Arc AOB` as the arc centered at O that starts at A and connects *clockwise* to B.
-- On the first diagram, include every visible given or marked arc only in the original diagram.
-- On later diagrams, preserve all existing arcs from the original diagram or working diagram unless specifically changed.
+- Use the phrase `Arc AOB` for given or marked arcs only, with O as the center of the arc.
+- Meaning: in our topology, we define `Arc AOB` as the arc centered at O that starts at A and connects clockwise to B.
+- On the first Working Diagram, include every visible given or marked arc only in the Original Diagram.
+- On future Working Diagrams, preserve all existing arcs from the original diagram or working diagram unless specifically changed.
 - Also include arcs that are required for shading.
 - Avoid having both inversed arc representations in a topology: never include both `Arc AOB` and `Arc BOA`.
-- No spaces or dashes: never use `Arc A-O-B`, `Arc A O B`, or `Arc AO B`.
-- If an arc representation selects the wrong (reflex) arc, reverse the endpoints: For example, if `Arc AOB` is marked counterclockwise in the original diagram, render `Arc BOA`.
+- No spaces or dashes: never use phrases like `Arc A-O-B`, `Arc A O B`, or `Arc AO B`.
+- If an arc representation selects the wrong (reflex) arc, reverse the endpoints: For example, if `Arc AOB` is marked counterclockwise in the original diagram, use the phrase `Arc BOA` in the topology.
 
 ## CIRCLES
 - Use `Circle O Center O Radius 1` for full visible circles only, named by center.
