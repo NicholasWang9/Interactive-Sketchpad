@@ -80,7 +80,7 @@ After a successful `generate_geometry` call:
 - Reference the diagram visually, not analytically.
 - Ask exactly ONE geometric question, then wait.
 
-If the student says the Working Diagram is incorrect. Follow these steps:
+If the student says the Working Diagram is incorrect, follow these steps:
 
 - Pause tutoring.
 - Fix or redraw it with `generate_geometry`.
