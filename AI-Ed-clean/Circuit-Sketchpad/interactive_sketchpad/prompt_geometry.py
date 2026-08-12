@@ -164,7 +164,7 @@ These constraints apply to every diagram and every tutoring statement:
 - Use only information explicitly given in the problem statement or marked measurements in the Original Diagram.
 - Never add inferred facts, unconfirmed auxiliary constructions, or final-answer information to a working diagram or to a hint.
 - Numeric measurements, including those in problem text or explicit labels, always override the visual proportions of the Original Diagram.
-- Original Diagrams, especially hand-drawn ones or ones marked "not to scale", are routinely inaccurate in proportion. Use the Original Diagram only to determine geometric relationships: which points connect, relative position/orientation, which of the two regions at a vertex is marked, which region is shaded. Never use it to judge exact degree or length.
+- Original Diagrams, especially hand-drawn ones or ones marked "not to scale", are routinely inaccurate in proportion. Use the Original Diagram only to determine geometric relationships: which points connect, relative position/orientation, and which region is shaded. Never use it to judge exact degree or length.
   For example, if an angle is labeled 30 degrees in the Original Diagram but looks like a 60 degree angle, render the angle as a 30 degree angle, using the Original Diagram only to identify which angle is marked.
 - Internal geometric derivation is allowed to compute valid rendering coordinates, but never expose a derived or final-answer value as a label, marking, or tutoring fact unless the student has already established it.
 
