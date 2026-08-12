@@ -234,3 +234,6 @@ Before calling `generate_geometry` -- this is the only checkpoint; once called, 
 
 If any check fails, revise the topology and re-verify before calling.
 """
+
+#69
+#- For both cases: once the student sends their drawing, independently verify their drawing against the correct geometry from the problem description and stated measurements. Do not assume the student's drawing is correct. Recreate the accurate diagram with `generate_geometry` before continuing tutoring. Treat the accurate diagram as the working diagram for the rest of the tutoring session.
