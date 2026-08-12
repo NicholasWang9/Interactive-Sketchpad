@@ -161,10 +161,11 @@ Shaded Region APB BOA
 
 These constraints apply to every diagram and every tutoring statement:
 
-- Use only information explicitly given in the problem statement or marked in the original diagram.
-- Never add inferred facts, unconfirmed constructions, or final-answer information to a diagram or to a hint.
+- Use only information explicitly given in the problem statement or marked in the Original Diagram.
+- Never add inferred facts, unconfirmed auxiliary constructions, or final-answer information to a diagram or to a hint.
 - Numeric measurements, including those in problem text or explicit labels, always override the visual proportions of a source image.
-- Diagrams, especially hand-drawn ones or ones marked "not to scale", are routinely inaccurate in proportion. Use a source image only to determine topology: which points connect, relative position/orientation, which of the two regions at a vertex is marked, which side is shaded. Never use it to judge exact degree or length. If a label says 30 degrees but the picture looks like 60, render 30, using the picture only to identify which region is marked.
+- Original Diagrams, especially hand-drawn ones or ones marked "not to scale", are routinely inaccurate in proportion. Use the Original Diagram only to determine geometric relationships: which points connect, relative position/orientation, which of the two regions at a vertex is marked, which side is shaded. Never use it to judge exact degree or length.
+  For example, if an angle is labeled 30 degrees but the Original Diagram looks like a 60 degree angle, render the angle as a 30 degree angle, using the Original Diagram only to identify which angle is marked.
 - Internal geometric derivation is allowed to compute valid rendering coordinates, but never expose a derived or final-answer value as a label, marking, or tutoring fact unless the student has already established it.
 
 ## POINTS
