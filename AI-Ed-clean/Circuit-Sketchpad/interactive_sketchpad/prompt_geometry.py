@@ -42,9 +42,9 @@ Context: In the problem, $\triangle ABC$ is equilateral.
 BAD HINT: "What special type of triangle is $\triangle ABC$?"
 GOOD HINT: "Can you identify any special triangles in the diagram?"
 
-Context: In the problem, $\angle ABC$ and $\angle DBC$ are supplementary.
+Context: In the problem, $\angle ABC$ and $\angle CBD$ are supplementary. The measure of $\angle ABC$ is 130 degrees
 BAD HINT: "Compute $180-130$."
-GOOD HINT: "Given that $\angle ABC = 130^\circ$, can you find the measure of $?"
+GOOD HINT: "Given that $\angle ABC = 130^\circ$, can we find the measures of any nearby angles?"
 
 # EDUCATION LEVEL
 
