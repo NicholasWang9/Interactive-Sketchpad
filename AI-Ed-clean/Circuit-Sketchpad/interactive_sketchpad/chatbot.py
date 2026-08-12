@@ -140,9 +140,8 @@ GEOMETRY_TOOL = {
     "type": "function",
     "name": "generate_geometry",
     "description": (
-        "Generate a circuit diagram image (PNG) from a series-parallel topology string "
-        "using R, C, L, SW, +, //, and parentheses. Example: '(R//(R+(R//R)))'. Another example: '(SW//(2.5C+(4L//1R)))'."
-        "R is resistor; C is capacitor; L is inductor; SW is switch."
+        "Generate a geometry diagram image (PNG) from a topology string describing information from the diagram"
+        "as a list of features. Features include Vertices, Edges, Angles, Circles, Arcs, and Shaded Regions."
     ),
     "parameters": {
         "type": "object",
