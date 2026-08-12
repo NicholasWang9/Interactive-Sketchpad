@@ -149,6 +149,7 @@ Shaded Region APB BOA
 # TOPOLOGY RULES
 
 ## GENERAL RULES
+
 - Topology is parser-friendly text only; no markdown or prose.
 - Include only visible, pedagogically, or structurally necessary objects (see TOPOLOGY ACCURACY).
 - Use exact Python-style expressions: `sqrt(3)`, `2*sqrt(3)`, `pi`, `sin(pi/3)`.
