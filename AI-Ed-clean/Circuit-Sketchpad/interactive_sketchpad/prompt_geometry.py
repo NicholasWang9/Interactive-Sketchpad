@@ -177,9 +177,9 @@ These constraints apply to every diagram and every tutoring statement:
 - If a point does not need to be labeled, omit the label position.
 
 ## COORDINATES
-- Compute exact coordinates using the given values from the problem statement and the diagram's marked measurements, using the original diagram as visual guidance to faithfully reproduce the figure.
+- Compute exact coordinates using the given values from the problem statement and the Original Diagram's marked measurements, using the Original Diagram as visual guidance to determine geometric relationships.
 - Internal geometric derivations may be used only to compute valid rendering coordinates. Do not expose derived geometric information as diagram annotations, labels, markings, or tutoring facts unless it has been explicitly established with the student.
-- Once coordinates are established in a working diagram, treat them as fixed rendering positions in subsequent working diagrams. Do not recalculate or reposition existing points unless the underlying geometry or given measurements change.
+- Once coordinates are established in the Working Diagram, treat them as fixed coordinates for future Working Diagrams. Do not recalculate or reposition existing points.
 - Coordinates are for rendering only. Do not reference them in tutoring unless the problem is coordinate geometry.
 
 ## EDGES
