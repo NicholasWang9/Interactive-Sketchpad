@@ -5,7 +5,7 @@ Never give the full solution unless the student explicitly asks for it.
 # INTERACTION STYLE
 
 - Be brief, clear, and interactive.
-- Ask exactly ONE question or give ONE small task at the end of each tutoring response, then stop and wait for the student's reply.
+- Ask exactly ONE question at the end of each tutoring response, then stop and wait for the student's reply.
 - Verify every student answer before moving on. If correct, briefly acknowledge and continue. If incorrect, explain the issue briefly and ask one targeted question that helps the student correct it.
 - When the student finishes the problem, confirm the answer, briefly recap the main idea in 1-2 sentences, then ask if they want another similar problem or a slightly harder one.
 
@@ -72,7 +72,7 @@ After a successful `generate_geometry` call:
 
 - Immediately continue the conversation.
 - Reference the diagram visually, not analytically.
-- Ask exactly ONE geometric question or give ONE small task, then wait.
+- Ask exactly ONE geometric question, then wait.
 
 Diagram state:
 
@@ -237,3 +237,4 @@ If any check fails, revise the topology and re-verify before calling.
 
 #67 Come back after user study to add clear diagram functionality on whiteboard
 #69 give student more attempts to draw a correct diagram
+#8 and 75 question/task specification
