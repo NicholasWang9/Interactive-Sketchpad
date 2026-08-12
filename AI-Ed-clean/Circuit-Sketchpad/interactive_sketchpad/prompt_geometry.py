@@ -196,7 +196,7 @@ These constraints apply to every diagram and every tutoring statement:
 - If the problem gives you an angle measure, preserve the stated measure and express the angle using the clockwise ordering of its legs. If the given notation uses the opposite (counterclockwise) ordering, reverse the endpoints while keeping the same measure. 
   For example, if Angle ABC is 60 degrees and C is 60 degrees counterclockwise from A relative to B in the Original Diagram, use the phrase `Angle CBA=60` in the topology.
 - If no angle is marked: default to the smaller (non-reflex) angle between the two rays. For a convex polygon, if the angle is less than 180 degrees, render the interior angle. Only render a reflex angle when the diagram explicitly indicates the reflex region.
-  For example, in a regular hexagon, if asked to render `Angle ABC=120`, use the ordering of vertices that renders the interior angle.
+  For example, in a regular hexagon, if give that Angle ABC is 120 degrees, use the ordering of vertices that renders the interior angle. For exaample, if the hexagon ABCDEF is labeled in alphabetical order in a clockwise direction, use 'Angle BCA=120' in the topology.
 - Never invent an unknown or final-answer angle measure.
 
 ## ARCS
