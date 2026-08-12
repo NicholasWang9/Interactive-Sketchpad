@@ -183,7 +183,7 @@ These constraints apply to every diagram and every tutoring statement:
 - Coordinates are for rendering only. Do not reference them in tutoring unless the problem is coordinate geometry.
 
 ## EDGES
-- Use `Edge A-B` for visible straight edges only.
+- Use the phrase `Edge A-B` for visible straight edges only.
 
 ## ANGLES
 - Use `Angle ABC=60` for given or marked angles only, with B as the vertex.
