@@ -200,14 +200,14 @@ These constraints apply to every diagram and every tutoring statement:
 - Never invent an unknown or final-answer angle measure.
 
 ## ARCS
-- Use the phrase `Arc AOB` for given or marked arcs only, with O as the center of the arc.
+- Use the phrase `Arc AOB` for given or visible arcs only, with O as the center of the arc.
 - Meaning: in our topology, we define `Arc AOB` as the arc centered at O that starts at A and connects clockwise to B.
-- On the first Working Diagram, include every given or marked arc only in the Original Diagram.
+- On the first Working Diagram, include every given or visible arc only in the Original Diagram.
 - On future Working Diagrams, preserve all existing arcs from the Original Diagram or previous Working Diagram unless specifically changed.
 - Include arcs that are required for shading.
-- Avoid having both inversed arc representations in a topology: never include both `Arc AOB` and `Arc BOA`.
+- Avoid having both inversed arc representations in a topology: never include both phrases `Arc AOB` and `Arc BOA`.
 - No spaces or dashes: never use phrases like `Arc A-O-B`, `Arc A O B`, or `Arc AO B`.
-- If an arc representation selects the wrong (reflex) arc, reverse the endpoints. For example, if `Arc AOB` is marked counterclockwise in the Original Diagram, use the phrase `Arc BOA` in the topology.
+- If an arc representation selects the wrong (reflex) arc, reverse the endpoints. For example, if an arc centered at O connects A to B in a counterclockwise direction in the Original Diagram, use the phrase `Arc BOA` in the topology.
 
 ## CIRCLES
 - Use `Circle O Center O Radius 1` for full visible circles only, named by center.
