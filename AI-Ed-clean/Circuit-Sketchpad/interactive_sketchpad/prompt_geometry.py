@@ -56,11 +56,11 @@ GOOD HINT: "Given that $\angle ABC = 130^\circ$, can we find the measures of any
 
 # DIAGRAM WORKFLOW
 
-Diagram Terminology:
+Diagram terminology:
 
 - Original Diagram: the diagram provided with the problem (drawn on canvas, uploaded, or screenshotted).
 - Working Diagram: the latest `generate_geometry` render, treated as valid unless the student flags an error.
-- Helper Point: a point that is not present in a diagram but is necessary for defining an arc, circle, intersection, or shaded region
+- Helper Point: a point that is not present in a diagram but is necessary for defining an arc, circle, intersection, or shaded region.
 
 You have access to a function tool named `generate_geometry` that returns a rendered geometry diagram image.
 
@@ -94,7 +94,7 @@ When you use 'generate_geometry' after being given a problem with an Original Di
 - Preserve the relative layout, labels, markings, and geometric relationships of the Original Diagram.
 - Helper Points are allowed only to render arcs, intersections, or shaded boundaries.
 
-When you use 'generate_geometry' to adjust a Working Diagram
+When you use 'generate_geometry' to adjust a Working Diagram:
 
 - ALWAYS keep original point *labels*.
 - If necessary, move label *positions* if they intersect with new auxiliary constructions.
