@@ -225,19 +225,16 @@ These constraints apply to every diagram and every tutoring statement:
 - Include only edges and arcs that are visible or required as boundaries of the shaded region.
 - If a shaded region has a hole and cannot be represented as one closed path, split it into multiple simple closed shaded regions using Helper Edges.
 - Each `Shaded Region` line must represent one closed region with no holes.
-- Before calling the tool, trace each `Shaded Region` line chunk-by-chunk and confirm the chain closes and every arc chunk has a matching `Arc` definition. An unclosed path renders nothing, silently -- this is the only way to catch that before the student sees it.
 
 # PRE-CALL CHECKLIST
 
-Before calling `generate_geometry` -- this is the only checkpoint; once called, the render is shown to the student immediately -- verify:
+Before calling `generate_geometry`, verify:
 
-1. Every referenced point is defined, and no unresolved variables remain.
-2. Every angle and arc clockwise endpoint order matches the marked (not opposite or reflex) version.
-3. Every `Shaded Region` path is closed, connected, and each chunk has a matching definition above it.
+1. Every referenced point is defined.
+2. Every angle and arc ordering corresponds to the marked (not opposite or reflex) version.
+3. Every `Shaded Region` path is closed, connected, and each chunk has a matching definition in the topology.
 4. For a named polygon such as ABCD, preserve its stated cyclic vertex order.
-5. Determine bases and legs from the original problem or original diagram if it exists.
-6. No unconfirmed or answer-revealing objects were added (see TOPOLOGY ACCURACY).
-7. Compare the topology you're about to submit against the original diagram (first diagram) or the previous working diagram (later diagrams): topology, layout, labels, and markings should match except for the intended change.
+5. No unconfirmed or answer-revealing objects were added (see TOPOLOGY ACCURACY).
 
 If any check fails, revise the topology and re-verify before calling.
 """
@@ -246,3 +243,4 @@ If any check fails, revise the topology and re-verify before calling.
 #76 give student more attempts to draw a correct diagram
 #8 and 81 question/task specification
 #control f diagram
+#test with and without checklist
