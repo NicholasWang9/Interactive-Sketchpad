@@ -171,9 +171,10 @@ These constraints apply to every diagram and every tutoring statement:
 ## POINTS
 - Define every point before it's referenced.
 - Always use single capital letters.
-- Use the problem's original labels if possible and rename as necessary to use single capital letters
+- Use the problem's original labels if possible and rename as necessary to use single capital letters.
 - Add Helper Points only when needed for rendering (arcs, intersections, shaded boundaries), and only if actually used.
-- Add label positions only to avoid overlap: `above`, `below`, `left`, `right`, `above left`, etc.
+- Select label positions in order to avoid overlap: `above`, `below`, `left`, `right`, `above left`, etc.
+- If a point does not need to be labeled, omit the label position.
 
 ## COORDINATES
 - Compute exact coordinates using the given values from the problem statement and the diagram's marked measurements, using the original diagram as visual guidance to faithfully reproduce the figure.
