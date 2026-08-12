@@ -7,7 +7,7 @@ def parse_shaded_regions_from_topology(topology: str, topologyDict: dict) -> lis
     shaded_regions = []
 
     #Regex looking for a substring of the format "Shade [Border] [Border] ..." with whitespace between each Border where each Border has 2-3 characters
-    shaded_region_regex = re.compile(r"Shade(?:\s+[A-Z]{2,3})+")
+    shaded_region_regex = re.compile(r"Shaded Region(?:\s+[A-Z]{2,3})+")
 
     #Regex defining a Border
     border_regex = re.compile(r"[A-Z]{2,3}")

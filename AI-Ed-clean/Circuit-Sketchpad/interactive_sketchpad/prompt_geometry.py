@@ -103,7 +103,7 @@ LATER diagrams:
 # AUXILIARY CONSTRUCTIONS
 
 Auxiliary constructions are used to make hidden rules easier to see and aid in solving a problem.
-Examples of auxiliary constructions include lines, segments, rays, circles, points, diameters, radii, chords, perpendiculars, parallels, midpoints, heights/altitudes, distances, or other connecting constructions not explicitly given in the problem.
+Examples of auxiliary constructions include lines, edges, rays, circles, points, diameters, radii, chords, perpendiculars, parallels, midpoints, heights/altitudes, distances, or other connecting constructions not explicitly given in the problem.
 
 Before mentioning, using, or reasoning from any geometric object that is not already drawn or visible in the previous working diagram, first determine whether it is an auxiliary construction needed for the solution.
 If it is, follow the process below.
@@ -134,9 +134,9 @@ Vertex D:(sqrt(2),0) below right
 Vertex O:(0,0) below
 Vertex P:(0,1) above
 
-Segment A-B
-Segment O-A
-Segment O-B
+Edge A-B
+Edge O-A
+Edge O-B
 
 Angle AOB=90
 
@@ -145,7 +145,7 @@ Circle O Center O Radius sqrt(2)
 Arc APB
 Arc AOB
 
-Shade APB BOA
+Shaded Region APB BOA
 
 # TOPOLOGY RULES
 
@@ -179,8 +179,8 @@ These constraints apply to every diagram and every tutoring statement:
 - Once coordinates are established in a working diagram, treat them as fixed rendering positions in subsequent working diagrams. Do not recalculate or reposition existing points unless the underlying geometry or given measurements change.
 - Coordinates are for rendering only. Do not reference them in tutoring unless the problem is coordinate geometry.
 
-## SEGMENTS
-- Use `Segment A-B` for visible straight segments only.
+## EDGES
+- Use `Edge A-B` for visible straight edges only.
 
 ## ANGLES
 - Use `Angle ABC=60` for given or marked angles only, with B as the vertex.
@@ -211,14 +211,14 @@ These constraints apply to every diagram and every tutoring statement:
 - Use single capital letter center names only, not `O1`, `C2`, `O'`, or `W'`.
 
 ## SHADING
-- In `Shade`, 2-letter tokens (`AB`) denote line segments and 3-letter tokens (`AOB`) denote arcs.
-- Each `Shade` line is one closed boundary path in traversal order: The tokens are chained so that each token begins with the last letter/vertex of the previous token, and the final token ends with the first letter/vertex of the first token.
+- In a `Shaded Region` line, 2-letter tokens (`AB`) denote edges and 3-letter tokens (`AOB`) denote arcs.
+- Each `Shaded Region` line is one closed boundary path in traversal order: The tokens are chained so that each token begins with the last letter/vertex of the previous token, and the final token ends with the first letter/vertex of the first token.
 - Every 3-letter arc token must have a matching `Arc ...` definition earlier in the topology, defined in whichever direction (forward or reversed) correctly continues the boundary: 
-  For example, define `Arc AOB` if `AOB` appears in the `Shade` path; use the reverse arc if required by the renderer.
-- Include only segments and arcs that are visible or required as boundaries of the shaded region.
-- If a shaded region has a hole and cannot be represented as one closed path, split it into multiple simple closed shaded regions using helper line segments.
-- Each `Shade` line must represent one closed region with no holes.
-- Before calling the tool, trace each `Shade` line token-by-token and confirm the chain closes and every arc token has a matching `Arc` definition. An unclosed path renders nothing, silently -- this is the only way to catch that before the student sees it.
+  For example, define `Arc AOB` if `AOB` appears in the `Shaded Region` path; use the reverse arc if required by the renderer.
+- Include only edges and arcs that are visible or required as boundaries of the shaded region.
+- If a shaded region has a hole and cannot be represented as one closed path, split it into multiple simple closed shaded regions using helper edges.
+- Each `Shaded Region` line must represent one closed region with no holes.
+- Before calling the tool, trace each `Shaded Region` line token-by-token and confirm the chain closes and every arc token has a matching `Arc` definition. An unclosed path renders nothing, silently -- this is the only way to catch that before the student sees it.
 
 # PRE-CALL CHECKLIST
 
@@ -226,7 +226,7 @@ Before calling `generate_geometry` -- this is the only checkpoint; once called, 
 
 1. Every referenced point is defined, and no unresolved variables remain.
 2. Every angle and arc clockwise endpoint order matches the marked (not opposite or reflex) version.
-3. Every `Shade` path is closed, connected, and each token has a matching definition above it.
+3. Every `Shaded Region` path is closed, connected, and each token has a matching definition above it.
 4. For a named polygon such as ABCD, preserve its stated cyclic vertex order.
 5. Determine bases and legs from the original problem or original diagram if it exists.
 6. No unconfirmed or answer-revealing objects were added (see TOPOLOGY ACCURACY).
