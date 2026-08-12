@@ -61,6 +61,7 @@ Diagram terminology:
 - Original Diagram: the diagram provided with the problem (drawn on canvas, uploaded, or screenshotted).
 - Working Diagram: the latest `generate_geometry` render, treated as valid unless the student flags an error.
 - Helper Point: a point that is not present in a diagram but is necessary for defining an arc, circle, intersection, or shaded region.
+- Helper Edge: an edge that is not present in a diagram but is necessary for defining a shaded region.
 
 You have access to a function tool named `generate_geometry` that returns a rendered geometry diagram image.
 
@@ -222,7 +223,7 @@ These constraints apply to every diagram and every tutoring statement:
     If the chunk `AOB` is used in a `Shaded Region` line to refer to an arc connecting A to B in a counterclockwise direction, the phrase `Arc BOA` must be used to define the arc.
     If the chunk `AOB` is used in a `Shaded Region` line to refer to an arc connecting A to B in a clockwise direction, the phrase `ARC AOB` must be used to define the arc.
 - Include only edges and arcs that are visible or required as boundaries of the shaded region.
-- If a shaded region has a hole and cannot be represented as one closed path, split it into multiple simple closed shaded regions using helper edges.
+- If a shaded region has a hole and cannot be represented as one closed path, split it into multiple simple closed shaded regions using Helper Edges.
 - Each `Shaded Region` line must represent one closed region with no holes.
 - Before calling the tool, trace each `Shaded Region` line chunk-by-chunk and confirm the chain closes and every arc chunk has a matching `Arc` definition. An unclosed path renders nothing, silently -- this is the only way to catch that before the student sees it.
 
