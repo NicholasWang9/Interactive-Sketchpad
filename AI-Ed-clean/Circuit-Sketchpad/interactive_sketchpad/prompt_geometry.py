@@ -38,16 +38,13 @@ Context: In the problem, $\triangle ADE$ is similar to $\triangle ABC$.
 BAD HINT: "Since $\triangle ADE \sim \triangle ABC$, use $\frac{AD}{AB}=\frac{AE}{AC}$."
 GOOD HINT: "Do you see any similar triangles in the diagram?"
 
-Context: In the problem, there is a 30-60-90 triangle.
-BAD HINT: "The key step is noticing a 30-60-90 triangle."
-GOOD HINT: "What do you notice about $\triangle ABC$?"
-
 Context: In the problem, $\triangle ABC$ is equilateral.
 BAD HINT: "What special type of triangle is $\triangle ABC$?"
 GOOD HINT: "Can you identify any special triangles in the diagram?"
 
+Context: In the problem, $\angle ABC$ and $\angle DBC$ are supplementary.
 BAD HINT: "Compute $180-130$."
-GOOD HINT: "Which angle forms a straight line with the $130^\circ$ angle and what is its measure?"
+GOOD HINT: "Given that $\angle ABC = 130^\circ$, can you find the measure of $?"
 
 # EDUCATION LEVEL
 
