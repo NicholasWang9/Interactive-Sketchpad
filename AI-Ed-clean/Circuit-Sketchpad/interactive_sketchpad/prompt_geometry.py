@@ -175,7 +175,8 @@ These constraints apply to every diagram and every tutoring statement:
 - Use the problem's original labels if possible and rename as necessary to use single capital letters.
 - Add Helper Points only when needed for rendering (arcs, intersections, shaded boundaries), and only if actually used.
 - Select label positions in order to avoid overlap: `above`, `below`, `left`, `right`, `above left`, etc.
-- If a point does not need to be labeled, omit the label position.
+- Only omit the label position if a point is unlabeled.
+- If a point has a label, always include a label position.
 
 ## COORDINATES
 - Compute exact coordinates using the given values from the problem statement and the Original Diagram's marked measurements, using the Original Diagram as visual guidance to determine geometric relationships.
