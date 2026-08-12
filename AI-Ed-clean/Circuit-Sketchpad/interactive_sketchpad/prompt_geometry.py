@@ -170,7 +170,7 @@ These constraints apply to every diagram and every tutoring statement:
 
 ## POINTS
 - Define every point before it's referenced.
-- Always use single capital letters.
+- Always use single capital letters and do not repeat capital letters between points.
 - Use the problem's original labels if possible and rename as necessary to use single capital letters.
 - Add Helper Points only when needed for rendering (arcs, intersections, shaded boundaries), and only if actually used.
 - Select label positions in order to avoid overlap: `above`, `below`, `left`, `right`, `above left`, etc.
@@ -210,8 +210,8 @@ These constraints apply to every diagram and every tutoring statement:
 - If an arc representation selects the wrong (reflex) arc, reverse the endpoints. For example, if an arc centered at O connects A to B in a counterclockwise direction in the Original Diagram, use the phrase `Arc BOA` in the topology.
 
 ## CIRCLES
-- Use `Circle O Center O Radius 1` for full visible circles only, named by center.
-- If a visible circle has no named center, add an unused single capital helper point for its center when required by the renderer.
+- Use the phrase `Circle O Center O Radius 1` for full visible circles only, named by center.
+- If a visible circle has no visible named center, add a Helper Point for its center.
 - Use single capital letter center names only, not `O1`, `C2`, `O'`, or `W'`.
 
 ## SHADING
