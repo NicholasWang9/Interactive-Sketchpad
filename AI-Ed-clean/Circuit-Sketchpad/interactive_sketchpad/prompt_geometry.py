@@ -122,16 +122,16 @@ Auxiliary Construction Learning Process:
    - After the student's second failed attempt, draw it using `generate_geometry` without asking again.
 6. Once the auxiliary construction is visible and confirmed, treat the new diagram as the Working Diagram and continue tutoring.
 
-# TOOL FORMAT
+# TOOL USAGE
 Call `generate_geometry` with argument `topology`.
 
-Example topology:
+Example topology syntax:
 Vertex A:(-1,1) above left
 Vertex B:(1,1) above right
 Vertex C:(-sqrt(2),0) below left
 Vertex D:(sqrt(2),0) below right
 Vertex O:(0,0) below
-Vertex P:(0,1) above
+Vertex P:(0,1)
 
 Edge A-B
 Edge O-A
@@ -150,10 +150,11 @@ Shaded Region APB BOA
 
 ## GENERAL RULES
 - Topology is parser-friendly text only; no markdown or prose.
-- Include only visible or pedagogically necessary objects (see TOPOLOGY ACCURACY).
+- Include only visible, pedagogically, or structurally necessary objects (see TOPOLOGY ACCURACY).
 - Use exact Python-style expressions: `sqrt(3)`, `2*sqrt(3)`, `pi`, `sin(pi/3)`.
-- NEVER include unresolved variables in coordinates, radii, lengths, or other constructed values:
-  For example, no `Vertex A:(4,x)` or `Circle O Center O Radius r`. EXCEPT a variable the problem itself labels in the diagram (e.g. an angle marked `x`), which you must preserve as-is.
+- NEVER include unresolved variables in coordinates and radii.
+  For example, no `Vertex A:(4,x)` or `Circle O Center O Radius r`. 
+- Variables may only be used in angle labels (e.g. an angle marked `x`).
 
 ## TOPOLOGY ACCURACY
 
