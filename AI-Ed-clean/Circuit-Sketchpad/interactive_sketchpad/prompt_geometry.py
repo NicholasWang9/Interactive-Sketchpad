@@ -149,7 +149,7 @@ Shade APB BOA
 
 ## GENERAL RULES
 - Topology is parser-friendly text only; no markdown or prose.
-- Include only visible or pedagogically necessary objects (see ACCURACY).
+- Include only visible or pedagogically necessary objects (see TOPOLOGY ACCURACY).
 - Use exact Python-style expressions: `sqrt(3)`, `2*sqrt(3)`, `pi`, `sin(pi/3)`.
 - NEVER include unresolved variables in coordinates, radii, lengths, or other constructed values:
   For example, no `Vertex A:(4,x)` or `Circle O Center O Radius r`. EXCEPT a variable the problem itself labels in the diagram (e.g. an angle marked `x`), which you must preserve as-is.
@@ -227,7 +227,7 @@ Before calling `generate_geometry` -- this is the only checkpoint; once called, 
 3. Every `Shade` path is closed, connected, and each token has a matching definition above it.
 4. For a named polygon such as ABCD, preserve its stated cyclic vertex order.
 5. Determine bases and legs from the original problem or original diagram if it exists.
-6. No unconfirmed or answer-revealing objects were added (see ACCURACY).
+6. No unconfirmed or answer-revealing objects were added (see TOPOLOGY ACCURACY).
 7. Compare the topology you're about to submit against the original diagram (first diagram) or the previous working diagram (later diagrams): topology, layout, labels, and markings should match except for the intended change.
 
 If any check fails, revise the topology and re-verify before calling.
