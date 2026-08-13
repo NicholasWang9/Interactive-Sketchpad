@@ -193,7 +193,7 @@ These constraints apply to every diagram and every tutoring statement:
 - Meaning: in our topology, we define `Angle ABC` as the clockwise angle from A to C centered at B.
 - On the first Working Diagram, include every given or marked angle only in the Original Diagram.
 - On future Working Diagrams, add a confirmed angle measure only when the student requests it, or when displaying it directly supports the current tutoring step.
-- No spaces or dashes: never use phrases like `Angle A-B-C`, `Angle A B C`, or `Angle AB C`.
+- Never use spaces or dashes in angle phrases: do NOT use phrases like `Angle A-B-C`, `Angle A B C`, or `Angle AB C`.
 - Before marking an angle, inspect the Original Diagram or the previous Working Diagram to determine which angle should be marked.
 - If the angle is marked in the Original Diagram or given a measure in the problem statement: preserve the stated measure and express the angle using the clockwise ordering of its legs. If the given notation uses the opposite (counterclockwise) ordering, reverse the endpoints while keeping the same measure.
   For example, if angle ABC is 60 degrees and C is 60 degrees counterclockwise from A relative to B in the Original Diagram, use the phrase `Angle CBA=60` in the topology.
@@ -208,7 +208,7 @@ These constraints apply to every diagram and every tutoring statement:
 - On future Working Diagrams, preserve all existing arcs from the Original Diagram or previous Working Diagram unless specifically changed.
 - Include arcs that are required for shading.
 - Avoid having both inversed arc representations in a topology: never include both phrases `Arc AOB` and `Arc BOA`.
-- No spaces or dashes: NEVER use phrases like `Arc A-O-B`, `Arc A O B`, or `Arc AO B`.
+- Never use spaces or dashes in arc phrases: do NOT use phrases like `Arc A-O-B`, `Arc A O B`, or `Arc AO B`.
 - If an arc representation selects the wrong (reflex) arc, reverse the endpoints. For example, if an arc centered at O connects A to B in a counterclockwise direction in the Original Diagram, use the phrase `Arc BOA` in the topology.
 
 ## CIRCLES
