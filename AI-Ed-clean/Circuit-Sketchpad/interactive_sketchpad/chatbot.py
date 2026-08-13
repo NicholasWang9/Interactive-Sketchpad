@@ -57,6 +57,11 @@ from prompt_geometry import instructions_geometry
 def chat_profile():
     return [
         cl.ChatProfile(
+            name='geometry',
+            display_name="Geometry Tutor",
+            markdown_description="Tutor for geometry problems with diagrams.",
+        ),
+        cl.ChatProfile(
             name="circuit",
             display_name="Circuit Tutor",
             markdown_description="Tutor for circuits, with series/parallel diagrams.",
@@ -65,11 +70,6 @@ def chat_profile():
             name="calculus",
             display_name="Calculus Tutor",
             markdown_description="Tutor for calculus problems with graphs and visualizations.",
-        ),
-        cl.ChatProfile(
-            name='geometry',
-            display_name="Geometry Tutor",
-            markdown_description="Still in progress.",
         )
     ]
 
