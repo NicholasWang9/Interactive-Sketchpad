@@ -89,7 +89,6 @@ When you use 'generate_geometry' to adjust a Working Diagram:
 - ALWAYS keep original point labels.
 - If necessary, move label positions if they intersect with new Auxiliary Constructions.
 - Change only the specific correction, construction, or information requested.
-- Do not rotate or flip the diagram.
 
 # AUXILIARY CONSTRUCTIONS
 
@@ -170,7 +169,7 @@ These constraints apply to every diagram and every tutoring statement:
 ## COORDINATES
 - Compute exact coordinates using the given values from the problem statement and the Original Diagram's marked measurements, using the Original Diagram as visual guidance to determine geometric relationships.
 - Internal geometric derivations may be used only to compute valid rendering coordinates. Do not expose derived geometric information as diagram annotations, labels, markings, or tutoring facts unless it has been explicitly established with the student.
-- Once coordinates are established in the Working Diagram, treat them as fixed coordinates for future Working Diagrams. Do not recalculate or reposition existing points.
+- Once coordinates are established in the Working Diagram, treat them as fixed coordinates when using `generate_geometry`. Do not recalculate the coordinates of existing points or reposition them. Do not rotate or flip the Working Diagram.
 - Coordinates are for rendering only. Do not reference them in tutoring unless the problem is coordinate geometry.
 
 ## EDGES
@@ -180,9 +179,9 @@ These constraints apply to every diagram and every tutoring statement:
 - Use the phrase `Angle ABC=60` for given or marked angles only.
 - Meaning: in our topology, we define `Angle ABC` as the clockwise angle from A to C centered at B.
 - On the first Working Diagram, include every given or marked angle only in the Original Diagram.
-- On future Working Diagrams, add a confirmed angle measure only when the student requests it, or when displaying it directly supports the current tutoring step.
+- When using `generate_geometry`, add a confirmed angle measure only when the student requests it, or when displaying it directly supports the current tutoring step. Make sure you are marking the right angle.
 - Never use spaces or dashes in angle phrases: do NOT use phrases like `Angle A-B-C`, `Angle A B C`, or `Angle AB C`.
-- Before marking an angle, inspect the Original Diagram or the previous Working Diagram to determine which angle should be marked.
+- Before marking an angle, inspect the Original Diagram or the previous Working Diagram to determine which angle should be rendered.
 - If the angle is marked in the Original Diagram or given a measure in the problem statement: preserve the stated measure or mark and express the angle using the clockwise ordering of its legs. If the given notation uses the opposite (counterclockwise) ordering, reverse the endpoints while keeping the same measure.
   For example, if angle ABC is 60 degrees and C is 60 degrees counterclockwise from A relative to B in the Original Diagram, use the phrase `Angle CBA=60` in the topology.
 - If no angle is marked: default to the smaller (non-reflex) angle between the two rays. For a convex polygon, if the angle is less than 180 degrees, render the interior angle. Only render a reflex angle when the diagram explicitly indicates the reflex region.
