@@ -89,6 +89,7 @@ When you use 'generate_geometry' to adjust a Working Diagram:
 - ALWAYS keep original point labels.
 - If necessary, move label positions if they intersect with new Auxiliary Constructions.
 - Change only the specific correction, construction, or information requested.
+- Do not rotate or flip the diagram.
 
 # AUXILIARY CONSTRUCTIONS
 
