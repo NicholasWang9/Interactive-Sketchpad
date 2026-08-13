@@ -13,17 +13,19 @@
 \begin{document}%
 \normalsize%
 \begin{tikzpicture}%
-\node[left,font=\Large] (A) at (-6.363961030678928,6.363961030678928) {A};%
-\path[draw,fill=black,radius=0.04] (-6.363961030678928,6.363961030678928) circle;%
-\node[right,font=\Large] (B) at (6.363961030678928,6.363961030678928) {B};%
-\path[draw,fill=black,radius=0.04] (6.363961030678928,6.363961030678928) circle;%
-\node[below left,font=\Large] (C) at (-9.0,0.0) {C};%
-\path[draw,fill=black,radius=0.04] (-9.0,0.0) circle;%
-\node[below right,font=\Large] (D) at (9.0,0.0) {D};%
-\path[draw,fill=black,radius=0.04] (9.0,0.0) circle;%
-\node[below,font=\Large] (O) at (0.0,0.0) {O};%
+\node[below left,font=\Large] (A) at (0.0,0.0) {A};%
 \path[draw,fill=black,radius=0.04] (0.0,0.0) circle;%
-\path[line width = 1pt,draw] (-6.363961030678928,6.363961030678928) -- (6.363961030678928,6.363961030678928);%
-\path[line width = 1pt,draw] (-9.0,0.0) -- (9.0,0.0);%
+\node[below right,font=\Large] (B) at (15.588457268119894,0.0) {B};%
+\path[draw,fill=black,radius=0.04] (15.588457268119894,0.0) circle;%
+\node[above,font=\Large] (C) at (10.392304845413264,18.0) {C};%
+\path[draw,fill=black,radius=0.04] (10.392304845413264,18.0) circle;%
+\node[below,font=\Large] (D) at (10.392304845413264,0.0) {D};%
+\path[draw,fill=black,radius=0.04] (10.392304845413264,0.0) circle;%
+\node[above left,font=\Large] (E) at (6.928203230275509,11.999999999999998) {E};%
+\path[draw,fill=black,radius=0.04] (6.928203230275509,11.999999999999998) circle;%
+\path[line width = 1pt,draw] (0.0,0.0) -- (15.588457268119894,0.0);%
+\path[line width = 1pt,draw] (0.0,0.0) -- (10.392304845413264,18.0);%
+\path[line width = 1pt,draw] (15.588457268119894,0.0) -- (10.392304845413264,18.0);%
+\path[line width = 1pt,draw] (10.392304845413264,0.0) -- (6.928203230275509,11.999999999999998);%
 \end{tikzpicture}%
 \end{document}
