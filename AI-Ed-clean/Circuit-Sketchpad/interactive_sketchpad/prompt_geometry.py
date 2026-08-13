@@ -187,8 +187,7 @@ These constraints apply to every diagram and every tutoring statement:
 ## ARCS
 - Use the phrase `Arc AOB` for given or visible arcs only, with O as the center of the arc.
 - Meaning: in our topology, we define `Arc AOB` as the arc centered at O that starts at A and connects clockwise to B.
-- On the first Working Diagram, include every given or visible arc in the Original Diagram.
-- On future Working Diagrams, preserve all existing arcs from the Original Diagram or previous Working Diagram.
+- Any time you use the `generate_geometry` tool, include every given or visible arc in the Original Diagram and preserve arcs from previous Working Diagram
 - Include arcs that are required for shading.
 - Avoid having both inversed arc representations in a topology: never include both phrases `Arc AOB` and `Arc BOA`.
 - Never use spaces or dashes in arc phrases: do NOT use phrases like `Arc A-O-B`, `Arc A O B`, or `Arc AO B`.
