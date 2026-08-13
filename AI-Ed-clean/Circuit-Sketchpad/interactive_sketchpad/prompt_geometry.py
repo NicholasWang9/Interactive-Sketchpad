@@ -230,4 +230,4 @@ If any check fails, revise the topology and re-verify before calling.
 
 #74 Come back after user study to add clear diagram functionality on whiteboard
 #76 give student more attempts to draw a correct diagram
-#8 and 81 question/task specification
+#8 and 81 question/task specification 

@@ -13,17 +13,24 @@
 \begin{document}%
 \normalsize%
 \begin{tikzpicture}%
-\node[above,font=\Large] (A) at (-2.5714285714285716,15.42857142857143) {A};%
-\path[draw,fill=black,radius=0.04] (-2.5714285714285716,15.42857142857143) circle;%
+\node[above,font=\Large] (A) at (0.0,6.75) {A};%
+\path[draw,fill=black,radius=0.04] (0.0,6.75) circle;%
 \node[below left,font=\Large] (B) at (-9.0,0.0) {B};%
 \path[draw,fill=black,radius=0.04] (-9.0,0.0) circle;%
 \node[below right,font=\Large] (C) at (9.0,0.0) {C};%
 \path[draw,fill=black,radius=0.04] (9.0,0.0) circle;%
 \node[below,font=\Large] (D) at (0.0,0.0) {D};%
 \path[draw,fill=black,radius=0.04] (0.0,0.0) circle;%
-\path[line width = 1pt,draw] (-2.5714285714285716,15.42857142857143) -- (-9.0,0.0);%
-\path[line width = 1pt,draw] (-2.5714285714285716,15.42857142857143) -- (9.0,0.0);%
+\node[right,font=\Large] (E) at (4.5,3.375) {E};%
+\path[draw,fill=black,radius=0.04] (4.5,3.375) circle;%
+\node[below,font=\Large] (F) at (4.5,0.0) {F};%
+\path[draw,fill=black,radius=0.04] (4.5,0.0) circle;%
+\path[line width = 1pt,draw] (0.0,6.75) -- (-9.0,0.0);%
+\path[line width = 1pt,draw] (0.0,6.75) -- (9.0,0.0);%
 \path[line width = 1pt,draw] (-9.0,0.0) -- (9.0,0.0);%
-\path[line width = 1pt,draw] (-2.5714285714285716,15.42857142857143) -- (0.0,0.0);%
+\path[line width = 1pt,draw] (0.0,6.75) -- (0.0,0.0);%
+\path[line width = 1pt,draw] (-9.0,0.0) -- (4.5,3.375);%
+\path[line width = 1pt,draw] (4.5,3.375) -- (4.5,0.0);%
+\path[line width = 0.8pt,draw] (4.5,0.27) -- (4.77,0.27) -- (4.77,0.0);%
 \end{tikzpicture}%
 \end{document}
