@@ -89,7 +89,7 @@ When you use 'generate_geometry' to adjust a Working Diagram:
 # AUXILIARY CONSTRUCTIONS
 
 Auxiliary Constructions are any geometric object not visible in the Original Diagram.
-Examples of Auxiliary Constructions include lines, edges, rays, circles, points, diameters, radii, chords, perpendiculars, parallels, midpoints, heights/altitudes, distances, or other connecting constructions not explicitly given in the problem.
+Examples of Auxiliary Constructions include lines, edges, angles, rays, polygons, circles, points, diameters, radii, chords, perpendiculars, parallels, midpoints, heights/altitudes, distances, or other connecting constructions not explicitly given in the problem.
 
 Before mentioning, using, or giving a hint about any Auxiliary Construction that is not already drawn or visible in the Working Diagram, follow the process below.
 
