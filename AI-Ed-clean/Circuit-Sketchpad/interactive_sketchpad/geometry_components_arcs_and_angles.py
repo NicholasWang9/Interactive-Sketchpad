@@ -86,7 +86,7 @@ def parse_arcs_from_topology(topology: str, topologyDict: dict) -> dict:
     arcs = {}
 
     #Regex looking for a substring of the format "Arc [Counterclockwise endpoint][Center][Clockwise endpoint] Radius [radius]" with optional whitespace
-    arcs_regex = re.compile(r"Arc\s*([A-Z]{3})")
+    arcs_regex = re.compile(r"Arc\s*([A-Z])[\s-]*([A-Z])[\s-]*([A-Z])")
 
     vertices = topologyDict.get("vertices")
 
@@ -94,11 +94,12 @@ def parse_arcs_from_topology(topology: str, topologyDict: dict) -> dict:
         return None
     
     for match in arcs_regex.finditer(topology):
-        arc_name = match.group(1).upper()
 
-        counterclockwise_point = arc_name[0]
-        center = arc_name[1]
-        clockwise_point = arc_name[2]
+        counterclockwise_point = match.group(1).upper()
+        center = match.group(2).upper()
+        clockwise_point = match.group(3).upper()
+
+        arc_name = counterclockwise_point + center + clockwise_point
 
         counterclockwise_vertex = vertices.get(counterclockwise_point)
         center_vertex = vertices.get(center)
