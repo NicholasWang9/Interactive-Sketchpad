@@ -141,18 +141,8 @@ GEOMETRY_TOOL = {
     "type": "function",
     "name": "generate_geometry",
     "description": (
-        "Generate a geometry diagram image (PNG) from a full topology description "
-        "(Vertex/Segment/Angle/Arc/Circle/Shade lines). Use this only for the very first "
-        "diagram of a problem, or a full redraw when the diagram must change so much that "
-        "editing it would not be simpler. For every other update to an existing diagram, "
-        "use `edit_geometry` instead so you don't have to retype the whole topology. "
-        "IMPORTANT: once a working diagram exists, calling this again does NOT let you move, "
-        "change, or remove an existing point/segment/angle/arc/circle -- any line whose key "
-        "already existed is kept at its old value no matter what you send, specifically to "
-        "prevent accidental coordinate drift from retyping the topology from scratch. Only "
-        "genuinely new lines get added. To actually change or remove something that already "
-        "exists, use `edit_geometry`. Only set `full_redraw` true for a rare, deliberate "
-        "full do-over where existing objects really should be replaced."
+        "Generate a geometry diagram image (PNG) from a topology string describing information from the diagram"
+        "as a list of features. Features include Vertices, Edges, Angles, Circles, Arcs, and Shaded Regions."
     ),
     "parameters": {
         "type": "object",
@@ -184,8 +174,8 @@ GEOMETRY_EDIT_TOOL = {
         "`add` is a list of topology lines to add; if a line has the same key as an existing "
         "line it replaces that line instead of duplicating it (e.g. re-adding 'Vertex A:(...)' "
         "after moving point A, or 'Angle ABC=...' after changing its measure). "
-        "`remove` is a list of keys of lines to delete: 'Vertex A', 'Segment A-B', 'Angle ABC', "
-        "'Arc AOB', 'Circle O', or, for Shade lines (which have no short key), the exact line text. "
+        "`remove` is a list of keys of lines to delete: 'Vertex A', 'Edge A-B', 'Angle ABC', "
+        "'Arc AOB', 'Circle O', or, for Shaded Region lines (which have no short key), the exact line text. "
         "Only include the lines that are actually changing -- never repeat unchanged lines."
     ),
     "parameters": {
@@ -194,7 +184,7 @@ GEOMETRY_EDIT_TOOL = {
             "add": {
                 "type": "array",
                 "items": {"type": "string"},
-                "description": "Topology lines to add or replace (by key), e.g. ['Vertex D:(2,1) above', 'Segment C-D'].",
+                "description": "Topology lines to add or replace (by key), e.g. ['Vertex D:(2,1) above', 'Edge C-D'].",
             },
             "remove": {
                 "type": "array",

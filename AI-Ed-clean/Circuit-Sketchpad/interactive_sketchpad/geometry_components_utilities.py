@@ -81,7 +81,7 @@ def evaluate_expression(expression: str) -> float:
 
 
 _VERTEX_KEY_RE = re.compile(r"^\s*Vertex\s+([A-Z])")
-_SEGMENT_KEY_RE = re.compile(r"^\s*Segment\s+([A-Z])\s*-\s*([A-Z])")
+_EDGE_KEY_RE = re.compile(r"^\s*Edge\s+([A-Z])\s*-\s*([A-Z])")
 _ANGLE_KEY_RE = re.compile(r"^\s*Angle\s+([A-Z]{3})")
 _ARC_KEY_RE = re.compile(r"^\s*Arc\s+([A-Z]{3})")
 _CIRCLE_KEY_RE = re.compile(r"^\s*Circle\s+([A-Z])")
@@ -92,14 +92,15 @@ def topology_line_key(line: str) -> str:
     Returns the canonical "slot" a topology line occupies, so an edit can
     replace a line (e.g. a moved vertex, a changed angle measure) instead
     of duplicating it. Lines with no recognized keyed prefix -- including
-    Shade lines, which have no natural short key -- use their own exact
-    text as the key, so they can only be replaced/removed by exact match.
+    Shaded Region lines, which have no natural short key -- use their own
+    exact text as the key, so they can only be replaced/removed by exact
+    match.
     """
     line = line.strip()
     if m := _VERTEX_KEY_RE.match(line):
         return f"Vertex {m.group(1)}"
-    if m := _SEGMENT_KEY_RE.match(line):
-        return f"Segment {m.group(1)}-{m.group(2)}"
+    if m := _EDGE_KEY_RE.match(line):
+        return f"Edge {m.group(1)}-{m.group(2)}"
     if m := _ANGLE_KEY_RE.match(line):
         return f"Angle {m.group(1)}"
     if m := _ARC_KEY_RE.match(line):
@@ -115,7 +116,7 @@ def apply_topology_edit(current_topology: str, add_lines, remove_keys) -> str:
     retyped in full. `add_lines` are inserted, replacing any existing line
     with the same key (see topology_line_key) rather than duplicating it.
     `remove_keys` delete the line with that key (or, for unkeyed lines like
-    Shade, the exact line text). Returns the merged topology text.
+    Shaded Region, the exact line text). Returns the merged topology text.
     """
     ordered_keys = []
     by_key = {}
