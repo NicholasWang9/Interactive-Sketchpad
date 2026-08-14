@@ -13,20 +13,25 @@
 \begin{document}%
 \normalsize%
 \begin{tikzpicture}%
-\node[above right,font=\Large] (A) at (6.0,6.0) {A};%
-\path[draw,fill=black,radius=0.04] (6.0,6.0) circle;%
-\node[below right,font=\Large] (B) at (6.0,0.0) {B};%
-\path[draw,fill=black,radius=0.04] (6.0,0.0) circle;%
-\node[below left,font=\Large] (C) at (0.0,0.0) {C};%
-\path[draw,fill=black,radius=0.04] (0.0,0.0) circle;%
-\node[above left,font=\Large] (D) at (0.0,6.0) {D};%
+\node[below left,font=\Large] (O) at (0.0,6.0) {O};%
 \path[draw,fill=black,radius=0.04] (0.0,6.0) circle;%
-\path[line width = 1pt,draw] (6.0,6.0) -- (6.0,0.0);%
-\path[line width = 1pt,draw] (6.0,0.0) -- (0.0,0.0);%
-\path[line width = 1pt,draw] (0.0,0.0) -- (0.0,6.0);%
-\path[line width = 1pt,draw] (0.0,6.0) -- (6.0,6.0);%
-\path[start angle  = -90.0,end angle = -180.0,thick,draw,radius=6.0] (6.0,0.0) arc;%
-\path[start angle  = 90.0,end angle = 0.0,thick,draw,radius=6.0] (0.0,6.0) arc;%
-\filldraw[thick, fill opacity = 0.1] (6.0, 0.0) arc[start angle = -90.0, end angle = -180.0, radius = 6.0] arc[start angle = 90.0, end angle = 0.0, radius = 6.0];%
+\node[below,font=\Large] (W) at (8.0,0.0) {W};%
+\path[draw,fill=black,radius=0.04] (8.0,0.0) circle;%
+\node[above,font=\Large] (P) at (0.0,8.0) {P};%
+\path[draw,fill=black,radius=0.04] (0.0,8.0) circle;%
+\node[above,font=\Large] (Q) at (8.0,8.0) {Q};%
+\path[draw,fill=black,radius=0.04] (8.0,8.0) circle;%
+\node[right,font=\Large] (R) at (8.0,6.0) {R};%
+\path[draw,fill=black,radius=0.04] (8.0,6.0) circle;%
+\path[line width = 1pt,draw] (0.0,8.0) -- (8.0,8.0);%
+\path[line width = 1pt,draw] (0.0,6.0) -- (0.0,8.0);%
+\path[line width = 1pt,draw] (8.0,0.0) -- (8.0,8.0);%
+\path[line width = 1pt,draw] (0.0,6.0) -- (8.0,0.0);%
+\path[line width = 1pt,draw] (0.0,6.0) -- (8.0,6.0);%
+\path[line width = 1pt,draw,radius=2.0] (0.0,6.0) circle;%
+\path[line width = 1pt,draw,radius=8.0] (8.0,0.0) circle;%
+\path[line width = 0.8pt,draw] (0.16000000000000003,8.0) -- (0.16000000000000003,7.84) -- (0.0,7.84);%
+\path[line width = 0.8pt,draw] (7.64,8.0) -- (7.64,7.64) -- (8.0,7.64);%
+\path[line width = 0.8pt,draw] (7.64,6.0) -- (7.64,5.64) -- (8.0,5.64);%
 \end{tikzpicture}%
 \end{document}

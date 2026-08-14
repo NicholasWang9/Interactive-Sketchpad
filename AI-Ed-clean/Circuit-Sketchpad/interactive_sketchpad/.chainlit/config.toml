@@ -99,10 +99,13 @@ confirm_new_chat = true
 cot = "full"
 
 # Re-enable if desired
-custom_css = "/stylesheet.css"
+# NOTE: was "/stylesheet.css", which 404s -- Chainlit serves public/ under
+# /public/ only, and auto-prefixes the mount path on top of that itself.
+custom_css = "/public/stylesheet.css"
 
-# Optional
-# custom_js = "/public/test.js"
+# Redirects the top-level chat page to the combined chat+whiteboard view
+# (port 8081); does not affect the whiteboard's own embedded chat iframe.
+custom_js = "/public/redirect_to_whiteboard.js"
 
 # Style of alert boxes
 alert_style = "classic"

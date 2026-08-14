@@ -963,6 +963,26 @@ def compile_lualatex(tex_path: str, out_dir: str) -> str:
     ])
     return os.path.join(out_dir, base + ".pdf")
 
+def _flatten_to_opaque_white(png_path: str) -> None:
+    """
+    pdftocairo's PNG output leaves non-inked areas fully transparent (alpha=0).
+    That looks fine composited over a light chat background, but Chainlit's
+    image lightbox/zoom view uses a dark backdrop, so the near-black ink shows
+    up on a near-black background and the diagram is effectively invisible
+    when enlarged. Composite onto solid white so the PNG is fully opaque.
+    """
+    from PIL import Image
+
+    im = Image.open(png_path)
+    if im.mode not in ("RGBA", "LA") and not (im.mode == "P" and "transparency" in im.info):
+        return
+
+    im = im.convert("RGBA")
+    background = Image.new("RGBA", im.size, (255, 255, 255, 255))
+    background.paste(im, mask=im.split()[-1])
+    background.convert("RGB").save(png_path, "PNG")
+
+
 def pdf_to_png(pdf_path: str, png_path: str, dpi: int = 300) -> None:
     # Prefer pdftocairo if available
     try:
@@ -977,6 +997,7 @@ def pdf_to_png(pdf_path: str, png_path: str, dpi: int = 300) -> None:
         produced = os.path.splitext(png_path)[0] + ".png"
         if produced != png_path:
             os.replace(produced, png_path)
+        _flatten_to_opaque_white(png_path)
         return
     except Exception:
         pass
@@ -990,6 +1011,7 @@ def pdf_to_png(pdf_path: str, png_path: str, dpi: int = 300) -> None:
             "-quality", "100",
             png_path
         ])
+        _flatten_to_opaque_white(png_path)
         return
     except Exception as e:
         raise RuntimeError(

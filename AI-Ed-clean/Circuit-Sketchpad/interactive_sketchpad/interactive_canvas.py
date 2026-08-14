@@ -596,6 +596,16 @@ def goto(session: str = Query(default=SESSION_ID), index: int = Query(...)):
     return JSONResponse({"status": "ok"})
 
 
+@app.post("/clear_canvas")
+def clear_canvas(session: str = Query(default=SESSION_ID)):
+    """
+    Reset a session's drawing history back to a blank canvas, e.g. when
+    starting a brand new practice problem the student needs to draw.
+    """
+    _set_state(session, [], -1)
+    return {"status": "ok", "session": session}
+
+
 @app.get("/image.png")
 def image_png(session: str = Query(default=SESSION_ID)):
     imgs, idx = _get_state(session)

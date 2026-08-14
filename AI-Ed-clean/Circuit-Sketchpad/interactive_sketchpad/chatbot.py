@@ -39,7 +39,7 @@ from openai import AsyncOpenAI, OpenAI
 from circuit_components_3 import generate
 # from render_latex import generate as generate_latex_bytes  # if you have a separate renderer
 from geometry_components import generate as generate_geometry
-from geometry_components_utilities import apply_topology_edit
+from geometry_components_utilities import apply_topology_edit, reconcile_full_regeneration
 
 import re
 
@@ -58,6 +58,11 @@ from prompt_geometry import instructions_geometry
 def chat_profile():
     return [
         cl.ChatProfile(
+            name='geometry',
+            display_name="Geometry Tutor",
+            markdown_description="Tutor for geometry problems with diagrams.",
+        ),
+        cl.ChatProfile(
             name="circuit",
             display_name="Circuit Tutor",
             markdown_description="Tutor for circuits, with series/parallel diagrams.",
@@ -66,11 +71,6 @@ def chat_profile():
             name="calculus",
             display_name="Calculus Tutor",
             markdown_description="Tutor for calculus problems with graphs and visualizations.",
-        ),
-        cl.ChatProfile(
-            name='geometry',
-            display_name="Geometry Tutor",
-            markdown_description="Still in progress.",
         )
     ]
 
@@ -145,12 +145,28 @@ GEOMETRY_TOOL = {
         "(Vertex/Segment/Angle/Arc/Circle/Shade lines). Use this only for the very first "
         "diagram of a problem, or a full redraw when the diagram must change so much that "
         "editing it would not be simpler. For every other update to an existing diagram, "
-        "use `edit_geometry` instead so you don't have to retype the whole topology."
+        "use `edit_geometry` instead so you don't have to retype the whole topology. "
+        "IMPORTANT: once a working diagram exists, calling this again does NOT let you move, "
+        "change, or remove an existing point/segment/angle/arc/circle -- any line whose key "
+        "already existed is kept at its old value no matter what you send, specifically to "
+        "prevent accidental coordinate drift from retyping the topology from scratch. Only "
+        "genuinely new lines get added. To actually change or remove something that already "
+        "exists, use `edit_geometry`. Only set `full_redraw` true for a rare, deliberate "
+        "full do-over where existing objects really should be replaced."
     ),
     "parameters": {
         "type": "object",
         "properties": {
             "topology": {"type": "string"},
+            "full_redraw": {
+                "type": "boolean",
+                "default": False,
+                "description": (
+                    "False (default): preserve existing points/objects, only add new ones. "
+                    "True: trust this topology completely and replace the working diagram "
+                    "with it as-is -- use only for a genuine, deliberate full do-over."
+                ),
+            },
             "dpi": {"type": "integer", "default": 300},
             "pretty": {"type": "boolean", "default": True},
         },
@@ -192,6 +208,17 @@ GEOMETRY_EDIT_TOOL = {
     },
 }
 
+CLEAR_CANVAS_TOOL = {
+    "type": "function",
+    "name": "clear_canvas",
+    "description": (
+        "Clear the student's drawing canvas back to a blank page, with no diagram history. "
+        "Call this when starting a brand new practice problem that the student needs to draw "
+        "themselves, so the previous problem's diagram isn't still sitting on the canvas."
+    ),
+    "parameters": {"type": "object", "properties": {}},
+}
+
 
 def get_profile_config():
     profile = cl.user_session.get("chat_profile") or "circuit"
@@ -207,7 +234,7 @@ def get_profile_config():
         return {
             "name": "Geometry Tutor",
             "instructions": instructions_geometry,
-            "tools": [GEOMETRY_TOOL, GEOMETRY_EDIT_TOOL]
+            "tools": [GEOMETRY_TOOL, GEOMETRY_EDIT_TOOL, CLEAR_CANVAS_TOOL]
         }
 
     return {
@@ -227,6 +254,7 @@ canvas_process = None
 # CANVAS_APP_URL = "http://0.0.0.0:8081/send_image_to_canvas"
 CANVAS_APP_URL = "http://127.0.0.1:8081/send_image_to_canvas"
 CANVAS_UI_URL = os.environ.get("CANVAS_UI_URL", "http://127.0.0.1:8081")
+CANVAS_CLEAR_URL = "http://127.0.0.1:8081/clear_canvas"
 PENDING_CANVAS_UPLOADS: Dict[str, List[str]] = {}
 
 
@@ -242,9 +270,16 @@ def autocrop_png(png_bytes: bytes, pad: int = 48, bg=(255, 255, 255), tol: int =
     """
     im = Image.open(BytesIO(png_bytes)).convert("RGBA")
 
+    # Flatten onto an opaque background first: some renderers leave "empty"
+    # page area fully transparent (alpha=0) with undefined RGB underneath,
+    # which otherwise diffs as wildly different from an opaque bg image and
+    # defeats cropping almost entirely.
+    flat = Image.new("RGB", im.size, bg)
+    flat.paste(im, mask=im.split()[3])
+
     # Build a background image and find difference
-    bg_im = Image.new("RGBA", im.size, (*bg, 255))
-    diff = ImageChops.difference(im, bg_im)
+    bg_im = Image.new("RGB", im.size, bg)
+    diff = ImageChops.difference(flat, bg_im)
 
     # Make diff more sensitive by boosting differences over tolerance
     # Convert to L (luma), then threshold
@@ -262,11 +297,21 @@ def autocrop_png(png_bytes: bytes, pad: int = 48, bg=(255, 255, 255), tol: int =
     right = min(im.width, right + pad)
     lower = min(im.height, lower + pad)
 
-    cropped = im.crop((left, upper, right, lower))
+    cropped = flat.crop((left, upper, right, lower))
 
     out = BytesIO()
     cropped.save(out, format="PNG")
     return out.getvalue()
+
+
+async def clear_canvas():
+    """Reset the student's drawing canvas to a blank page for a new problem."""
+    session_id = cl.user_session.get("id")
+    async with httpx.AsyncClient() as client:
+        try:
+            await client.post(CANVAS_CLEAR_URL, params={"session": session_id})
+        except Exception as e:
+            print("Failed to clear canvas:", e)
 
 
 async def send_image_to_canvas(image_bytes: bytes):
@@ -277,9 +322,14 @@ async def send_image_to_canvas(image_bytes: bytes):
     # Send original (uncropped) to canvas
     t0 = time.time()
 
+    # Without this, the canvas server has no way to know which session's
+    # history to push into, and falls back to whichever session it happened
+    # to start with -- not necessarily the one currently on screen.
+    session_id = cl.user_session.get("id")
+
     async with httpx.AsyncClient() as client:
         files = {"file": ("generated.png", BytesIO(image_bytes), "image/png")}
-        response = await client.post(CANVAS_APP_URL, files=files)
+        response = await client.post(CANVAS_APP_URL, params={"session": session_id}, files=files)
 
     print("SEND TO CANVAS HTTP:", time.time() - t0)
 
@@ -761,8 +811,20 @@ async def run_responses_with_tool_loop(
 
         elif name == "generate_geometry":
             description = args.get("topology", "")
+            full_redraw = bool(args.get("full_redraw", False))
             dpi = int(args.get("dpi", 300))
             pretty = bool(args.get("pretty", True))
+
+            current_topology = cl.user_session.get("geometry_topology")
+            if current_topology and not full_redraw:
+                # Reconcile instead of trusting a freshly retyped topology
+                # verbatim: keep the stored value for anything that already
+                # existed (its coordinates are correct/rendered already),
+                # and only take genuinely new lines from this call. This is
+                # what actually stops drift/rotation/flip bugs, regardless
+                # of whether the model used edit_geometry or not.
+                description = reconcile_full_regeneration(current_topology, description)
+
             print(description)
 
             png_bytes = generate_geometry(description, dpi=dpi, pretty=pretty,)
@@ -814,6 +876,16 @@ async def run_responses_with_tool_loop(
                         "note": "Geometry diagram updated. Continue with exactly one tutoring step that references this diagram.",
                     }
                 )
+
+        elif name == "clear_canvas":
+            await clear_canvas()
+            cl.user_session.set("geometry_topology", None)
+            output_str = json.dumps(
+                {
+                    "status": "ok",
+                    "note": "Canvas cleared. Continue the conversation.",
+                }
+            )
 
         elif name == "generate_latex":
             latex = args.get("latex", "")

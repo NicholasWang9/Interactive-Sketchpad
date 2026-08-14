@@ -8,6 +8,27 @@ def run_cmd(cmd: list[str], cwd=None) -> None:
     if p.returncode != 0:
         raise RuntimeError(f"Command failed:\n  {' '.join(cmd)}\n\nOutput:\n{p.stdout}")
 
+
+def _flatten_to_opaque_white(png_path: str) -> None:
+    """
+    pdftocairo's PNG output leaves non-inked areas fully transparent (alpha=0).
+    That looks fine composited over a light chat background, but Chainlit's
+    image lightbox/zoom view uses a dark backdrop, so the near-black ink shows
+    up on a near-black background and the diagram is effectively invisible
+    when enlarged. Composite onto solid white so the PNG is fully opaque.
+    """
+    from PIL import Image
+
+    im = Image.open(png_path)
+    if im.mode not in ("RGBA", "LA") and not (im.mode == "P" and "transparency" in im.info):
+        return
+
+    im = im.convert("RGBA")
+    background = Image.new("RGBA", im.size, (255, 255, 255, 255))
+    background.paste(im, mask=im.split()[-1])
+    background.convert("RGB").save(png_path, "PNG")
+
+
 def pdf_to_png(pdf_path: str, png_path: str, dpi: int = 300) -> None:
     # Prefer pdftocairo if available
     try:
@@ -22,6 +43,7 @@ def pdf_to_png(pdf_path: str, png_path: str, dpi: int = 300) -> None:
         produced = os.path.splitext(png_path)[0] + ".png"
         if produced != png_path:
             os.replace(produced, png_path)
+        _flatten_to_opaque_white(png_path)
         return
     except Exception:
         pass
@@ -35,6 +57,7 @@ def pdf_to_png(pdf_path: str, png_path: str, dpi: int = 300) -> None:
             "-quality", "100",
             png_path
         ])
+        _flatten_to_opaque_white(png_path)
         return
     except Exception as e:
         raise RuntimeError(
@@ -119,3 +142,50 @@ def apply_topology_edit(current_topology: str, add_lines, remove_keys) -> str:
         by_key[key] = line.strip()
 
     return "\n".join(by_key[k] for k in ordered_keys)
+
+
+def reconcile_full_regeneration(old_topology: str, new_topology: str) -> str:
+    """
+    Guards against drift when `generate_geometry` (full topology) is called
+    again after a working diagram already exists. Re-deriving every
+    coordinate from scratch is a common source of a previously-placed point
+    silently shifting, or the whole diagram ending up flipped or rotated,
+    even when nothing was actually supposed to change. So: for any line
+    whose key (see topology_line_key) already existed, the OLD line wins --
+    the freshly generated version of it is discarded. Only genuinely new
+    keys from `new_topology` are taken. Lines from `old_topology` that the
+    regeneration dropped (e.g. the model forgot to retype them) are kept
+    rather than silently lost.
+
+    This makes `edit_geometry` the only way to intentionally move, change,
+    or remove an existing object -- a plain `generate_geometry` call can no
+    longer do that once a working diagram exists.
+    """
+    old_by_key = {}
+    old_order = []
+    for line in old_topology.splitlines():
+        if not line.strip():
+            continue
+        key = topology_line_key(line)
+        if key not in old_by_key:
+            old_order.append(key)
+        old_by_key[key] = line.strip()
+
+    merged_order = []
+    merged_by_key = {}
+    seen_keys = set()
+    for line in new_topology.splitlines():
+        if not line.strip():
+            continue
+        key = topology_line_key(line)
+        seen_keys.add(key)
+        if key not in merged_by_key:
+            merged_order.append(key)
+        merged_by_key[key] = old_by_key.get(key, line.strip())
+
+    for key in old_order:
+        if key not in seen_keys:
+            merged_order.append(key)
+            merged_by_key[key] = old_by_key[key]
+
+    return "\n".join(merged_by_key[k] for k in merged_order)
