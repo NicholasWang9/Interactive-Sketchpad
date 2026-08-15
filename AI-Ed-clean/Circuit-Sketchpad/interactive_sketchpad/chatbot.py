@@ -827,7 +827,14 @@ async def run_responses_with_tool_loop(
                     "status": "ok",
                     "artifact_type": "geometry_diagram",
                     "display_target": "interactive_canvas",
-                    "note": "Geometry diagram rendered. Continue with exactly one tutoring step that references this diagram.",
+                    "current_topology": description,
+                    "note": (
+                        "Geometry diagram rendered. Continue with exactly one tutoring step "
+                        "that references this diagram. current_topology is the authoritative "
+                        "current state of every line now in the Working Diagram -- use it "
+                        "(not memory of earlier turns) as the source of truth for any future "
+                        "edit_geometry `remove` keys or exact Shaded Region text."
+                    ),
                 }
             )
 
@@ -863,7 +870,14 @@ async def run_responses_with_tool_loop(
                         "status": "ok",
                         "artifact_type": "geometry_diagram",
                         "display_target": "interactive_canvas",
-                        "note": "Geometry diagram updated. Continue with exactly one tutoring step that references this diagram.",
+                        "current_topology": merged_topology,
+                        "note": (
+                            "Geometry diagram updated. Continue with exactly one tutoring step "
+                            "that references this diagram. current_topology is the authoritative "
+                            "current state of every line now in the Working Diagram -- use it "
+                            "(not memory of earlier turns) as the source of truth for any future "
+                            "edit_geometry `remove` keys or exact Shaded Region text."
+                        ),
                     }
                 )
 
