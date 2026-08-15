@@ -140,7 +140,15 @@ def parse_angles_from_topology(topology: str, topologyDict: dict) -> list:
         if (counterclockwise_vertex is None or center_vertex is None or clockwise_vertex is None):
             continue
     
-        angles.append(angle(counterclockwise_point, center, clockwise_point, raw_measure))
+        a = angle(counterclockwise_point, center, clockwise_point, raw_measure)
+        if isinstance(a.measure, float):
+            # A numeric measure should match the actual clockwise sweep between
+            # the given points. If it instead matches the reflex complement,
+            # the endpoints were given in the wrong order -- swap them.
+            start_deg, end_deg = a.calculate_angles(vertices)
+            if math.isclose(start_deg - end_deg, 360 - a.measure, abs_tol=2):
+                a.counterclockwise_point, a.clockwise_point = a.clockwise_point, a.counterclockwise_point
+        angles.append(a)
 
     topologyDict.update({"angles" : angles})
     return angles
