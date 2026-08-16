@@ -113,7 +113,18 @@ def home(session: str = Query(default=SESSION_ID)):
       body {{
         font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
         margin: 0;
+        background: #fff;
+        color: #111;
       }}
+      /* Explicit dark mode, toggled by the button below (not tied to OS
+         preference) -- defaults to light on every fresh load. */
+      body.dark {{ background: #121212; color: #e6e6e6; }}
+      body.dark .chat-pane, body.dark .canvas-wrap {{ border-color: #444; }}
+      body.dark .meta {{ color: #9a9a9a; }}
+      body.dark code {{ background: #2a2a2a; color: #e6e6e6; }}
+      /* Diagrams render on a white page -- keep the canvas a light grey
+         instead of pure white in dark mode, rather than pure black/white clash. */
+      body.dark .canvas-wrap {{ background: #ddd; }}
       .app-layout {{
         display: flex;
         gap: 12px;
@@ -233,7 +244,7 @@ def home(session: str = Query(default=SESSION_ID)):
           <strong>Drawing</strong>
           <button id="toggleDraw">Disable drawing</button>
           <label class="meta">Color <input id="colorPicker" type="color" value="#d62828" /></label>
-          <label class="meta">Brush <input id="brushSize" type="number" min="1" max="64" step="1" value="4" /></label>
+          <label class="meta"><span id="brushLabel">Brush</span> <input id="brushSize" type="number" min="1" max="64" step="1" value="4" /></label>
           <button id="eraser">Eraser</button>
           <button id="undoStroke">Undo stroke</button>
           <button id="clearDrawing">Clear drawing</button>
@@ -270,6 +281,7 @@ def home(session: str = Query(default=SESSION_ID)):
       const brushSize = document.getElementById("brushSize");
       const toggleDrawBtn = document.getElementById("toggleDraw");
       const eraserBtn = document.getElementById("eraser");
+      const brushLabel = document.getElementById("brushLabel");
       const undoStrokeBtn = document.getElementById("undoStroke");
       const clearDrawingBtn = document.getElementById("clearDrawing");
       const sendDrawingBtn = document.getElementById("sendDrawing");
@@ -330,9 +342,24 @@ def home(session: str = Query(default=SESSION_ID)):
       function setDrawModeLabel() {{
         toggleDrawBtn.textContent = drawingEnabled ? "Disable drawing" : "Enable drawing";
         eraserBtn.textContent = eraserMode ? "Use pen" : "Eraser";
+        brushLabel.textContent = eraserMode ? "Eraser size" : "Brush size";
         canvas.style.pointerEvents = drawingEnabled ? "auto" : "none";
         canvas.style.cursor = drawingEnabled ? (eraserMode ? "cell" : "crosshair") : "default";
       }}
+
+      // Chainlit is the source of truth for light/dark (its own sun-icon
+      // switcher, defaulting to light) -- the chat iframe's custom_js relays
+      // that choice here via postMessage, so both panes always match. No
+      // separate control on the whiteboard side.
+      function setTheme(dark) {{
+        document.body.classList.toggle("dark", dark);
+        document.documentElement.style.colorScheme = dark ? "dark" : "light";
+      }}
+      window.addEventListener("message", (e) => {{
+        if (e.source === chatFrame.contentWindow && e.data && e.data.type === "sketchpad-theme") {{
+          setTheme(!!e.data.dark);
+        }}
+      }});
 
       function beginStroke(evt) {{
         if (!drawingEnabled) return;

@@ -4,6 +4,18 @@
   // top-level window to the whiteboard -- never the iframe embed itself,
   // or every page load would bounce back and forth forever.
   if (window.self !== window.top) {
+    // Embedded in the whiteboard page: relay Chainlit's own light/dark theme
+    // choice to the parent (interactive_canvas.py) via postMessage instead of
+    // redirecting, so both panes stay on the same theme. Chainlit toggles a
+    // "dark"/"light" class on <html> itself when the student uses its own
+    // theme switcher, so watching that class is enough -- no separate control
+    // needed on the whiteboard side.
+    var root = document.documentElement;
+    function reportTheme() {
+      window.parent.postMessage({ type: "sketchpad-theme", dark: root.classList.contains("dark") }, "*");
+    }
+    new MutationObserver(reportTheme).observe(root, { attributes: true, attributeFilter: ["class"] });
+    reportTheme();
     return;
   }
 

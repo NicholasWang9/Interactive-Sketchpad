@@ -817,26 +817,29 @@ async def run_responses_with_tool_loop(
 
             print(description)
 
-            png_bytes = generate_geometry(description, dpi=dpi, pretty=pretty,)
+            try:
+                png_bytes = generate_geometry(description, dpi=dpi, pretty=pretty,)
+            except ValueError as e:
+                output_str = json.dumps({"status": "error", "error": str(e)})
+            else:
+                await send_image_to_canvas(png_bytes)
+                cl.user_session.set("geometry_topology", description)
 
-            await send_image_to_canvas(png_bytes)
-            cl.user_session.set("geometry_topology", description)
-
-            output_str = json.dumps(
-                {
-                    "status": "ok",
-                    "artifact_type": "geometry_diagram",
-                    "display_target": "interactive_canvas",
-                    "current_topology": description,
-                    "note": (
-                        "Geometry diagram rendered. Continue with exactly one tutoring step "
-                        "that references this diagram. current_topology is the authoritative "
-                        "current state of every line now in the Working Diagram -- use it "
-                        "(not memory of earlier turns) as the source of truth for any future "
-                        "edit_geometry `remove` keys or exact Shaded Region text."
-                    ),
-                }
-            )
+                output_str = json.dumps(
+                    {
+                        "status": "ok",
+                        "artifact_type": "geometry_diagram",
+                        "display_target": "interactive_canvas",
+                        "current_topology": description,
+                        "note": (
+                            "Geometry diagram rendered. Continue with exactly one tutoring step "
+                            "that references this diagram. current_topology is the authoritative "
+                            "current state of every line now in the Working Diagram -- use it "
+                            "(not memory of earlier turns) as the source of truth for any future "
+                            "edit_geometry `remove` keys or exact Shaded Region text."
+                        ),
+                    }
+                )
 
         elif name == "edit_geometry":
             current_topology = cl.user_session.get("geometry_topology")
@@ -860,26 +863,29 @@ async def run_responses_with_tool_loop(
                 merged_topology = apply_topology_edit(current_topology, add_lines, remove_keys)
                 print(merged_topology)
 
-                png_bytes = generate_geometry(merged_topology, dpi=dpi, pretty=pretty)
+                try:
+                    png_bytes = generate_geometry(merged_topology, dpi=dpi, pretty=pretty)
+                except ValueError as e:
+                    output_str = json.dumps({"status": "error", "error": str(e)})
+                else:
+                    await send_image_to_canvas(png_bytes)
+                    cl.user_session.set("geometry_topology", merged_topology)
 
-                await send_image_to_canvas(png_bytes)
-                cl.user_session.set("geometry_topology", merged_topology)
-
-                output_str = json.dumps(
-                    {
-                        "status": "ok",
-                        "artifact_type": "geometry_diagram",
-                        "display_target": "interactive_canvas",
-                        "current_topology": merged_topology,
-                        "note": (
-                            "Geometry diagram updated. Continue with exactly one tutoring step "
-                            "that references this diagram. current_topology is the authoritative "
-                            "current state of every line now in the Working Diagram -- use it "
-                            "(not memory of earlier turns) as the source of truth for any future "
-                            "edit_geometry `remove` keys or exact Shaded Region text."
-                        ),
-                    }
-                )
+                    output_str = json.dumps(
+                        {
+                            "status": "ok",
+                            "artifact_type": "geometry_diagram",
+                            "display_target": "interactive_canvas",
+                            "current_topology": merged_topology,
+                            "note": (
+                                "Geometry diagram updated. Continue with exactly one tutoring step "
+                                "that references this diagram. current_topology is the authoritative "
+                                "current state of every line now in the Working Diagram -- use it "
+                                "(not memory of earlier turns) as the source of truth for any future "
+                                "edit_geometry `remove` keys or exact Shaded Region text."
+                            ),
+                        }
+                    )
 
         elif name == "clear_canvas":
             await clear_canvas()

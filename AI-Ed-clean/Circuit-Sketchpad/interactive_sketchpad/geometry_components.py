@@ -130,7 +130,15 @@ def generate(topology: str, *, dpi: int = 300, pretty: bool = True) -> bytes:
                 adjustedVertexCoordinates.update({vertexName : vertex})
                 coordinate = TikZCoordinate(vertex[0], vertex[1])
                 vertexCoordinates.update({vertexName : coordinate})
-                #If the label_position is None then the point should not be labeled and the node is unnecessary
+                # The point itself is always drawn, even if unlabeled -- only the
+                # letter is conditional on label_position (None means no letter,
+                # not "don't draw this point").
+                pic.append(
+                    TikZDraw(
+                        [coordinate, "circle"],
+                        options = TikZOptions(fill = "black", radius = 0.04, )
+                    )
+                )
                 if (point.label_position is not None):
                     node = TikZNode(
                         handle = vertexName,
@@ -139,12 +147,6 @@ def generate(topology: str, *, dpi: int = 300, pretty: bool = True) -> bytes:
                         options = TikZOptions(point.label_position, "font=\\Large")
                     )
                     pic.append(node)
-                    pic.append(
-                        TikZDraw(
-                            [coordinate, "circle"],
-                            options = TikZOptions(fill = "black", radius = 0.04, )
-                        )
-                    )
 
         if edges is not None:
             for edge in edges:
@@ -198,9 +200,11 @@ def generate(topology: str, *, dpi: int = 300, pretty: bool = True) -> bytes:
                 if length1 == 0 or length2 == 0:
                     continue
 
-                #Attempt to make the angle marking proportional to edge length while still bounded to [0.15, 0.45]
-                marker_size = min(length1, length2) * 0.10
-                marker_size = max(0.15, min(marker_size, 0.45))
+                # Fixed size (not proportional to the local edge lengths) so every angle
+                # marking in the diagram is the same size, regardless of how short or long
+                # the two edges at that particular vertex happen to be. adjustedVertexCoordinates
+                # is already normalized by scale_factor, so this also stays consistent across diagrams.
+                marker_size = 0.45
 
                 #Right angle marker
                 if angle_value == 90:

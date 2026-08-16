@@ -144,10 +144,21 @@ def parse_angles_from_topology(topology: str, topologyDict: dict) -> list:
         if isinstance(a.measure, float):
             # A numeric measure should match the actual clockwise sweep between
             # the given points. If it instead matches the reflex complement,
-            # the endpoints were given in the wrong order -- swap them.
+            # the endpoints were given in the wrong order -- swap them. If it
+            # matches neither, the coordinates themselves don't form the
+            # stated angle -- that's a genuine computation error, not just an
+            # ordering mistake, so surface it instead of rendering it silently.
             start_deg, end_deg = a.calculate_angles(vertices)
-            if math.isclose(start_deg - end_deg, 360 - a.measure, abs_tol=2):
+            swept = start_deg - end_deg
+            if math.isclose(swept, 360 - a.measure, abs_tol=2):
                 a.counterclockwise_point, a.clockwise_point = a.clockwise_point, a.counterclockwise_point
+            elif not math.isclose(swept, a.measure, abs_tol=2):
+                raise ValueError(
+                    f"Angle {angle_name}={a.measure} is inconsistent with the given "
+                    f"coordinates: the actual angle between the points is {swept:.1f} "
+                    f"degrees, not {a.measure} or its reflex complement. Recompute the "
+                    f"coordinates so the angle is actually {a.measure} degrees."
+                )
         angles.append(a)
 
     topologyDict.update({"angles" : angles})

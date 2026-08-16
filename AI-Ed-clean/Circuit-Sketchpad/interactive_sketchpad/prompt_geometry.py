@@ -196,7 +196,7 @@ These constraints apply to every diagram and every tutoring statement:
 - Always use single capital letters and do not repeat capital letters between points.
 - Use the problem's original labels if possible and rename as necessary to use single capital letters.
 - Add Helper Points only when needed for rendering (arcs, intersections, shaded boundaries), and only if actually used.
-- Select label positions in order to avoid overlap: `above`, `below`, `left`, `right`, `above left`, etc.
+- Select label positions in order to avoid overlap with other labels, edges, and especially angle markers/degree labels at the same vertex: `above`, `below`, `left`, `right`, `above left`, etc.
 - Include a label position for every labeled point; omit it only for unlabeled points.
 
 ## COORDINATES
