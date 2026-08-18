@@ -156,12 +156,28 @@ def generate(topology: str, *, dpi: int = 300, pretty: bool = True) -> bytes:
                 point2 = vertexCoordinates.get(edge[1])
                 if (point2 is None):
                     continue
-                pic.append(
-                    TikZDraw(
-                        [point1, "--", point2],
-                        options = TikZOptions("line width = 1pt")
+                label = edge[2] if len(edge) > 2 else None
+                if label:
+                    #No default position -- an edge label with no stated position is
+                    #placed directly on the path (TikZ's default), since the model is
+                    #expected to always give one (see EDGES in the prompt).
+                    position = edge[3] if len(edge) > 3 and edge[3] else None
+                    node_options = f"midway, {position}, font=\\Large" if position else "midway, font=\\Large"
+                    c1 = adjustedVertexCoordinates[edge[0]]
+                    c2 = adjustedVertexCoordinates[edge[1]]
+                    pic.append(
+                        TikZUserPath(
+                            f"\\draw[line width = 1pt] ({c1[0]}, {c1[1]}) -- ({c2[0]}, {c2[1]}) "
+                            f"node[{node_options}] {{${label}$}};"
+                        )
                     )
-                )
+                else:
+                    pic.append(
+                        TikZDraw(
+                            [point1, "--", point2],
+                            options = TikZOptions("line width = 1pt")
+                        )
+                    )
 
         if circles is not None:
             for circle in circles:

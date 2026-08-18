@@ -80,6 +80,52 @@ def evaluate_expression(expression: str) -> float:
     return float(eval(expression, {"__builtins__": {}}, TEXT_TO_PYTHON))
 
 
+import sympy
+from sympy.parsing.sympy_parser import (
+    parse_expr, standard_transformations, implicit_multiplication_application, convert_xor,
+)
+
+_LABEL_TRANSFORMATIONS = standard_transformations + (implicit_multiplication_application, convert_xor)
+_LABEL_LOCALS = {"pi": sympy.pi, "e": sympy.E}
+
+def _split_top_level_fraction(text: str):
+    """Splits on the first '/' outside any parens, e.g. "(x+1)/2" -> ("(x+1)", "2")."""
+    depth = 0
+    for i, ch in enumerate(text):
+        if ch == "(":
+            depth += 1
+        elif ch == ")":
+            depth -= 1
+        elif ch == "/" and depth == 0:
+            return text[:i], text[i + 1:]
+    return None
+
+
+def _parse(text: str):
+    return parse_expr(text, transformations=_LABEL_TRANSFORMATIONS, local_dict=_LABEL_LOCALS)
+
+
+def label_to_latex(raw: str) -> str:
+    """
+    Converts a plain-text edge label expression into LaTeX math, e.g.
+    "25/2" -> \\frac{25}{2}, "4*sqrt(3)" -> 4\\sqrt{3}, "x^2" -> x^{2}.
+    Uses the same Python-style expression syntax as the rest of the topology
+    (sqrt(3), not sqrt3) for consistency.
+    """
+    try:
+        # Fractions are split and rendered as \frac{num}{den} directly rather
+        # than parsed as a division by sympy, since sympy otherwise either
+        # distributes it (e.g. (x+1)/2 -> x/2 + 1/2) or, without auto-simplify,
+        # leaves a redundant "1 * ..." factor on plain numeric fractions.
+        split = _split_top_level_fraction(raw)
+        if split:
+            numerator, denominator = split
+            return f"\\frac{{{sympy.latex(_parse(numerator))}}}{{{sympy.latex(_parse(denominator))}}}"
+        return sympy.latex(_parse(raw))
+    except Exception as e:
+        raise ValueError(f"Edge label '{raw}' is not a valid expression: {e}")
+
+
 _VERTEX_KEY_RE = re.compile(r"^\s*Vertex\s+([A-Z])")
 _EDGE_KEY_RE = re.compile(r"^\s*Edge\s+([A-Z])\s*-\s*([A-Z])")
 _ANGLE_KEY_RE = re.compile(r"^\s*Angle\s+([A-Z]{3})")
@@ -100,7 +146,10 @@ def topology_line_key(line: str) -> str:
     if m := _VERTEX_KEY_RE.match(line):
         return f"Vertex {m.group(1)}"
     if m := _EDGE_KEY_RE.match(line):
-        return f"Edge {m.group(1)}-{m.group(2)}"
+        # Unlike Angle/Arc, an edge has no direction -- A-B and B-A are the
+        # same segment, so they must resolve to the same key.
+        a, b = sorted((m.group(1), m.group(2)))
+        return f"Edge {a}-{b}"
     if m := _ANGLE_KEY_RE.match(line):
         return f"Angle {m.group(1)}"
     if m := _ARC_KEY_RE.match(line):
@@ -143,50 +192,3 @@ def apply_topology_edit(current_topology: str, add_lines, remove_keys) -> str:
         by_key[key] = line.strip()
 
     return "\n".join(by_key[k] for k in ordered_keys)
-
-
-def reconcile_full_regeneration(old_topology: str, new_topology: str) -> str:
-    """
-    Guards against drift when `generate_geometry` (full topology) is called
-    again after a working diagram already exists. Re-deriving every
-    coordinate from scratch is a common source of a previously-placed point
-    silently shifting, or the whole diagram ending up flipped or rotated,
-    even when nothing was actually supposed to change. So: for any line
-    whose key (see topology_line_key) already existed, the OLD line wins --
-    the freshly generated version of it is discarded. Only genuinely new
-    keys from `new_topology` are taken. Lines from `old_topology` that the
-    regeneration dropped (e.g. the model forgot to retype them) are kept
-    rather than silently lost.
-
-    This makes `edit_geometry` the only way to intentionally move, change,
-    or remove an existing object -- a plain `generate_geometry` call can no
-    longer do that once a working diagram exists.
-    """
-    old_by_key = {}
-    old_order = []
-    for line in old_topology.splitlines():
-        if not line.strip():
-            continue
-        key = topology_line_key(line)
-        if key not in old_by_key:
-            old_order.append(key)
-        old_by_key[key] = line.strip()
-
-    merged_order = []
-    merged_by_key = {}
-    seen_keys = set()
-    for line in new_topology.splitlines():
-        if not line.strip():
-            continue
-        key = topology_line_key(line)
-        seen_keys.add(key)
-        if key not in merged_by_key:
-            merged_order.append(key)
-        merged_by_key[key] = old_by_key.get(key, line.strip())
-
-    for key in old_order:
-        if key not in seen_keys:
-            merged_order.append(key)
-            merged_by_key[key] = old_by_key[key]
-
-    return "\n".join(merged_by_key[k] for k in merged_order)

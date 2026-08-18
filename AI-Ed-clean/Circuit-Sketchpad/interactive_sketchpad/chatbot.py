@@ -39,7 +39,7 @@ from openai import AsyncOpenAI, OpenAI
 from circuit_components_3 import generate
 # from render_latex import generate as generate_latex_bytes  # if you have a separate renderer
 from geometry_components import generate as generate_geometry
-from geometry_components_utilities import apply_topology_edit, reconcile_full_regeneration
+from geometry_components_utilities import apply_topology_edit
 
 import re
 
@@ -142,7 +142,9 @@ GEOMETRY_TOOL = {
     "name": "generate_geometry",
     "description": (
         "Generate a geometry diagram image (PNG) from a topology string describing information from the diagram"
-        "as a list of features. Features include Vertices, Edges, Angles, Circles, Arcs, and Shaded Regions."
+        "as a list of features. Features include Vertices, Edges, Angles, Circles, Arcs, and Shaded Regions. "
+        "Only valid when no Working Diagram exists yet -- once one exists, use edit_geometry instead; "
+        "calling this again without full_redraw: true will error."
     ),
     "parameters": {
         "type": "object",
@@ -152,9 +154,14 @@ GEOMETRY_TOOL = {
                 "type": "boolean",
                 "default": False,
                 "description": (
-                    "False (default): preserve existing points/objects, only add new ones. "
+                    "False (default): only valid when no Working Diagram exists yet -- calling "
+                    "this with an existing Working Diagram errors. "
                     "True: trust this topology completely and replace the working diagram "
-                    "with it as-is -- use only for a genuine, deliberate full do-over."
+                    "with it as-is, recomputing every coordinate from scratch -- use ONLY for a "
+                    "genuine, deliberate full do-over of a diagram that is actually wrong. Never "
+                    "set this just because a plain call was rejected -- adding a point, edge, "
+                    "label, angle, or construction to an already-correct diagram is always "
+                    "edit_geometry's job, not this."
                 ),
             },
             "dpi": {"type": "integer", "default": 300},
@@ -785,6 +792,7 @@ async def run_responses_with_tool_loop(
         args = call.get("arguments", {}) or {}
 
         if name == "generate_circuit":
+            print("calling generate_circuit")
             topology = args.get("topology", "")
             dpi = int(args.get("dpi", 300))
             pretty = bool(args.get("pretty", True))
@@ -800,48 +808,66 @@ async def run_responses_with_tool_loop(
             )
 
         elif name == "generate_geometry":
+            print("calling generate_geometry")
             description = args.get("topology", "")
             full_redraw = bool(args.get("full_redraw", False))
             dpi = int(args.get("dpi", 300))
             pretty = bool(args.get("pretty", True))
 
             current_topology = cl.user_session.get("geometry_topology")
+
             if current_topology and not full_redraw:
-                # Reconcile instead of trusting a freshly retyped topology
-                # verbatim: keep the stored value for anything that already
-                # existed (its coordinates are correct/rendered already),
-                # and only take genuinely new lines from this call. This is
-                # what actually stops drift/rotation/flip bugs, regardless
-                # of whether the model used edit_geometry or not.
-                description = reconcile_full_regeneration(current_topology, description)
-
-            print(description)
-
-            try:
-                png_bytes = generate_geometry(description, dpi=dpi, pretty=pretty,)
-            except ValueError as e:
-                output_str = json.dumps({"status": "error", "error": str(e)})
-            else:
-                await send_image_to_canvas(png_bytes)
-                cl.user_session.set("geometry_topology", description)
-
+                # A Working Diagram already exists and this isn't a deliberate full
+                # redraw -- reject instead of silently reconciling. Reconciling let
+                # generate_geometry "kind of work" for incremental changes, which is
+                # exactly what let the model keep using it instead of edit_geometry;
+                # rejecting forces every change after the first diagram through
+                # edit_geometry, which is the only tool that can actually apply them.
+                print("generate_geometry: rejected, Working Diagram already exists")
                 output_str = json.dumps(
                     {
-                        "status": "ok",
-                        "artifact_type": "geometry_diagram",
-                        "display_target": "interactive_canvas",
-                        "current_topology": description,
-                        "note": (
-                            "Geometry diagram rendered. Continue with exactly one tutoring step "
-                            "that references this diagram. current_topology is the authoritative "
-                            "current state of every line now in the Working Diagram -- use it "
-                            "(not memory of earlier turns) as the source of truth for any future "
-                            "edit_geometry `remove` keys or exact Shaded Region text."
+                        "status": "error",
+                        "error": (
+                            "A Working Diagram already exists. generate_geometry cannot be used "
+                            "to change it -- call edit_geometry instead with just the lines to "
+                            "add/remove. Do NOT retry with full_redraw: true as a workaround for "
+                            "this rejection -- that recomputes every coordinate from scratch and "
+                            "is exactly what causes drift/rescaling/relabeling between attempts. "
+                            "full_redraw is only for a genuinely wrong diagram that must be "
+                            "recomputed, never for adding a point, edge, label, angle, or "
+                            "construction to an otherwise-correct one."
                         ),
                     }
                 )
+            else:
+                print(f"topology (full_redraw={full_redraw}):", description)
+
+                try:
+                    png_bytes = generate_geometry(description, dpi=dpi, pretty=pretty,)
+                except ValueError as e:
+                    output_str = json.dumps({"status": "error", "error": str(e)})
+                else:
+                    await send_image_to_canvas(png_bytes)
+                    cl.user_session.set("geometry_topology", description)
+
+                    output_str = json.dumps(
+                        {
+                            "status": "ok",
+                            "artifact_type": "geometry_diagram",
+                            "display_target": "interactive_canvas",
+                            "current_topology": description,
+                            "note": (
+                                "Geometry diagram rendered. Continue with exactly one tutoring step "
+                                "that references this diagram. current_topology is the authoritative "
+                                "current state of every line now in the Working Diagram -- use it "
+                                "(not memory of earlier turns) as the source of truth for any future "
+                                "edit_geometry `remove` keys or exact Shaded Region text."
+                            ),
+                        }
+                    )
 
         elif name == "edit_geometry":
+            print("calling edit_geometry")
             current_topology = cl.user_session.get("geometry_topology")
 
             if not current_topology:
@@ -861,33 +887,48 @@ async def run_responses_with_tool_loop(
                 pretty = bool(args.get("pretty", True))
 
                 merged_topology = apply_topology_edit(current_topology, add_lines, remove_keys)
-                print(merged_topology)
 
-                try:
-                    png_bytes = generate_geometry(merged_topology, dpi=dpi, pretty=pretty)
-                except ValueError as e:
-                    output_str = json.dumps({"status": "error", "error": str(e)})
-                else:
-                    await send_image_to_canvas(png_bytes)
-                    cl.user_session.set("geometry_topology", merged_topology)
-
+                if merged_topology == current_topology:
+                    print("edit_geometry: no-op, topology unchanged -- skipping re-render")
                     output_str = json.dumps(
                         {
                             "status": "ok",
-                            "artifact_type": "geometry_diagram",
-                            "display_target": "interactive_canvas",
                             "current_topology": merged_topology,
                             "note": (
-                                "Geometry diagram updated. Continue with exactly one tutoring step "
-                                "that references this diagram. current_topology is the authoritative "
-                                "current state of every line now in the Working Diagram -- use it "
-                                "(not memory of earlier turns) as the source of truth for any future "
-                                "edit_geometry `remove` keys or exact Shaded Region text."
+                                "No changes -- add/remove resulted in a topology identical to the "
+                                "current Working Diagram, so nothing was re-rendered or re-sent."
                             ),
                         }
                     )
+                else:
+                    print(merged_topology)
+
+                    try:
+                        png_bytes = generate_geometry(merged_topology, dpi=dpi, pretty=pretty)
+                    except ValueError as e:
+                        output_str = json.dumps({"status": "error", "error": str(e)})
+                    else:
+                        await send_image_to_canvas(png_bytes)
+                        cl.user_session.set("geometry_topology", merged_topology)
+
+                        output_str = json.dumps(
+                            {
+                                "status": "ok",
+                                "artifact_type": "geometry_diagram",
+                                "display_target": "interactive_canvas",
+                                "current_topology": merged_topology,
+                                "note": (
+                                    "Geometry diagram updated. Continue with exactly one tutoring step "
+                                    "that references this diagram. current_topology is the authoritative "
+                                    "current state of every line now in the Working Diagram -- use it "
+                                    "(not memory of earlier turns) as the source of truth for any future "
+                                    "edit_geometry `remove` keys or exact Shaded Region text."
+                                ),
+                            }
+                        )
 
         elif name == "clear_canvas":
+            print("calling clear_canvas")
             await clear_canvas()
             cl.user_session.set("geometry_topology", None)
             output_str = json.dumps(
@@ -898,6 +939,7 @@ async def run_responses_with_tool_loop(
             )
 
         elif name == "generate_latex":
+            print("calling generate_latex")
             latex = args.get("latex", "")
             dpi = int(args.get("dpi", 300))
             snippet = bool(args.get("snippet", False))

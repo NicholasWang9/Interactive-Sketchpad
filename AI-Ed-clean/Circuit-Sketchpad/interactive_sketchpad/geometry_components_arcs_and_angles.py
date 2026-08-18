@@ -32,15 +32,14 @@ class arc:
         end_point = end_point.coordinates
         x_difference = np.array([start_point[0] - center[0], end_point[0] - center[0]])
         y_difference = np.array([start_point[1] - center[1], end_point[1] - center[1]])
-        radians = np.arctan(np.divide(y_difference, x_difference))
+        # arctan2 handles a vertical leg (x_difference == 0) correctly with no
+        # manual quadrant correction, unlike arctan(y/x) which divides by zero.
+        radians = np.arctan2(y_difference, x_difference)
         degrees = (radians * 180 / np.pi).tolist()
-        for i in range(2):
-            if (x_difference[i] < 0):
-                degrees[i] = degrees[i] + 180
         if (degrees[1] - degrees[0] > 0):
             degrees[1] = degrees[1] - 360
         return degrees
-    
+
 class angle:
     #Label of the point at the angle's center
     center: str
@@ -72,11 +71,8 @@ class angle:
         end_point = end_point.coordinates
         x_difference = np.array([start_point[0] - center[0], end_point[0] - center[0]])
         y_difference = np.array([start_point[1] - center[1], end_point[1] - center[1]])
-        radians = np.arctan(y_difference / x_difference)
+        radians = np.arctan2(y_difference, x_difference)
         degrees = (radians * 180 / np.pi).tolist()
-        for i in range(2):
-            if (x_difference[i] < 0):
-                degrees[i] = degrees[i] + 180
         if (degrees[1] - degrees[0] > 0):
             degrees[1] = degrees[1] - 360
         return degrees

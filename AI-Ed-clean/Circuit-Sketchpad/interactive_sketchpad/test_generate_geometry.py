@@ -6,18 +6,25 @@ from geometry_components import generate
 
 def main():
     topology = """
-    Vertex A:(0,0) left
-    Vertex B:(6,0) right
-    Vertex C:(3,3*sqrt(3)) above
-    Vertex D:(3,-3*sqrt(3)) below
-    Circle A Center A Radius 6
-    Circle B Center B Radius 6
-    Segment A-C
-    Segment B-C
-    Arc DAC
-    Arc DBC
-    Shade DAC CBD
-    Shade DBC CAD
+    Vertex A:(-1,1) above left
+    Vertex B:(1,1) above right
+    Vertex C:(-sqrt(2),0) below left
+    Vertex D:(sqrt(2),0) below right
+    Vertex O:(0,0) below
+    Vertex P:(0,1)
+
+    Edge A-B Label 2 above
+    Edge O-A Label sqrt(2) below left
+    Edge O-B Label sqrt(2) below right
+
+    Angle AOB=90
+
+    Circle O Center O Radius sqrt(2)
+
+    Arc APB
+    Arc AOB
+
+    Shaded Region APB BOA
     """
 
     # Call your in-memory generator
