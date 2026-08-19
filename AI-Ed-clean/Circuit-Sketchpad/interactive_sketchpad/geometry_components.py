@@ -47,6 +47,18 @@ from pylatex import (
     Command,
 )
 
+_SQRT_HALF = 0.70710678
+EDGE_LABEL_DIRECTIONS = {
+    "above": (0, 1),
+    "below": (0, -1),
+    "left": (-1, 0),
+    "right": (1, 0),
+    "above left": (-_SQRT_HALF, _SQRT_HALF),
+    "above right": (_SQRT_HALF, _SQRT_HALF),
+    "below left": (-_SQRT_HALF, -_SQRT_HALF),
+    "below right": (_SQRT_HALF, -_SQRT_HALF),
+}
+
 
 def generate(topology: str, *, dpi: int = 300, pretty: bool = True) -> bytes:
 
@@ -159,16 +171,45 @@ def generate(topology: str, *, dpi: int = 300, pretty: bool = True) -> bytes:
                 label = edge[2] if len(edge) > 2 else None
                 if label:
                     #No default position -- an edge label with no stated position is
-                    #placed directly on the path (TikZ's default), since the model is
-                    #expected to always give one (see EDGES in the prompt).
+                    #placed directly on the path, since the model is expected to always
+                    #give one (see EDGES in the prompt).
                     position = edge[3] if len(edge) > 3 and edge[3] else None
-                    node_options = f"midway, {position}, font=\\Large" if position else "midway, font=\\Large"
                     c1 = adjustedVertexCoordinates[edge[0]]
                     c2 = adjustedVertexCoordinates[edge[1]]
+                    midpoint = [(c1[0] + c2[0]) / 2, (c1[1] + c2[1]) / 2]
+
+                    #A radical's vinculum extends above the digits, so a sqrt label
+                    #needs more clearance than a plain number to avoid touching the
+                    #segment it's labeling.
+                    label_distance = 0.55 if "\\sqrt" in label else 0.40
+
+                    #Push the label further from the segment if another LABELED vertex
+                    #sits at (or very near) this edge's own midpoint (e.g. a marked
+                    #midpoint) -- otherwise the label lands right on top of that vertex's
+                    #letter and any angle markers there, no matter which side is picked.
+                    #An unlabeled vertex is just a small dot, not worth avoiding.
+                    for other_name, other_coordinate in adjustedVertexCoordinates.items():
+                        if other_name in (edge[0], edge[1]):
+                            continue
+                        other_vertex = vertices.get(other_name)
+                        if other_vertex is None or other_vertex.label_position is None:
+                            continue
+                        if math.dist(other_coordinate, midpoint) < 0.3:
+                            label_distance = 0.9
+                            break
+
+                    direction = EDGE_LABEL_DIRECTIONS.get(position, (0, 0))
+                    label_x = midpoint[0] + label_distance * direction[0]
+                    label_y = midpoint[1] + label_distance * direction[1]
+
                     pic.append(
                         TikZUserPath(
-                            f"\\draw[line width = 1pt] ({c1[0]}, {c1[1]}) -- ({c2[0]}, {c2[1]}) "
-                            f"node[{node_options}] {{${label}$}};"
+                            f"\\draw[line width = 1pt] ({c1[0]}, {c1[1]}) -- ({c2[0]}, {c2[1]});"
+                        )
+                    )
+                    pic.append(
+                        TikZUserPath(
+                            f"\\node[font=\\Large] at ({label_x}, {label_y}) {{${label}$}};"
                         )
                     )
                 else:
