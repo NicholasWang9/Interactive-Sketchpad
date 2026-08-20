@@ -248,10 +248,9 @@ config.ui.name = ASSISTANT_NAME
 # Canvas integration
 # ---------------------------------------------------------------------
 canvas_process = None
-# CANVAS_APP_URL = "http://0.0.0.0:8081/send_image_to_canvas"
-CANVAS_APP_URL = "http://127.0.0.1:8081/send_image_to_canvas"
 CANVAS_UI_URL = os.environ.get("CANVAS_UI_URL", "http://127.0.0.1:8081")
-CANVAS_CLEAR_URL = "http://127.0.0.1:8081/clear_canvas"
+CANVAS_APP_URL = f"{CANVAS_UI_URL}/send_image_to_canvas"
+CANVAS_CLEAR_URL = f"{CANVAS_UI_URL}/clear_canvas"
 PENDING_CANVAS_UPLOADS: Dict[str, List[str]] = {}
 
 
