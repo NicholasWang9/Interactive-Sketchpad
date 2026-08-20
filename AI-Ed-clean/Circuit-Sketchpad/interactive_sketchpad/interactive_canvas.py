@@ -17,11 +17,12 @@ from PIL import Image
 SESSION_ID = sys.argv[1] if len(sys.argv) > 1 else "default"
 
 # Where user drawings should be forwarded.
-# Matches the older tkinter version's behavior by default.
-CHATBOT_UPLOAD_URL = os.environ.get("CHATBOT_UPLOAD_URL", "http://127.0.0.1:8000/upload")
+# CHATBOT_UPLOAD_URL = os.environ.get("CHATBOT_UPLOAD_URL", "http://127.0.0.1:8000/upload")
+CHATBOT_UPLOAD_URL = os.environ.get("CHATBOT_UPLOAD_URL", "http://18.27.78.35:8001/upload")
 
 # Chat UI to embed alongside the canvas (the Chainlit app).
-CHAT_UI_URL = os.environ.get("CHAT_UI_URL", "http://127.0.0.1:8000/interactive_sketchpad")
+# CHAT_UI_URL = os.environ.get("CHAT_UI_URL", "http://127.0.0.1:8000/interactive_sketchpad")
+CHAT_UI_URL = os.environ.get("CHAT_UI_URL", "http://18.27.78.35:8001/interactive_sketchpad")
 
 app = FastAPI()
 
