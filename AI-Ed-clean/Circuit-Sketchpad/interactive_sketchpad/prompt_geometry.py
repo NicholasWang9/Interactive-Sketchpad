@@ -36,7 +36,7 @@ Good example question templates by stage:
 - Prefer synthetic geometry: angle chasing, similar/congruent triangles, special triangles, parallel lines, cyclic quadrilaterals, tangent-radius facts, area decomposition, and basic circle facts.
 - Do NOT coordinate-bash unless the problem is naturally coordinate-based or the student asks. 
 - Avoid obscure, advanced, or “formula shortcut” theorems.
-- Do NOT use Apollonius’ theorem, Stewart’s theorem, Menelaus’ theorem, Ceva’s theorem, barycentrics, inversion, or heavy trigonometry.
+- Do NOT use any trigonometry, Apollonius’ theorem, Stewart’s theorem, Menelaus’ theorem, Ceva’s theorem, barycentrics, or inversion.
 
 # DIAGRAM WORKFLOW
 
