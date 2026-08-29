@@ -141,49 +141,16 @@ GEOMETRY_TOOL = {
     "type": "function",
     "name": "generate_geometry",
     "description": (
-        "Generate a geometry diagram image (PNG) from a topology string describing information from the diagram"
-        "as a list of features. Features include Vertices, Edges, Angles, Circles, Arcs, and Shaded Regions. "
-        "Only valid when no Working Diagram exists yet -- once one exists, use edit_geometry instead; "
-        "calling this again without full_redraw: true will error."
-    ),
-    "parameters": {
-        "type": "object",
-        "properties": {
-            "topology": {"type": "string"},
-            "full_redraw": {
-                "type": "boolean",
-                "default": False,
-                "description": (
-                    "False (default): only valid when no Working Diagram exists yet -- calling "
-                    "this with an existing Working Diagram errors. "
-                    "True: trust this topology completely and replace the working diagram "
-                    "with it as-is, recomputing every coordinate from scratch -- use ONLY for a "
-                    "genuine, deliberate full do-over of a diagram that is actually wrong. Never "
-                    "set this just because a plain call was rejected -- adding a point, edge, "
-                    "label, angle, or construction to an already-correct diagram is always "
-                    "edit_geometry's job, not this."
-                ),
-            },
-            "dpi": {"type": "integer", "default": 300},
-            "pretty": {"type": "boolean", "default": True},
-        },
-        "required": ["topology"],
-    },
-}
-
-GEOMETRY_EDIT_TOOL = {
-    "type": "function",
-    "name": "edit_geometry",
-    "description": (
-        "Incrementally edit the current working geometry topology instead of retyping it "
-        "from scratch -- use this for every geometry diagram update after the first one, "
-        "since it is much faster than regenerating the full topology. "
-        "`add` is a list of topology lines to add; if a line has the same key as an existing "
-        "line it replaces that line instead of duplicating it (e.g. re-adding 'Vertex A:(...)' "
-        "after moving point A, or 'Angle ABC=...' after changing its measure). "
+        "Create or update the geometry diagram (PNG) on the Working Diagram. "
+        "`add` is a list of topology lines to add; if a line has the same key as an "
+        "existing line it replaces that line instead of duplicating it (e.g. re-adding "
+        "'Vertex A:(...)' after moving point A, or 'Angle ABC=...' after changing its "
+        "measure). For the very first diagram of a problem, `add` is simply every line "
+        "of the initial topology and `remove` is empty. "
         "`remove` is a list of keys of lines to delete: 'Vertex A', 'Edge A-B', 'Angle ABC', "
-        "'Arc AOB', 'Circle O', or, for Shaded Region lines (which have no short key), the exact line text. "
-        "Only include the lines that are actually changing -- never repeat unchanged lines."
+        "'Arc AOB', 'Circle O', or, for Shaded Region lines (which have no short key), the "
+        "exact line text. Only include lines that are actually changing -- never repeat "
+        "unchanged lines, and never resend the full topology after the first diagram."
     ),
     "parameters": {
         "type": "object",
@@ -197,6 +164,21 @@ GEOMETRY_EDIT_TOOL = {
                 "type": "array",
                 "items": {"type": "string"},
                 "description": "Keys (or, for Shade lines, exact text) of lines to delete, e.g. ['Angle ABC'].",
+            },
+            "full_redraw": {
+                "type": "boolean",
+                "default": False,
+                "description": (
+                    "False (default): `add`/`remove` are applied as an incremental edit to "
+                    "the existing Working Diagram, or, if none exists yet, `add` is treated "
+                    "as the complete initial topology. "
+                    "True: trust `add` completely as the entire topology and replace the "
+                    "Working Diagram with it as-is, recomputing every coordinate from scratch "
+                    "-- use ONLY for a genuine, deliberate full do-over of a diagram that is "
+                    "actually wrong. Never set this just to add a point, edge, label, angle, "
+                    "or construction to an already-correct diagram -- that's a normal "
+                    "incremental edit."
+                ),
             },
             "dpi": {"type": "integer", "default": 300},
             "pretty": {"type": "boolean", "default": True},
@@ -231,7 +213,7 @@ def get_profile_config():
         return {
             "name": "Geometry Tutor",
             "instructions": instructions_geometry,
-            "tools": [GEOMETRY_TOOL, GEOMETRY_EDIT_TOOL, CLEAR_CANVAS_TOOL]
+            "tools": [GEOMETRY_TOOL, CLEAR_CANVAS_TOOL]
         }
 
     return {
@@ -603,21 +585,6 @@ def strip_broken_image_markdown(text: str) -> str:
     # Only remove Markdown images: ![alt](url)
     return re.sub(r'!\[[^\]]*\]\([^)]+\)', '', text)
 
-async def _responses_create_streaming_ux_to_chainlit(
-    *,
-    chainlit_msg: cl.Message,
-    response_text: str,
-):
-    """
-    Chainlit streaming UX: stream tokens even if the API call was non-streaming.
-    This preserves the *UX* of streaming without depending on SDK stream APIs.
-    """
-    # Fast, no artificial delay; stream_token is fine for incremental UI updates.
-    for ch in response_text:
-        await chainlit_msg.stream_token(ch)
-    chainlit_msg.content = correct_latex(strip_broken_image_markdown(chainlit_msg.content))
-    await chainlit_msg.update()
-
 
 def _to_responses_input(conversation: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     """
@@ -761,6 +728,7 @@ async def run_responses_with_tool_loop(
     tools: List[Dict[str, Any]],
     model: str,
     instructions_text: str,
+    chainlit_msg: cl.Message,
 ) -> Tuple[Any, str]:
     """
     Responses tool loop with single-tool interleaving:
@@ -769,9 +737,28 @@ async def run_responses_with_tool_loop(
       - IMPORTANT: executes only ONE tool call per cycle so the model can do:
             diagram -> text -> diagram -> text
         instead of batching diagrams first.
+
+    Text is streamed live to `chainlit_msg` as it's generated, in whichever
+    cycle actually produces visible text (earlier cycles may be pure tool
+    calls with no text to stream). The placeholder content chainlit_msg was
+    created with (e.g. "Thinking...") is replaced by the first real token.
     """
+    first_token_seen = False
+
+    async def _create_streamed(**kwargs) -> Any:
+        nonlocal first_token_seen
+        if not HAS_ASYNC_RESPONSES:
+            # Fallback: no live token streaming, but the loop still works.
+            return await _responses_create(**kwargs)
+        async with async_openai_client.responses.stream(**kwargs) as stream:
+            async for event in stream:
+                if event.type == "response.output_text.delta" and event.delta:
+                    await chainlit_msg.stream_token(event.delta, is_sequence=not first_token_seen)
+                    first_token_seen = True
+            return await stream.get_final_response()
+
     t0 = time.time()
-    resp = await _responses_create(
+    resp = await _create_streamed(
         model=model,
         instructions=instructions_text,
         tools=tools,
@@ -819,33 +806,30 @@ async def run_responses_with_tool_loop(
 
         elif name == "generate_geometry":
             print("calling generate_geometry")
-            description = args.get("topology", "")
+            add_lines = args.get("add", []) or []
+            remove_keys = args.get("remove", []) or []
             full_redraw = bool(args.get("full_redraw", False))
             dpi = int(args.get("dpi", 300))
             pretty = bool(args.get("pretty", True))
 
             current_topology = cl.user_session.get("geometry_topology")
 
-            if current_topology and not full_redraw:
-                # A Working Diagram already exists and this isn't a deliberate full
-                # redraw -- reject instead of silently reconciling. Reconciling let
-                # generate_geometry "kind of work" for incremental changes, which is
-                # exactly what let the model keep using it instead of edit_geometry;
-                # rejecting forces every change after the first diagram through
-                # edit_geometry, which is the only tool that can actually apply them.
-                print("generate_geometry: rejected, Working Diagram already exists")
+            if full_redraw or not current_topology:
+                # No Working Diagram yet, or a deliberate full do-over: `add` is the
+                # complete topology.
+                description = "\n".join(add_lines)
+            else:
+                description = apply_topology_edit(current_topology, add_lines, remove_keys)
+
+            if current_topology and not full_redraw and description == current_topology:
+                print("generate_geometry: no-op, topology unchanged -- skipping re-render")
                 output_str = json.dumps(
                     {
-                        "status": "error",
-                        "error": (
-                            "A Working Diagram already exists. generate_geometry cannot be used "
-                            "to change it -- call edit_geometry instead with just the lines to "
-                            "add/remove. Do NOT retry with full_redraw: true as a workaround for "
-                            "this rejection -- that recomputes every coordinate from scratch and "
-                            "is exactly what causes drift/rescaling/relabeling between attempts. "
-                            "full_redraw is only for a genuinely wrong diagram that must be "
-                            "recomputed, never for adding a point, edge, label, angle, or "
-                            "construction to an otherwise-correct one."
+                        "status": "ok",
+                        "current_topology": description,
+                        "note": (
+                            "No changes -- add/remove resulted in a topology identical to the "
+                            "current Working Diagram, so nothing was re-rendered or re-sent."
                         ),
                     }
                 )
@@ -853,7 +837,7 @@ async def run_responses_with_tool_loop(
                 print(f"topology (full_redraw={full_redraw}):", description)
 
                 try:
-                    png_bytes = generate_geometry(description, dpi=dpi, pretty=pretty,)
+                    png_bytes = generate_geometry(description, dpi=dpi, pretty=pretty)
                 except ValueError as e:
                     output_str = json.dumps({"status": "error", "error": str(e)})
                 else:
@@ -871,71 +855,10 @@ async def run_responses_with_tool_loop(
                                 "that references this diagram. current_topology is the authoritative "
                                 "current state of every line now in the Working Diagram -- use it "
                                 "(not memory of earlier turns) as the source of truth for any future "
-                                "edit_geometry `remove` keys or exact Shaded Region text."
+                                "`remove` keys or exact Shaded Region text."
                             ),
                         }
                     )
-
-        elif name == "edit_geometry":
-            print("calling edit_geometry")
-            current_topology = cl.user_session.get("geometry_topology")
-
-            if not current_topology:
-                output_str = json.dumps(
-                    {
-                        "status": "error",
-                        "error": (
-                            "No existing geometry topology to edit yet. "
-                            "Call generate_geometry first to create the initial diagram."
-                        ),
-                    }
-                )
-            else:
-                add_lines = args.get("add", []) or []
-                remove_keys = args.get("remove", []) or []
-                dpi = int(args.get("dpi", 300))
-                pretty = bool(args.get("pretty", True))
-
-                merged_topology = apply_topology_edit(current_topology, add_lines, remove_keys)
-
-                if merged_topology == current_topology:
-                    print("edit_geometry: no-op, topology unchanged -- skipping re-render")
-                    output_str = json.dumps(
-                        {
-                            "status": "ok",
-                            "current_topology": merged_topology,
-                            "note": (
-                                "No changes -- add/remove resulted in a topology identical to the "
-                                "current Working Diagram, so nothing was re-rendered or re-sent."
-                            ),
-                        }
-                    )
-                else:
-                    print(merged_topology)
-
-                    try:
-                        png_bytes = generate_geometry(merged_topology, dpi=dpi, pretty=pretty)
-                    except ValueError as e:
-                        output_str = json.dumps({"status": "error", "error": str(e)})
-                    else:
-                        await send_image_to_canvas(png_bytes)
-                        cl.user_session.set("geometry_topology", merged_topology)
-
-                        output_str = json.dumps(
-                            {
-                                "status": "ok",
-                                "artifact_type": "geometry_diagram",
-                                "display_target": "interactive_canvas",
-                                "current_topology": merged_topology,
-                                "note": (
-                                    "Geometry diagram updated. Continue with exactly one tutoring step "
-                                    "that references this diagram. current_topology is the authoritative "
-                                    "current state of every line now in the Working Diagram -- use it "
-                                    "(not memory of earlier turns) as the source of truth for any future "
-                                    "edit_geometry `remove` keys or exact Shaded Region text."
-                                ),
-                            }
-                        )
 
         elif name == "clear_canvas":
             print("calling clear_canvas")
@@ -992,7 +915,7 @@ async def run_responses_with_tool_loop(
             ]
 
         t2 = time.time()
-        resp = await _responses_create(
+        resp = await _create_streamed(
             model=model,
             instructions=instructions_text,
             tools=tools,
@@ -1048,7 +971,7 @@ async def start_chat():
     cl.user_session.set("geometry_topology", None)
 
     await cl.Message(
-        content=f"Hello, I'm your {cfg['name']}! What can I help you with?"
+        content=f"Hello, I'm Interactive Sketchpad, your {cfg['name']}! What can I help you with?"
     ).send()
 
     session_id = cl.user_session.get("id")
@@ -1147,7 +1070,7 @@ async def main(message: cl.Message):
     tools = cfg["tools"]
 
     # Run Responses with tool loop
-    chainlit_out = await cl.Message(author=ASSISTANT_NAME, content="").send()
+    chainlit_out = await cl.Message(author=ASSISTANT_NAME, content="Thinking...").send()
 
     try:
         _, final_text = await run_responses_with_tool_loop(
@@ -1155,14 +1078,18 @@ async def main(message: cl.Message):
             tools=tools,
             model=os.environ.get("OPENAI_MODEL", "gpt-5.6"),
             instructions_text=cfg["instructions"],
+            chainlit_msg=chainlit_out,
         )
     except Exception as e:
         await chainlit_out.stream_token(f"\n\n[ERROR] {e}")
         await chainlit_out.update()
         raise
 
-    # Stream final text to Chainlit (UX)
-    await _responses_create_streaming_ux_to_chainlit(chainlit_msg=chainlit_out, response_text=final_text)
+    # Text was already streamed live during the tool loop; this final pass
+    # just fixes up LaTeX delimiters and strips broken image markdown, which
+    # need the complete text and can't be safely applied token-by-token.
+    chainlit_out.content = correct_latex(strip_broken_image_markdown(final_text))
+    await chainlit_out.update()
 
     # Save assistant message to conversation
     conversation.append({"role": "assistant", "content": final_text})
