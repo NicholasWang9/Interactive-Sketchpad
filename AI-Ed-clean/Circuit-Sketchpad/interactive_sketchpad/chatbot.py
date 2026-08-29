@@ -576,6 +576,15 @@ def _extract_tool_calls(resp: Any) -> List[Dict[str, Any]]:
     return calls
 
 
+def _print_usage(resp: Any) -> None:
+    usage = _as_dict(resp).get("usage") or {}
+    cached = (usage.get("input_tokens_details") or {}).get("cached_tokens")
+    print(
+        f"USAGE: input={usage.get('input_tokens')} "
+        f"cached={cached} output={usage.get('output_tokens')}"
+    )
+
+
 async def _responses_create(**kwargs) -> Any:
     """
     Async wrapper around Responses create.
@@ -770,6 +779,7 @@ async def run_responses_with_tool_loop(
         parallel_tool_calls=False,  # avoid multi-tool batching
     )
     print("RESPONSES CREATE:", time.time() - t0)
+    _print_usage(resp)
     t1 = time.time()
     await handle_response_artifacts(resp)
     print("ARTIFACT HANDLING:", time.time() - t1)
@@ -981,6 +991,7 @@ async def run_responses_with_tool_loop(
                 }
             ]
 
+        t2 = time.time()
         resp = await _responses_create(
             model=model,
             instructions=instructions_text,
@@ -989,6 +1000,8 @@ async def run_responses_with_tool_loop(
             input=tool_outputs,
             parallel_tool_calls=False,
         )
+        print("RESPONSES CREATE (continuation):", time.time() - t2)
+        _print_usage(resp)
         await handle_response_artifacts(resp)
 
 

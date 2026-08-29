@@ -300,15 +300,17 @@ def home(session: str = Query(default=SESSION_ID)):
         if (t) setTimeout(() => {{ if (statusEl.textContent === t) statusEl.textContent = ""; }}, ms);
       }}
 
-      function resizeDrawingCanvas() {{
+      function resizeDrawingCanvas(preserveDrawing = true) {{
         const rect = img.getBoundingClientRect();
         if (!rect.width || !rect.height) return;
 
-        const snapshot = canvas.toDataURL("image/png");
+        const snapshot = preserveDrawing ? canvas.toDataURL("image/png") : null;
         canvas.width = Math.round(rect.width);
         canvas.height = Math.round(rect.height);
         canvas.style.width = `${{Math.round(rect.width)}}px`;
         canvas.style.height = `${{Math.round(rect.height)}}px`;
+
+        if (!snapshot) return;
 
         const restore = new Image();
         restore.onload = () => {{
@@ -424,7 +426,7 @@ def home(session: str = Query(default=SESSION_ID)):
         await new Promise((resolve) => {{
           const nextSrc = `/image.png?session=${{encodeURIComponent(sessionId)}}&ts=${{Date.now()}}`;
           img.onload = () => {{
-            resizeDrawingCanvas();
+            resizeDrawingCanvas(!clearOverlay);
             if (clearOverlay) {{
               ctx.clearRect(0, 0, canvas.width, canvas.height);
               strokeSnapshots = [];
@@ -543,8 +545,7 @@ def home(session: str = Query(default=SESSION_ID)):
       canvas.addEventListener("pointerup", endStroke);
       canvas.addEventListener("pointerleave", endStroke);
       canvas.addEventListener("pointercancel", endStroke);
-      img.addEventListener("load", resizeDrawingCanvas);
-      window.addEventListener("resize", resizeDrawingCanvas);
+      window.addEventListener("resize", () => resizeDrawingCanvas());
 
       async function checkLatestSession() {{
         try {{
