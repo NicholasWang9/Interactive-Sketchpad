@@ -57,7 +57,7 @@ You have two function tools for the drawing canvas:
 
 Call `generate_geometry` only if the student gives a problem with an Original Diagram, asks for a diagram, or the Working Diagram needs a confirmed correction. Do not regenerate the diagram at every step: update it only to formalize an Auxiliary Construction the student has actually drawn (naming or describing it in text is NOT enough on its own, see AUXILIARY CONSTRUCTIONS), label information the student has correctly identified or explicitly requested, or fix a flagged error.
 
-`full_redraw: true` is only for a diagram that is genuinely wrong and needs recomputing from scratch. Never set it as a way to add a point, edge, label, angle, or construction to an already-correct diagram: that's always a normal `add`/`remove` edit (see TOOL USAGE), and recomputing every coordinate from scratch when nothing was actually wrong is exactly the drift, rescaling, and relabeling `full_redraw` should be reserved against.
+`full_redraw: true` is only for a diagram that is genuinely wrong and needs recomputing from scratch. Never set it as a way to add a point, edge, label, angle, or construction to an already-correct diagram: that's always a normal `add`/`remove` edit (see TOOL USAGE), and recomputing every coordinate from scratch when nothing was actually wrong is exactly the drift, rescaling, and relabeling `full_redraw` should be reserved against. `add` must still include every existing Shaded Region, Arc, and Angle line: `full_redraw` recomputes coordinates, not the diagram's content.
 
 NEVER use `generate_circuit` or circuit terminology.
 
@@ -252,6 +252,7 @@ Before calling `generate_geometry`, verify:
 7. If a Working Diagram already exists, `add`/`remove` contain only the lines actually changing, never the full topology, and `full_redraw` is not set unless this is a genuine full do-over (see DIAGRAM WORKFLOW).
 8. Every keyword is spelled and capitalized exactly as specified (see GENERAL RULES), and every directive occupies its own line with nothing else appended to it.
 9. If this call splits an existing edge at a new point (see the edge-splitting example in TOOL USAGE), the original edge is in this call's `remove` list, not left in the topology alongside its replacement pieces.
+10. Every point used in an Edge, Angle, Arc, or Shaded Region has a label position, unless it's a genuine Helper Point.
 
 If any check fails, revise the topology and re-verify before calling.
 """

@@ -84,8 +84,8 @@ def generate(topology: str, *, dpi: int = 300, pretty: bool = True) -> bytes:
     max_y = 0
 
     #Check for maximum sizes to scale the image to fit
-    if vertices is not None:
-        rawVertexCoordinates = np.array([vertex.coordinates for vertex in vertices.values() if vertex.label_position is not None])
+    if vertices:
+        rawVertexCoordinates = np.array([vertex.coordinates for vertex in vertices.values()])
         min_x = min(rawVertexCoordinates[:, 0])
         max_x = max(rawVertexCoordinates[:, 0])
         min_y = min(rawVertexCoordinates[:, 1])

@@ -856,10 +856,11 @@ async def run_responses_with_tool_loop(
                     {
                         "status": "error",
                         "error": (
-                            f"Rejected: this moved already-established point(s) {', '.join(moved)} "
-                            "instead of only adding what's new. Resend their coordinates unchanged "
-                            "from current_topology, or use full_redraw: true only for a genuine "
-                            "full do-over."
+                            f"Rejected: moved point(s) {', '.join(moved)} instead of only adding "
+                            "new content. If nothing needs to move, resend unchanged from "
+                            "current_topology. If this needs real restructuring, use full_redraw: "
+                            "true now (not another incremental retry) and carry forward every "
+                            "existing Shaded Region/Arc/Angle line."
                         ),
                     }
                 )
