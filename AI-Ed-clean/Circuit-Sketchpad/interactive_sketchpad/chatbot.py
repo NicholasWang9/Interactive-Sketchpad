@@ -15,6 +15,7 @@ so it works even when AsyncOpenAI().responses is missing.
 """
 import asyncio
 import json
+import math
 import os
 import subprocess
 from io import BytesIO
@@ -40,6 +41,7 @@ from circuit_components_3 import generate
 # from render_latex import generate as generate_latex_bytes  # if you have a separate renderer
 from geometry_components import generate as generate_geometry
 from geometry_components_utilities import apply_topology_edit
+from geometry_components_vertices import parse_vertices_from_topology
 
 import re
 
@@ -558,6 +560,19 @@ def _extract_tool_calls(resp: Any) -> List[Dict[str, Any]]:
     return calls
 
 
+def _moved_vertices(old_topology: str, new_topology: str) -> list[str]:
+    old_vertices = parse_vertices_from_topology(old_topology, {})
+    new_vertices = parse_vertices_from_topology(new_topology, {})
+    moved = []
+    for name, old_point in old_vertices.items():
+        new_point = new_vertices.get(name)
+        if new_point is None:
+            continue
+        if math.dist(old_point.coordinates, new_point.coordinates) > 1e-6:
+            moved.append(name)
+    return sorted(moved)
+
+
 def _print_usage(resp: Any) -> None:
     usage = _as_dict(resp).get("usage") or {}
     cached = (usage.get("input_tokens_details") or {}).get("cached_tokens")
@@ -821,6 +836,8 @@ async def run_responses_with_tool_loop(
             else:
                 description = apply_topology_edit(current_topology, add_lines, remove_keys)
 
+            moved = _moved_vertices(current_topology, description) if (current_topology and not full_redraw) else []
+
             if current_topology and not full_redraw and description == current_topology:
                 print("generate_geometry: no-op, topology unchanged -- skipping re-render")
                 output_str = json.dumps(
@@ -833,8 +850,22 @@ async def run_responses_with_tool_loop(
                         ),
                     }
                 )
+            elif len(moved) >= 2:
+                print(f"generate_geometry: rejected, moved existing vertices {moved}")
+                output_str = json.dumps(
+                    {
+                        "status": "error",
+                        "error": (
+                            f"Rejected: this moved already-established point(s) {', '.join(moved)} "
+                            "instead of only adding what's new. Resend their coordinates unchanged "
+                            "from current_topology, or use full_redraw: true only for a genuine "
+                            "full do-over."
+                        ),
+                    }
+                )
             else:
-                print(f"topology (full_redraw={full_redraw}):", description)
+                print(f"topology (full_redraw={full_redraw}):")
+                print(description)
 
                 try:
                     png_bytes = generate_geometry(description, dpi=dpi, pretty=pretty)

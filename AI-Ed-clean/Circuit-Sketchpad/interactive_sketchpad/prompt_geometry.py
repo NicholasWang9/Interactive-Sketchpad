@@ -144,13 +144,13 @@ remove: ["Angle AOB"]
 Example: moving point A and updating the edge that touches it is automatic; you only resend the changed line:
 add: ["Vertex A:(-1,1.4) above left"]
 
-Example: a point turns out to lie on an existing edge, splitting it into two (e.g. E is discovered to be the midpoint of AC, and the student has confirmed AE=10 and EC=10, see TOPOLOGY ACCURACY for when a length may be labeled): replace the one edge with the two new ones, in the same call, this is a normal edit, never a reason for `full_redraw`, since no existing coordinates need to change. Never leave the original edge in the topology alongside its replacement pieces, even briefly, since the overlap is redundant:
+Example: a point splits an existing edge in two (e.g. E is the midpoint of AC, confirmed AE=10, EC=10): remove the old edge and add the two new ones in the same call, never `full_redraw`. Each new edge gets only its own confirmed length, never the original edge's whole length (not AC's 20):
 add: ["Edge A-E Label 10 above", "Edge E-C Label 10 above"]
 remove: ["Edge A-C"]
 
 Do NOT include unchanged lines in `add`. Do NOT resend the full topology once a Working Diagram exists.
 
-Every `generate_geometry` call returns a `current_topology` field with the exact, authoritative text of every line now in the Working Diagram. Before your next call, use that returned text, not your memory of earlier turns, to determine exact `remove` keys and exact `Shaded Region` line text: a `remove` that doesn't match the stored line exactly silently fails to delete it.
+Every `generate_geometry` call returns a `current_topology` field with the exact, authoritative text of every line now in the Working Diagram. Before your next call, use that returned text, not your memory of earlier turns, to determine exact `remove` keys and exact `Shaded Region` line text: a `remove` that doesn't match the stored line exactly silently fails to delete it. Re-adding a line for an unrelated reason: keep its existing `Label`, don't retype it bare.
 
 ## `clear_canvas`
 Call with no arguments. Wipes the canvas and its diagram history; the next `generate_geometry` call is then treated as a fresh first diagram (see Exception cases above).
