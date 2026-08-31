@@ -295,12 +295,8 @@ async def clear_canvas():
             print("Failed to clear canvas:", e)
 
 
-async def send_image_to_canvas(image_bytes: bytes):
-    """
-    1) Send original image to interactive canvas
-    2) Send cropped copy to chat
-    """
-    # Send original (uncropped) to canvas
+async def post_image_to_canvas(image_bytes: bytes) -> bool:
+    """Push the raw (uncropped) image to the live interactive canvas only."""
     t0 = time.time()
 
     # Without this, the canvas server has no way to know which session's
@@ -316,11 +312,14 @@ async def send_image_to_canvas(image_bytes: bytes):
 
     if response.status_code != 200:
         print("Failed to send image:", response.text)
-        return
+        return False
 
     print("Image successfully sent to interactive canvas")
+    return True
 
-    # Create cropped version ONLY for chat
+
+async def send_image_to_chat(image_bytes: bytes):
+    """Send a cropped copy of the image into the chat feed only."""
     t1 = time.time()
     cropped_bytes = autocrop_png(image_bytes)
     print("AUTOCROP:", time.time() - t1)
@@ -338,6 +337,15 @@ async def send_image_to_canvas(image_bytes: bytes):
         ],
     ).send()
     print("SEND TO CHAINLIT:", time.time() - t2)
+
+
+async def send_image_to_canvas(image_bytes: bytes):
+    """
+    1) Send original image to interactive canvas
+    2) Send cropped copy to chat
+    """
+    if await post_image_to_canvas(image_bytes):
+        await send_image_to_chat(image_bytes)
 
 
 # ---------------------------------------------------------------------
@@ -786,6 +794,19 @@ async def run_responses_with_tool_loop(
     await handle_response_artifacts(resp)
     print("ARTIFACT HANDLING:", time.time() - t1)
 
+    # Bytes of the latest successful generate_geometry render this turn, not
+    # yet echoed into the chat feed. The canvas itself already updates live
+    # on every call (it just overwrites), but the chat feed only ever gets
+    # the final one -- if the model self-corrects with a second call before
+    # producing text, the discarded draft is never echoed into chat.
+    pending_geometry_chat_image: bytes | None = None
+
+    async def _flush_pending_geometry_chat_image():
+        nonlocal pending_geometry_chat_image
+        if pending_geometry_chat_image is not None:
+            await send_image_to_chat(pending_geometry_chat_image)
+            pending_geometry_chat_image = None
+
     while True:
         tool_calls = _extract_tool_calls(resp)
 
@@ -793,9 +814,11 @@ async def run_responses_with_tool_loop(
         # continuing to drain future tool calls.
         text = _extract_text_from_response(resp)
         if text and text.strip():
+            await _flush_pending_geometry_chat_image()
             return resp, text
 
         if not tool_calls:
+            await _flush_pending_geometry_chat_image()
             return resp, text
 
         # Execute ONLY the first tool call, then immediately continue.
@@ -873,7 +896,8 @@ async def run_responses_with_tool_loop(
                 except ValueError as e:
                     output_str = json.dumps({"status": "error", "error": str(e)})
                 else:
-                    await send_image_to_canvas(png_bytes)
+                    await post_image_to_canvas(png_bytes)
+                    pending_geometry_chat_image = png_bytes
                     cl.user_session.set("geometry_topology", description)
 
                     output_str = json.dumps(

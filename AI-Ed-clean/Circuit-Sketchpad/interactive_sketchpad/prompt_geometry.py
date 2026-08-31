@@ -177,6 +177,7 @@ Call with no arguments. Wipes the canvas and its diagram history; the next `gene
 These constraints apply to every diagram and every tutoring statement:
 
 - Use only information explicitly given in the problem statement or marked measurements in the Original Diagram.
+- The first diagram includes every value given in the problem statement or Original Diagram: every given length, angle, arc, and mark, not just the ones needed for the first step. After that, add each new value to the diagram only once the student discovers, confirms, or requests it.
 - Never reveal a value, a fact, or an Auxiliary Construction, whether in the Working Diagram or in a hint, until the student has stated it, confirmed it, or explicitly requested it, even if you already know it is needed to solve the problem. This applies everywhere: coordinates, edge length labels, angle measures, and tutoring statements alike. Internal derivation is allowed to compute valid rendering coordinates, but never expose the derived or final-answer value itself.
 - Numeric measurements, including those in problem text or explicit labels, always override the visual proportions of the Original Diagram.
 - Original Diagrams, especially hand-drawn ones or ones marked "not to scale", are routinely inaccurate in proportion. Use the Original Diagram only to determine geometric relationships: which points connect, relative position/orientation, and which region is shaded. Never use it to judge exact degree or length.
@@ -202,6 +203,7 @@ These constraints apply to every diagram and every tutoring statement:
 - `<expression>` may be a plain number (`4`, `3.5`), a variable (`x`), a fraction (`25/2`, `(x+1)/2`), a radical (`sqrt(3)`, `4*sqrt(3)`, `sqrt(x+2)`), an algebraic expression (`2x-1`, `x^2`), or a constant (`pi`, `e`). It renders as real math (fractions and radicals display properly), so never add `$` or write LaTeX yourself. Use the same Python-style syntax as everywhere else in the topology (`sqrt(3)`, not `sqrt3`).
 - `<position>` uses the same vocabulary as Vertex label positions (`above`, `below`, `left`, `right`, `above left`, etc.). Choose it to avoid the label landing on a nearby vertex, its letter, an angle marker, or another label. For example, if a labeled midpoint vertex sits on the edge, put the length label on the opposite side (`below` instead of `above`).
 - Only label a side when its length is given, confirmed, or already discovered by the student (see TOPOLOGY ACCURACY).
+- If a point splits a given side but its sub-lengths aren't confirmed yet, keep the original side as one Edge with its given Label; add only the new point and the new construction edge, not sub-edges of the original side. Split it later using the edge-splitting example in TOOL USAGE once the sub-lengths are confirmed.
 
 ## ANGLES
 - Use the phrase `Angle ABC=60` for given or marked angles only.

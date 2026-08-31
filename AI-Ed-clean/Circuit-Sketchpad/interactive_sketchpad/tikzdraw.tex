@@ -13,29 +13,27 @@
 \begin{document}%
 \normalsize%
 \begin{tikzpicture}%
-\path[draw,fill=black,radius=0.04] (0.0,12.0) circle;%
-\node[above,font=\Large] (X) at (0.0,12.0) {X};%
-\path[draw,fill=black,radius=0.04] (-9.0,0.0) circle;%
-\node[left,font=\Large] (Y) at (-9.0,0.0) {Y};%
-\path[draw,fill=black,radius=0.04] (9.0,0.0) circle;%
-\node[right,font=\Large] (Z) at (9.0,0.0) {Z};%
-\path[draw,fill=black,radius=0.04] (-4.5,6.0) circle;%
-\node[above left,font=\Large] (A) at (-4.5,6.0) {A};%
-\path[draw,fill=black,radius=0.04] (4.5,6.0) circle;%
-\node[above right,font=\Large] (B) at (4.5,6.0) {B};%
+\path[draw,fill=black,radius=0.04] (4.0,5.333333333333333) circle;%
+\node[above left,font=\Large] (A) at (4.0,5.333333333333333) {A};%
+\path[draw,fill=black,radius=0.04] (14.0,5.333333333333333) circle;%
+\node[above right,font=\Large] (B) at (14.0,5.333333333333333) {B};%
+\path[draw,fill=black,radius=0.04] (18.0,0.0) circle;%
+\node[below right,font=\Large] (C) at (18.0,0.0) {C};%
 \path[draw,fill=black,radius=0.04] (0.0,0.0) circle;%
-\node[below,font=\Large] (C) at (0.0,0.0) {C};%
-\path[draw,fill=black,radius=0.04] (0.0,6.0) circle;%
-\path[line width = 1pt,draw] (0.0,12.0) -- (-4.5,6.0);%
-\path[line width = 1pt,draw] (-4.5,6.0) -- (-9.0,0.0);%
-\path[line width = 1pt,draw] (0.0,12.0) -- (4.5,6.0);%
-\path[line width = 1pt,draw] (4.5,6.0) -- (9.0,0.0);%
-\path[line width = 1pt,draw] (-9.0,0.0) -- (0.0,0.0);%
-\path[line width = 1pt,draw] (0.0,0.0) -- (9.0,0.0);%
-\path[line width = 1pt,draw] (0.0,12.0) -- (0.0,6.0);%
-\path[line width = 1pt,draw] (0.0,6.0) -- (0.0,0.0);%
-\path[line width = 1pt,draw] (-4.5,6.0) -- (0.0,6.0);%
-\path[line width = 1pt,draw] (0.0,6.0) -- (4.5,6.0);%
-\filldraw[thick, fill opacity = 0.1] (-9.0, 0.0) -- (-4.5, 6.0) -- (0.0, 6.0) -- (0.0, 0.0) -- (-9.0, 0.0);%
+\node[below left,font=\Large] (D) at (0.0,0.0) {D};%
+\path[draw,fill=black,radius=0.04] (4.0,0.0) circle;%
+\node[below,font=\Large] (X) at (4.0,0.0) {X};%
+\draw[line width = 1pt] (4.0, 5.333333333333333) -- (14.0, 5.333333333333333);%
+\node[font=\Large] at (9.0, 5.733333333333333) {$15$};%
+\draw[line width = 1pt] (14.0, 5.333333333333333) -- (18.0, 0.0);%
+\node[font=\Large] at (16.282842712, 2.9495093786666664) {$10$};%
+\draw[line width = 1pt] (18.0, 0.0) -- (0.0, 0.0);%
+\node[font=\Large] at (9.0, -0.4) {$27$};%
+\draw[line width = 1pt] (0.0, 0.0) -- (4.0, 5.333333333333333);%
+\node[font=\Large] at (1.717157288, 2.9495093786666664) {$10$};%
+\draw[line width = 1pt] (4.0, 5.333333333333333) -- (4.0, 0.0);%
+\node[font=\Large] at (4.4, 2.6666666666666665) {$8$};%
+\path[line width = 1pt,draw] (4.0,5.333333333333333) -- (18.0,0.0);%
+\path[line width = 0.8pt,draw] (3.64,0.0) -- (3.64,0.36000000000000004) -- (4.0,0.36000000000000004);%
 \end{tikzpicture}%
 \end{document}

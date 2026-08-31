@@ -183,6 +183,17 @@ def home(session: str = Query(default=SESSION_ID)):
       }}
       button {{ padding: 6px 10px; cursor: pointer; }}
       .tool-btn.active {{ background: #d62828; border-color: #d62828; }}
+      #sendDrawing {{
+        background: #2e7d32;
+        color: #fff;
+        border: none;
+        font-weight: 600;
+        padding: 8px 16px;
+        border-radius: 4px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+      }}
+      #sendDrawing:hover {{ background: #256428; }}
+      #sendDrawing:disabled {{ background: #9e9e9e; box-shadow: none; cursor: default; }}
       input[type="range"] {{ width: 320px; }}
       input[type="color"] {{ width: 42px; height: 36px; padding: 0; border: none; background: transparent; }}
       input[type="number"] {{ width: 70px; }}
