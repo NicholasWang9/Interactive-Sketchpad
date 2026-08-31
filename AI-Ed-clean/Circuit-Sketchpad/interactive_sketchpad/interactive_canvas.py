@@ -605,7 +605,10 @@ def home(session: str = Query(default=SESSION_ID)):
         wrap.appendChild(input);
         input.focus();
 
+        let committed = false;
         function commit() {{
+          if (committed) return;
+          committed = true;
           const value = input.value;
           if (value) {{
             saveStrokeSnapshot();
