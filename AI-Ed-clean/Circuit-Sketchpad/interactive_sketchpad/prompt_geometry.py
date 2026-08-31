@@ -160,6 +160,7 @@ Call with no arguments. Wipes the canvas and its diagram history; the next `gene
 - NEVER include unresolved variables in coordinates and radii. For example, no `Vertex A:(4,x)` or `Circle O Center O Radius r`.
 - Variables may only be used in angle labels and edge `Label` expressions (e.g. an angle marked `x`, or `Edge A-B Label x`). Don't reuse the same letter for both an angle and a length in one diagram: they can't be the same value.
 - The parser is strict and case-sensitive: a malformed line (wrong keyword capitalization, two directives combined on one line, an `Angle`/`Arc` name that isn't exactly three capital letters, or an expression with unbalanced parens or extra commas) is silently dropped or truncated, not flagged with an error. Match the formats below exactly.
+- `Angle XYZ` and `Arc XYZ` names must be three capital letters with nothing between them: never `Angle A B C`, `Angle A-B-C`, `Angle AB C`, `Arc P A Q`, `Arc P-A-Q`, or `Arc PA Q`.
 
 ## TOPOLOGY ACCURACY
 
