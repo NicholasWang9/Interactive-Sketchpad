@@ -85,7 +85,7 @@ def parse_arcs_from_topology(topology: str, topologyDict: dict) -> dict:
     #Dict containing all arcs of the graph
     arcs = {}
 
-    #Regex looking for a substring of the format "Arc [Counterclockwise endpoint][Center][Clockwise endpoint] Radius [radius]" with optional whitespace
+    #Regex looking for a substring of the format "Arc [Counterclockwise endpoint][Center][Clockwise endpoint]" with optional whitespace
     arcs_regex = re.compile(r"Arc\s*([A-Z])[\s-]*([A-Z])[\s-]*([A-Z])")
 
     vertices = topologyDict.get("vertices")
